@@ -7,7 +7,7 @@ import { Section } from "@/components/ui/Section";
 export const metadata: Metadata = {
   title: "Website Gallery",
   description:
-    "A visual gallery of website designs by QMATES — home pages, service pages, booking flows and product screens across Queensland industries.",
+    "A visual gallery of website designs by QMATES — home pages, quote flows, review pages and enquiry forms built for Queensland businesses.",
   alternates: { canonical: "/gallery" },
   openGraph: {
     title: "Website Gallery — QMATES",

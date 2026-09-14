@@ -34,7 +34,7 @@ meta description, and works when visited directly or refreshed.
 |---|---|
 | `/` | Home |
 | `/portfolio` | Portfolio index |
-| `/portfolio/[slug]` | Case study (6 prerendered) |
+| `/portfolio/[slug]` | Case study (5 prerendered) |
 | `/gallery` | Website gallery, filterable + lightbox |
 | `/testimonials` | Testimonials |
 | `/pricing` | Pricing, add-ons and FAQ |
@@ -56,21 +56,38 @@ touch a component to update the site's content.
 | File | Controls | Placeholders to replace |
 |---|---|---|
 | `src/data/site.ts` | Business name, tagline, email, phone, location, socials, nav | **Email, phone, domain, socials, ABN** — each marked `// TODO:` |
-| `src/data/projects.ts` | Every project and case study | All 6 projects are `isPlaceholder: true` |
+| `src/data/projects.ts` | Every project and case study | Gally Gutter needs a write-up; North Quay Kitchen is a concept piece |
 | `src/data/testimonials.ts` | Testimonials | All 6 slots are placeholders with no invented names |
 | `src/data/pricing.ts` | Packages, add-ons, FAQ | All prices are `$XXX`; set `pricesArePlaceholder = false` when real |
 | `src/data/services.ts` | Services, process steps, principles | Real copy — edit freely |
 
+### The portfolio
+
+| Project | Status | Link |
+|---|---|---|
+| Level Up Wall Repair | `live` | levelupwallrepair.com.au |
+| Sumner Smash Repairs | `demo` | Vercel demo |
+| QMATES | `live` | this site |
+| Gally Gutter | `demo` | Vercel demo — **write-up still needed** |
+| North Quay Kitchen | `sample` | concept piece, not a real client |
+
+`status` drives how the UI labels each entry, so nothing is ever
+misrepresented: `live` and `demo` get a teal badge and an outbound link,
+`sample` gets an amber "Sample project" badge.
+
 ### Adding a real project
 
 1. Copy any object in `src/data/projects.ts`.
-2. Set `isPlaceholder: false` — the amber "Sample project" badge disappears.
+2. Set `status` to `"live"` or `"demo"` and fill `liveUrl` + `liveLabel`.
 3. Only fill `outcomes` with results you can evidence. Leave it `null` and
    the Results section explains that no results are published, rather than
    inventing any.
 4. For real screenshots, drop images into `public/work/<slug>/` and list them
    in `screenshots`. While that array is empty the case study renders the
    built-in code-drawn preview instead, so nothing is ever a broken image.
+5. `preview: null` + `palette: null` means "no mockup yet" — the card and case
+   study say so plainly and link to the live site instead of inventing one.
+   That is how Gally Gutter is currently set up.
 
 ### Adding a real testimonial
 
@@ -146,10 +163,12 @@ Both are documented in the files that enforce them:
 
 ### Why the previews are drawn in code
 
-There are no real client screenshots yet. A code-drawn preview is honest (it
-is a design mockup, not a photograph of a real site), weighs nothing, stays
-sharp at any size, and can never 404. When real screenshots arrive they take
-over automatically — see "Adding a real project" above.
+There are no captured screenshots of the live sites in the repo yet. A
+code-drawn preview is honest — it is a design mockup built from each site's
+real palette, headline, navigation and calls to action, not a photograph
+passed off as one. It weighs nothing, stays sharp at any size, and can never
+404. When real screenshots arrive they take over automatically — see "Adding a
+real project" above.
 
 ---
 
@@ -183,13 +202,20 @@ sentence, which is the documented exception in WCAG 2.2 SC 2.5.8.
 
 ## Still needed from you
 
-1. **Real contact details** — email, phone, service area, socials, ABN
-   (`src/data/site.ts`).
-2. **The production domain** (`site.url`) so canonical URLs, Open Graph tags
+1. **The production domain** (`site.url`) so canonical URLs, Open Graph tags
    and the sitemap point somewhere real.
-3. **Real projects and screenshots** to replace the six sample builds.
+2. **Gally Gutter** — a screenshot and a few lines on the brief, so the case
+   study can be written and a preview drawn.
+3. **Real screenshots** for the other projects, if you want photographs of the
+   live sites instead of the code-drawn mockups.
 4. **Real testimonials**, in clients' own words.
 5. **Real pricing** to replace the `$XXX` placeholders.
 6. **An email provider** so the forms actually deliver.
-7. Optional: a logo file. The current mark is drawn in
+7. **Socials and ABN** in `src/data/site.ts`, if you want them in the footer.
+8. Optional: a logo file. The current mark is drawn in
    `src/components/ui/Icon.tsx` and matches `src/app/icon.svg`.
+
+> Contact details are set to **0472 747 757** and **sidsweb84@gmail.com**. The
+> address supplied was `sidsweb84@gmail.com.au`; there is no `gmail.com.au`
+> mail domain, so that was corrected to the near-certain intent. Change it in
+> `src/data/site.ts` if the original was deliberate.

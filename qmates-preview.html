@@ -480,6 +480,39 @@ svg { display: block; }
   color: var(--dim);
   white-space: nowrap;
 }
+.tag--real {
+  border-color: rgb(55 217 190 / .35);
+  background: rgb(55 217 190 / .1);
+  color: var(--reef);
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.noprev {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--surface);
+  padding: 40px 24px;
+  text-align: center;
+}
+.noprev__ico {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--dim);
+  transform: rotate(-45deg);
+}
+.noprev__name { font-family: var(--font-display); font-size: 15px; font-weight: 600; }
+.noprev__body { max-width: 22rem; font-size: 13px; color: var(--dim); }
 .tag--sample {
   border-color: rgb(233 201 155 / .35);
   background: rgb(233 201 155 / .1);
@@ -570,14 +603,17 @@ svg { display: block; }
   justify-content: space-between;
   gap: 2cqw;
   padding: 2.6cqw 4cqw;
+  overflow: hidden;
+  white-space: nowrap;
 }
-.prev__logo { display: flex; align-items: center; gap: 1.4cqw; }
+.prev__logo { display: flex; flex: none; align-items: center; gap: 1.4cqw; }
 .prev__dot { width: 2.2cqw; height: 2.2cqw; border-radius: .4cqw; background: var(--p-accent); }
 .prev__name { font-size: 2.1cqw; font-weight: 600; letter-spacing: -.02em; color: var(--p-ink); }
-.prev__menu { display: none; align-items: center; gap: 2.4cqw; }
+.prev__menu { display: none; min-width: 0; align-items: center; gap: 2.4cqw; overflow: hidden; }
 @container (min-width: 22rem) { .prev__menu { display: flex; } }
-.prev__menu span { font-size: 1.55cqw; color: var(--p-muted); }
+.prev__menu span { flex: none; font-size: 1.55cqw; color: var(--p-muted); }
 .prev__cta {
+  flex: none;
   border-radius: .6cqw;
   background: var(--p-accent);
   padding: 1cqw 2.2cqw;
@@ -590,8 +626,8 @@ svg { display: block; }
 .prev__h em { font-style: normal; color: var(--p-accent); }
 .prev__sub { font-size: 1.75cqw; line-height: 1.5; color: var(--p-muted); }
 .prev__btns { display: flex; flex-wrap: wrap; gap: 1.6cqw; }
-.prev__b1 { border-radius: .6cqw; background: var(--p-accent); padding: 1.4cqw 3cqw; font-size: 1.7cqw; font-weight: 600; color: var(--p-accent-ink); }
-.prev__b2 { border-radius: .6cqw; border: 1px solid color-mix(in srgb, var(--p-muted) 35%, transparent); padding: 1.4cqw 3cqw; font-size: 1.7cqw; color: var(--p-ink); }
+.prev__b1 { white-space: nowrap; border-radius: .6cqw; background: var(--p-accent); padding: 1.4cqw 3cqw; font-size: 1.7cqw; font-weight: 600; color: var(--p-accent-ink); }
+.prev__b2 { white-space: nowrap; border-radius: .6cqw; border: 1px solid color-mix(in srgb, var(--p-muted) 35%, transparent); padding: 1.4cqw 3cqw; font-size: 1.7cqw; color: var(--p-ink); }
 .prev__tiles { display: flex; flex-wrap: wrap; gap: 1.4cqw; }
 .prev__tiles span {
   border-radius: .5cqw;
@@ -1100,9 +1136,9 @@ select.ctrl { appearance: none; cursor: pointer; padding-right: 44px; }
    ========================================================================== */
 
 const SITE = {
-  email: "hello@qmates.com.au",
-  phone: "04XX XXX XXX",
-  phoneHref: "tel:+614XXXXXXXX",
+  email: "sidsweb84@gmail.com",
+  phone: "0472 747 757",
+  phoneHref: "tel:+61472747757",
   location: "Brisbane, Queensland",
   serviceArea: "Working with businesses across South East Queensland and regional QLD."
 };
@@ -1113,55 +1149,102 @@ const NAV = [
   ["About", "#/about"], ["Contact", "#/contact"]
 ];
 
+const STATUS_LABEL = { live: "Live site", demo: "Demo build", sample: "Sample project" };
+
+/* Source of truth for this data is src/data/projects.ts — keep the two in
+   step when projects are added or edited. */
 const PROJECTS = [
   {
-    slug: "coastline-solar", name: "Coastline Solar", industry: "Solar installation",
-    category: "Trades", year: "2025", location: "Sunshine Coast, QLD", pages: 11,
-    summary: "A quote-first website for a residential solar installer, built around one question: will this roof pay for itself?",
-    intro: "Coastline Solar is a sample project showing how QMATES approaches a trades business with a considered sales process and a high-value enquiry.",
-    services: ["Website Design", "Website Development", "Enquiry Flow", "Mobile Optimisation"],
-    challenge: "Solar buyers compare four or five installers before they call anyone. The old site listed panel brands and left the visitor to work out the rest, so most enquiries arrived cold and needed a long phone call before anything could be quoted.",
-    approach: "The entire site was rebuilt around the quote path. A short savings estimator sits in the hero, each system tier has its own page with plain-English inclusions, and every scroll depth has a way to start a quote without losing the reader's place.",
-    direction: "Warm dusk photography against a deep navy base, with a single amber accent reserved exclusively for actions. Long-form technical detail is set in a narrow measure so it stays readable on a phone in a driveway.",
+    slug: "level-up-wall-repair", name: "Level Up Wall Repair", industry: "Wall & ceiling repair",
+    category: "Trades", year: "2025", location: "Brisbane, QLD", pages: 6,
+    status: "live", liveLabel: "levelupwallrepair.com.au", liveUrl: "https://levelupwallrepair.com.au",
+    summary: "A quote-first site for a Brisbane wall and ceiling repairer, built so a photo of the damage is all it takes to start a job.",
+    intro: "Level Up Wall Repair fixes holes, cracks, water damage and cornice across Brisbane. The site had one job: convert someone standing in front of a damaged wall, phone in hand, into a booked repair.",
+    services: ["Website Design", "Website Development", "Quote Flow", "Reviews Integration", "Mobile Optimisation"],
+    challenge: "Small repair jobs live or die on speed and trust. Someone with a hole in their wall wants to know two things immediately — will this business take a job this small, and what will it cost. A generic trade site answers neither, so every enquiry turns into a long phone call before anything can be priced.",
+    approach: "The whole site is built around the quote. The hero answers the small-jobs question in the first line, a photo-upload quote form sits at the end of every path, and the 4.9-star Google rating is surfaced in the top bar so credibility arrives before the pitch does.",
+    direction: "Warm cream rather than the usual trade-site white, with a bronze accent reserved strictly for actions and a serif display face — the italic gold second line in the hero gives a repair business a considered, premium feel that its competitors do not have.",
     features: [
-      ["Roof-size savings estimator", "Three inputs, an indicative figure and a direct path into the quote form with the answers carried across."],
-      ["System tier pages", "Each tier gets a real page with inclusions, warranty terms and finance options rather than a comparison table nobody reads."],
-      ["Installer-side enquiry brief", "The form output is structured so the installer can price the job before the first call."],
-      ["Rebate explainer", "A plain-language page covering current incentives, written so it can be updated without a developer."]
+      ["Photo-upload quote form", "Drag and drop up to six images of the damage. The repairer can scope and price the job before picking up the phone, which is the whole difference between a lead and a quote."],
+      ["Filterable Google reviews", "All 70 reviews on the page, filterable by job type — wall repair, ceiling, cornice, water damage, patching — with the owner's replies shown alongside. Proof a visitor can search rather than scroll."],
+      ["Small-jobs positioning", "\u201cSmall Jobs Welcome\u201d runs through the hero, the trust chips and the contact page, because the most common reason someone does not call a trade is assuming they will be turned away."],
+      ["Preferred contact method", "Phone, email or text, chosen by the customer on the form. A small field that measurably raises reply rates for trades work."]
     ],
-    mobile: "Most enquiries arrive from a phone. The estimator collapses to a single-column stepper, the call button is thumb-reachable on every screen, and the quote form uses numeric and tel keyboards so nothing has to be typed twice.",
-    palette: { bg: "#0d1420", surface: "#141d2d", ink: "#f4f7fb", muted: "#8ea0bb", accent: "#f0a03c", accentInk: "#21150a" },
-    preview: { layout: "hero", nav: ["Home", "Systems", "Savings", "About", "Contact"], h: "Solar, priced", em: "for your roof.", sub: "A system specified for the roof you already have — not a package guessed over the phone.", cta: "Get a quote", cta2: "Estimate savings", tiles: ["6.6kW", "10kW", "13.3kW"] },
-    gallery: [["Home — hero and savings estimator", "hero"], ["System tier detail page", "split"], ["Rebate explainer", "editorial"]]
+    mobile: "Almost every enquiry starts on a phone, usually while standing at the damage. The call button sits in the top bar on every screen, the quote form uses tel and email keyboards, and the photo upload goes straight to the camera roll.",
+    palette: { bg: "#f8f5ef", surface: "#efeae0", ink: "#23262b", muted: "#6f747b", accent: "#a9762a", accentInk: "#ffffff" },
+    preview: { layout: "split", nav: ["Home", "Services", "Gallery", "Reviews", "About", "Contact"],
+      h: "Wall Damage?", em: "We'll Fix It.",
+      sub: "Specialists in small wall and ceiling repairs across Brisbane — holes, cracks, water damage and cornice.",
+      cta: "Get a Free Quote", cta2: "Call now", tiles: ["4.9/5 \u00b7 70 Reviews", "Small Jobs Welcome", "Brisbane Based"] },
+    gallery: [["Home — hero and trust signals", "split"], ["Reviews — 70 reviews, filterable by job type", "grid"], ["Contact — photo-upload quote form", "editorial"]]
   },
   {
-    slug: "driveway-mechanical", name: "Driveway Mechanical", industry: "Mobile mechanic",
-    category: "Trades", year: "2025", location: "Logan, QLD", pages: 8,
-    summary: "A booking-led site for a mobile mechanic, where the whole job is proving you'll actually turn up.",
-    intro: "Driveway Mechanical is a sample project demonstrating a service-area business whose conversion depends entirely on trust and availability.",
-    services: ["Website Design", "Website Development", "Booking Flow", "Local SEO Foundations"],
-    challenge: "A mobile mechanic has no workshop to visit and no shopfront to judge. Every visitor is silently asking whether this is a real business, whether it covers their suburb, and whether it can come out this week.",
-    approach: "Answer all three above the fold. The service area is stated by name, availability is visible, and the booking form asks for the vehicle and the problem rather than a generic message box.",
-    direction: "High-contrast charcoal with a cool electric accent, heavy condensed headings and a deliberately mechanical grid. Photography is tight and functional — hands and tools, not stock garages.",
+    slug: "sumner-smash-repairs", name: "Sumner Smash Repairs", industry: "Smash repairs & panel beating",
+    category: "Automotive", year: "2025", location: "Sumner, Brisbane QLD", pages: 6,
+    status: "demo", liveLabel: "View the demo", liveUrl: "https://sumnerdemo-egxldgbvm-sids-web.vercel.app/",
+    summary: "A dark, high-impact build for a Brisbane smash repairer, designed for someone who has just had a bad morning.",
+    intro: "Sumner Smash Repairs is a demo build for a panel and paint workshop in Sumner. Everyone arriving on this site has just had an accident — the design had to be calm and direct rather than salesy.",
+    services: ["Website Design", "Website Development", "Enquiry Flow", "Mobile Optimisation"],
+    challenge: "Smash repair is a distress purchase. The visitor is stressed, often dealing with an insurer, and comparing two or three workshops in a hurry. Most repairer sites lead with equipment lists and certifications, which answers none of what that person is actually anxious about.",
+    approach: "Lead with the outcome, not the process — \u201cWe'll get you back on the road\u201d — then answer the three real questions immediately: are you nearby, will you tell me the truth, and how do I start. The stats bar puts the rating, the review count and an explicit \u201c0% pressure sales\u201d promise directly under the hero.",
+    direction: "Near-black with a single high-voltage red, heavy condensed uppercase display type and a faint diagonal grid — automotive without resorting to chrome or carbon-fibre clichés. The red is spent only on actions and the one word that matters in each heading.",
     features: [
-      ["Suburb coverage checker", "A visitor types their suburb and gets a yes, a no, or a call-out surcharge, immediately."],
-      ["Vehicle-aware booking", "Make, model and symptom captured up front so the van arrives carrying the right parts."],
-      ["Service pages per job type", "Logbook servicing, brakes, batteries and pre-purchase inspections each get their own indexable page."],
-      ["Clear pricing bands", "Indicative ranges published for common jobs so the first phone call is not about money."]
+      ["Incident-led enquiry form", "\u201cTell us what happened\u201d rather than a contact form: name, phone, vehicle make and model, and a plain description of the damage — everything needed to come back with real advice."],
+      ["Workshop details up front", "Address, opening hours including Saturday-by-appointment, and a call button, all in one panel beside the form so nobody has to hunt for them."],
+      ["Honest-advice positioning", "\u201c0% pressure sales\u201d sits in the stats row beside the Google rating. For a distress purchase, the absence of a hard sell is the strongest thing you can promise."],
+      ["Our Work gallery", "Repair work shown as evidence rather than decoration, which is what a nervous customer is really scanning for."]
     ],
-    mobile: "Built phone-first. The coverage checker and the call button sit in the first screen, service pages collapse to accordions, and the booking form remembers entries if the page is backgrounded mid-typing.",
-    palette: { bg: "#0a0c0f", surface: "#13171c", ink: "#f1f4f7", muted: "#93a1ae", accent: "#5ad2ff", accentInk: "#04202b" },
-    preview: { layout: "split", nav: ["Home", "Services", "Areas", "Pricing", "Book"], h: "Wheels don't stop.", em: "Neither do we.", sub: "A mobile mechanic that comes to the car, wherever it happens to be sitting.", cta: "Book a service", cta2: "Check my suburb", tiles: ["Logbook", "Brakes", "Batteries"] },
-    gallery: [["Home — coverage and booking", "split"], ["Service detail — logbook servicing", "editorial"], ["Pricing bands", "grid"]]
+    mobile: "Built for someone standing beside a damaged car. The call button is reachable from any scroll position, the form uses tel and email keyboards, and the heavy display type stays legible in bright sun.",
+    palette: { bg: "#0b0b0d", surface: "#15161a", ink: "#ffffff", muted: "#9a9ba1", accent: "#e63329", accentInk: "#ffffff" },
+    preview: { layout: "hero", nav: ["Home", "About Us", "Our Work", "Services", "Reviews", "Contact"],
+      h: "Smashed? We'll get you", em: "back on the road.",
+      sub: "Professional smash repairs with honest advice, quality workmanship and service you can trust.",
+      cta: "Get a quote", cta2: "Call the team", tiles: ["4.8 Google Rating", "42+ Reviews", "0% Pressure Sales"] },
+    gallery: [["Home — hero and stats bar", "hero"], ["Contact — incident-led enquiry form", "editorial"], ["Our Work — repair gallery", "grid"]]
+  },
+  {
+    slug: "qmates", name: "QMATES", industry: "Web design studio",
+    category: "Web Design", year: "2026", location: "Brisbane, QLD", pages: 9,
+    status: "live", liveLabel: "You are on it", liveUrl: null,
+    summary: "This site. A studio portfolio where the website itself has to be the strongest thing in the portfolio.",
+    intro: "The site you are reading. A web designer's own site is the one piece of work every prospective client inspects properly, so it was built to the standard the portfolio claims rather than to a deadline.",
+    services: ["Website Design", "Website Development", "Quote Flow", "Accessibility", "SEO Foundations"],
+    challenge: "A portfolio site has a circular problem: it is simultaneously the argument and the evidence. Anything less than excellent undermines every claim made on it, and a template would end the conversation before the work is even seen.",
+    approach: "Nine real routes rather than one long scrolling page, every project reachable at its own URL, and a three-step quote flow that asks the questions needed to return a fixed figure instead of a list of follow-up questions.",
+    direction: "A near-black canvas with reef aqua and warm sand — coastal Queensland without the tourism clichés. Bricolage Grotesque for display, DM Sans for reading, and an italic serif spent on exactly one word per heading.",
+    features: [
+      ["Previews drawn in code", "Every project mockup on this site is rendered in markup and CSS from that project's own palette, sized in container-query units. Nothing to download, sharp at any size, and it cannot 404."],
+      ["Three-step quote flow", "Per-step validation, an error summary that takes keyboard focus, inline validation on blur, and honest loading and success states."],
+      ["Accessibility as a constraint", "Full keyboard operation, a visible focus ring throughout, one h1 per page with no skipped heading levels, and every animation disabled under prefers-reduced-motion."],
+      ["Verified, not assumed", "Checked with a headless browser across eleven viewport widths — status codes, console errors, heading order and horizontal overflow on every route."]
+    ],
+    mobile: "The phone layout is designed, not shrunk. The navigation becomes a full-screen panel with numbered rows, the portfolio grid stacks to a single readable column, and no page scrolls sideways at any width from 320px up.",
+    palette: { bg: "#06090a", surface: "#101618", ink: "#f3f6f5", muted: "#9daaab", accent: "#37d9be", accentInk: "#04211c" },
+    preview: { layout: "editorial", nav: ["Home", "Portfolio", "Gallery", "Pricing", "About", "Contact"],
+      h: "Queensland's online", em: "business partner.",
+      sub: "Websites that make Queensland businesses impossible to ignore.",
+      cta: "Get a Quote", cta2: "View my work", tiles: ["Hand-coded", "Mobile-first", "Fixed scope"] },
+    gallery: [["Home — animated portfolio stack", "editorial"], ["Portfolio — every project, its own route", "split"], ["Quote — three-step request flow", "hero"]]
+  },
+  {
+    slug: "gally-gutter", name: "Gally Gutter", industry: "Guttering",
+    category: "Trades", year: "2025", location: "Brisbane, QLD", pages: 0,
+    status: "demo", liveLabel: "View the demo", liveUrl: "https://samplegallygutter.vercel.app/",
+    summary: "A guttering demo build. The write-up and preview for this one are still to come — the live demo is one click away.",
+    intro: "A demo build for a guttering business. The case study below has not been written up yet, so rather than fill it with invented detail the live demo is linked directly.",
+    services: ["Website Design", "Website Development"],
+    challenge: "", approach: "", direction: "", features: [], mobile: "",
+    palette: null, preview: null, gallery: []
   },
   {
     slug: "north-quay-kitchen", name: "North Quay Kitchen", industry: "Restaurant and bar",
     category: "Hospitality", year: "2024", location: "Brisbane, QLD", pages: 7,
-    summary: "A menu-and-bookings site for a riverside kitchen, designed for someone deciding where to eat in the next twenty minutes.",
-    intro: "North Quay Kitchen is a sample project showing how QMATES handles hospitality, where the site is read quickly, usually while walking.",
+    status: "sample", liveLabel: null, liveUrl: null,
+    summary: "A concept build for a riverside kitchen, designed for someone deciding where to eat in the next twenty minutes.",
+    intro: "North Quay Kitchen is a sample project — not a real client — showing how QMATES approaches hospitality, where the site is read quickly and usually while walking.",
     services: ["Website Design", "Website Development", "Bookings Integration", "Content Structure"],
-    challenge: "Hospitality sites bury the two things anyone actually wants — the menu and a table. The previous site hid the menu behind a slow PDF that was unreadable on a phone.",
-    approach: "The menu became real, structured content: searchable, filterable by dietary requirement and updatable by the venue in minutes. Booking sits persistently in the header and never scrolls away.",
+    challenge: "Hospitality sites bury the two things anyone actually wants — the menu and a table. The usual culprit is a slow PDF menu that is unreadable on a phone.",
+    approach: "The menu becomes real, structured content: searchable, filterable by dietary requirement and updatable by the venue in minutes. Booking sits persistently in the header and never scrolls away.",
     direction: "A dark, warm room translated to screen — deep olive base, brass accent, generous editorial spacing and a serif used only for dish names. Restrained enough that food photography carries the page.",
     features: [
       ["Structured live menu", "Dishes as content, not a PDF. Dietary filters, seasonal sections and staff-editable pricing."],
@@ -1171,70 +1254,16 @@ const PROJECTS = [
     ],
     mobile: "The menu is the mobile experience. Sticky category navigation, no pinch-zoom required, and a booking button that stays within thumb reach through the entire scroll.",
     palette: { bg: "#12140d", surface: "#1b1e14", ink: "#f6f4ea", muted: "#a8a68f", accent: "#d8b364", accentInk: "#231a08" },
-    preview: { layout: "editorial", nav: ["Menu", "Bookings", "Functions", "Find us"], h: "River light,", em: "long lunches.", sub: "Seasonal plates and a wine list worth staying for, on the north bank.", cta: "Book a table", cta2: "See the menu", tiles: ["Lunch", "Dinner", "Wine"] },
+    preview: { layout: "editorial", nav: ["Menu", "Bookings", "Functions", "Find us"],
+      h: "River light,", em: "long lunches.",
+      sub: "Seasonal plates and a wine list worth staying for, on the north bank.",
+      cta: "Book a table", cta2: "See the menu", tiles: ["Lunch", "Dinner", "Wine"] },
     gallery: [["Home — editorial hero", "editorial"], ["Live menu with dietary filters", "grid"], ["Functions enquiry", "split"]]
-  },
-  {
-    slug: "hinterland-physio", name: "Hinterland Physio", industry: "Physiotherapy clinic",
-    category: "Health", year: "2024", location: "Toowoomba, QLD", pages: 9,
-    summary: "A calm, accessible clinic site where booking an appointment takes three taps and no phone call.",
-    intro: "Hinterland Physio is a sample project demonstrating an accessibility-led build for a healthcare practice with an older patient base.",
-    services: ["Website Design", "Website Development", "Accessibility", "Website Maintenance"],
-    challenge: "A significant share of patients are over sixty-five and read on tablets at a large system text size. The previous site broke badly at those settings and pushed everyone back to the phone line.",
-    approach: "Accessibility drove the layout rather than being audited in afterwards: fluid type that survives 200% zoom, no fixed-height containers, full keyboard operation and a booking flow that works entirely without a mouse.",
-    direction: "Soft sage and warm off-white, generous line height and a deliberately unhurried rhythm. Nothing flashes, nothing auto-plays, and the only motion is a gentle fade on entry.",
-    features: [
-      ["Practitioner profiles", "Each physio has a real page with focus areas and availability, so patients can choose rather than be assigned."],
-      ["Condition library", "Plain-language pages for common conditions, each ending in the relevant booking path."],
-      ["Three-tap booking", "Practitioner, time, details. No account creation, no phone call required."],
-      ["Text-scale resilience", "Tested to 200% browser zoom and largest system text with no clipping or overlap."]
-    ],
-    mobile: "Touch targets exceed 48px throughout, forms use the correct input types, and the layout reflows to a single column well before typical tablet breakpoints so nothing is cramped in portrait.",
-    palette: { bg: "#101613", surface: "#18211c", ink: "#f0f5f1", muted: "#9bb0a4", accent: "#7fd6a2", accentInk: "#082214" },
-    preview: { layout: "split", nav: ["Our team", "Conditions", "Fees", "Book"], h: "Move better,", em: "sooner.", sub: "Hands-on physiotherapy in the Toowoomba range, with appointments most weeks.", cta: "Book online", cta2: "Meet the team", tiles: ["Back", "Knee", "Sports"] },
-    gallery: [["Home — practitioner-led hero", "split"], ["Condition library index", "grid"], ["Booking flow, step one", "hero"]]
-  },
-  {
-    slug: "granite-belt-provisions", name: "Granite Belt Provisions", industry: "Regional produce and cellar door",
-    category: "Retail", year: "2024", location: "Stanthorpe, QLD", pages: 10,
-    summary: "A small-batch producer's shopfront, where the story does the selling and the checkout stays out of the way.",
-    intro: "Granite Belt Provisions is a sample project covering a product-led site for a regional producer selling both online and at the gate.",
-    services: ["Website Design", "Website Development", "Product Structure", "Website Maintenance"],
-    challenge: "Regional producers compete with supermarket pricing they cannot match. The site has to make provenance legible in seconds, or the visitor reduces the decision to dollars per kilo.",
-    approach: "Every product is anchored to its grower, season and batch. The checkout was stripped to the minimum number of fields that still capture a regional delivery address correctly.",
-    direction: "Granite grey and dried-grass ochre, photography-forward with a tight editorial grid. Product names set large, prices deliberately quiet.",
-    features: [
-      ["Provenance on every product", "Grower, season and batch shown inline rather than buried in a story page nobody clicks."],
-      ["Cellar door hours", "Gate opening times and seasonal closures surfaced prominently, managed in one place."],
-      ["Regional delivery logic", "Address handling that copes with rural delivery realities instead of rejecting them."],
-      ["Seasonal collections", "Collections that rotate with what is actually picked, editable without a developer."]
-    ],
-    mobile: "Product imagery crops to a portrait ratio on phones rather than letterboxing, the cart is a bottom sheet, and the checkout is a single scroll with no horizontal input rows.",
-    palette: { bg: "#14120f", surface: "#1d1a15", ink: "#f5f2ea", muted: "#aca394", accent: "#c9a227", accentInk: "#201a05" },
-    preview: { layout: "grid", nav: ["Shop", "Growers", "Cellar door", "Journal"], h: "Grown up the", em: "granite belt.", sub: "Small-batch preserves, stone fruit and cool-climate wine, sent from the gate.", cta: "Shop provisions", cta2: "Visit the gate", tiles: ["Preserves", "Stone fruit", "Wine"] },
-    gallery: [["Home — seasonal collection grid", "grid"], ["Product detail with provenance", "split"], ["Grower story", "editorial"]]
-  },
-  {
-    slug: "moreton-legal", name: "Moreton Legal", industry: "Family and property law",
-    category: "Professional Services", year: "2023", location: "Redcliffe, QLD", pages: 12,
-    summary: "A quiet, credible site for a small legal practice, rebuilt so first contact feels less like a commitment.",
-    intro: "Moreton Legal is a sample project showing a professional services build where restraint and clarity carry more weight than visual impact.",
-    services: ["Website Redesign", "Website Development", "Content Structure", "SEO Foundations"],
-    challenge: "People contacting a family lawyer are usually having a bad month. The previous site was written for other lawyers — dense, formal, and offering no low-commitment way to start a conversation.",
-    approach: "Rewritten to a plain-English structure with a clear fee position, then a deliberate low-pressure entry point: a fifteen-minute call that can be requested without explaining the whole situation in a form.",
-    direction: "Near-black with a muted slate accent and a text-forward layout. No stock handshakes, no columns, no glass towers. Typography does all the work.",
-    features: [
-      ["Plain-English practice areas", "Each area explained in the language a client would actually use to describe their problem."],
-      ["Fee transparency page", "How fees are structured and what triggers them, stated before anyone has to ask."],
-      ["Fifteen-minute call request", "A short, private, low-commitment first step separate from the full enquiry form."],
-      ["Resource library", "Downloadable checklists that give something useful away before any engagement."]
-    ],
-    mobile: "Long-form legal content is set to a comfortable measure with clear section anchors, so a visitor reading on a phone can find the relevant paragraph without pinching or endless scrolling.",
-    palette: { bg: "#0b0c0e", surface: "#141619", ink: "#eef0f3", muted: "#98a0ab", accent: "#8fa8c9", accentInk: "#0b1420" },
-    preview: { layout: "editorial", nav: ["Practice areas", "Fees", "About", "Contact"], h: "Clear advice,", em: "plainly put.", sub: "Family and property law on the peninsula, without the billable-hour anxiety.", cta: "Request a call", cta2: "How fees work", tiles: ["Family", "Property", "Wills"] },
-    gallery: [["Home — text-led hero", "editorial"], ["Practice area detail", "split"], ["Fee transparency", "hero"]]
   }
 ];
+
+/** Only projects carrying a mockup can appear in the gallery or hero stack. */
+const PREVIEWABLE = PROJECTS.filter((p) => p.preview && p.palette);
 
 const TESTIMONIALS = [
   ["t1", "Placeholder — reserved for a client quote about the enquiry process. The intent of this slot is a client describing how the new site changed the quality of the leads arriving, not just the quantity.", "Trades — solar", "coastline-solar"],
@@ -1420,10 +1449,20 @@ const LAYOUTS = {
     </div>`
 };
 
-const preview = (p, layout, aspect = "16 / 10") =>
-  `<div class="prev" style="${paletteVars(p)};aspect-ratio:${aspect}">${LAYOUTS[layout || p.preview.layout](p)}</div>`;
+const noPreview = (p, aspect) => `
+  <div class="noprev" style="aspect-ratio:${aspect}">
+    <span class="noprev__ico">${ICO.arrow("")}</span>
+    <p class="noprev__name">${esc(p.name)}</p>
+    <p class="noprev__body">No preview captured yet — open the live build to see it.</p>
+    ${p.liveLabel ? `<p class="eyebrow t-reef">${esc(p.liveLabel)}</p>` : ""}
+  </div>`;
 
-const mobilePreview = (p) => `
+const preview = (p, layout, aspect = "16 / 10") =>
+  p.preview && p.palette
+    ? `<div class="prev" style="${paletteVars(p)};aspect-ratio:${aspect}">${LAYOUTS[layout || p.preview.layout](p)}</div>`
+    : noPreview(p, aspect);
+
+const mobilePreview = (p) => !p.preview || !p.palette ? noPreview(p, "9 / 19") : `
   <div class="mprev" style="${paletteVars(p)}">
     <div class="mprev__status">
       <b>9:41</b>
@@ -1444,11 +1483,16 @@ const mobilePreview = (p) => `
     <div class="mprev__home"><i></i></div>
   </div>`;
 
+const displayUrl = (p) => {
+  if (p.liveUrl) { try { return new URL(p.liveUrl).host; } catch { return p.liveUrl; } }
+  return `${p.slug}.com.au`;
+};
+
 const browser = (p, inner) => `
   <div class="browser">
     <div class="browser__bar">
       <div class="browser__lights" aria-hidden="true"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
-      <div class="browser__url"><span>${esc(p.slug)}.com.au</span></div>
+      <div class="browser__url"><span>${esc(displayUrl(p))}</span></div>
       <div class="browser__spacer" aria-hidden="true"></div>
     </div>
     ${inner}
@@ -1461,12 +1505,15 @@ const phone = (p, cls = "") => `
 
 /* --- project card -------------------------------------------------------- */
 
+const statusTag = (p) =>
+  `<span class="tag ${p.status === "sample" ? "tag--sample" : "tag--real"}">${STATUS_LABEL[p.status]}</span>`;
+
 const projectCard = (p, i) => `
   <article class="pcard" data-reveal>
     <a href="#/portfolio/${p.slug}" aria-label="View the ${esc(p.name)} case study">
       <div class="pcard__head">
         <span class="eyebrow nums t-dim">${String(i + 1).padStart(2, "0")} — ${esc(p.category)}</span>
-        <span class="eyebrow t-dim" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.location)}</span>
+        <span class="eyebrow t-dim" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.liveLabel || p.location)}</span>
       </div>
       <div class="pcard__frame">
         ${preview(p)}
@@ -1482,11 +1529,11 @@ const projectCard = (p, i) => `
         </div>
         <div style="text-align:right;flex:none">
           <p class="eyebrow nums t-dim">${p.year}</p>
-          <p class="eyebrow t-dim" style="margin-top:8px;opacity:.8">${p.pages} pages</p>
+          ${p.pages > 0 ? `<p class="eyebrow nums t-dim" style="margin-top:8px;opacity:.8">${p.pages} pages</p>` : ""}
         </div>
       </div>
       <div class="row" style="margin-top:16px;gap:8px">
-        <span class="tag tag--sample">Sample project</span>
+${statusTag(p)}
         ${p.services.slice(0, 3).map((s) => `<span class="tag">${esc(s)}</span>`).join("")}
       </div>
     </a>
@@ -1568,7 +1615,7 @@ const PAGES = {};
 /* --- home ---------------------------------------------------------------- */
 
 PAGES.home = () => {
-  const stack = PROJECTS.slice(0, 4);
+  const stack = PREVIEWABLE.slice(0, 4);
   return `
   <section class="hero grain">
     <div class="bloom" style="top:-10%;right:-10%;width:min(44rem,90vw);aspect-ratio:1;background:rgb(55 217 190 / .12)" aria-hidden="true"></div>
@@ -1652,7 +1699,7 @@ PAGES.home = () => {
         link: ["All projects", "#/portfolio"]
       })}
       <div class="grid g2" style="margin-top:56px;gap:56px 32px">
-        ${PROJECTS.slice(0, 4).map(projectCard).join("")}
+        ${PREVIEWABLE.slice(0, 4).map(projectCard).join("")}
       </div>
     </div>
   </section>
@@ -1758,23 +1805,25 @@ PAGES.portfolio = () => {
     ${pageHero({
       index: "01", eb: "Portfolio",
       title: 'Work that has to earn<br>its <span class="accent t-reef">keep</span>.',
-      lead: "Six projects across six industries. Each one opens into a full case study covering the problem, the approach and the decisions behind the design.",
+      lead: "Live sites, demo builds and concept work. Each one opens into a case study covering the problem, the approach and the decisions behind the design.",
       aside
     })}
     <section class="section section--lg">
       <div class="shell">
         <div class="notice" data-reveal style="margin-bottom:48px">
-          ${eyebrow("A note on this portfolio", "t-sand")}
+          ${eyebrow("How to read this page", "t-sand")}
           <p class="meta t-mist" style="margin-top:10px;max-width:52rem">
-            Every project below is a <strong class="t-bone">sample build</strong> created to
-            demonstrate how QMATES approaches each industry. They are not real clients, and no
-            results, reviews or statistics have been invented. As real work is completed it
-            replaces these entries directly.
+            Every project is labelled for exactly what it is.
+            <strong class="t-bone">Live site</strong> means it is online and serving a real
+            business. <strong class="t-bone">Demo build</strong> means a real build published
+            as a working demonstration. <strong class="t-bone">Sample project</strong> means a
+            concept piece, not a real client. No traffic figures, results or reviews are
+            published anywhere on this site unless a client has agreed to them.
           </p>
         </div>
         <div data-reveal style="margin-bottom:48px">
           <h2 style="font-size:var(--text-h2);line-height:1.06">Every project</h2>
-          <p class="meta t-mist" style="margin-top:16px;max-width:34rem">Ordered most recent first. Open any card for the full case study.</p>
+          <p class="meta t-mist" style="margin-top:16px;max-width:34rem">Open any card for the case study, or follow the link in its header straight to the live build.</p>
         </div>
         <div class="grid g2" style="gap:64px 32px">${PROJECTS.map(projectCard).join("")}</div>
       </div>
@@ -1806,13 +1855,16 @@ PAGES.project = (slug) => {
           ${eyebrow(`${p.category} · ${p.year}`)}
           <h1 style="margin-top:16px">${esc(p.name)}</h1>
           <p class="lead" style="margin-top:24px;max-width:42rem">${esc(p.intro)}</p>
-          <span class="tag tag--sample" style="margin-top:24px">Sample project</span>
+          <div class="row" style="margin-top:24px;gap:12px">
+            ${statusTag(p)}
+            ${p.liveUrl ? `<a class="btn btn--quiet btn--sm" href="${p.liveUrl}" target="_blank" rel="noreferrer noopener">Visit the live site${ICO.arrow()}</a>` : ""}
+          </div>
         </div>
         <div data-reveal>
           <dl class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;border:1px solid var(--line);border-radius:var(--r-lg);background:rgb(16 22 24 / .6);padding:24px">
             <div><dt class="eyebrow t-dim">Industry</dt><dd class="meta" style="margin:8px 0 0">${esc(p.industry)}</dd></div>
             <div><dt class="eyebrow t-dim">Location</dt><dd class="meta" style="margin:8px 0 0">${esc(p.location)}</dd></div>
-            <div><dt class="eyebrow t-dim">Pages</dt><dd class="meta nums" style="margin:8px 0 0">${p.pages}</dd></div>
+            ${p.pages > 0 ? `<div><dt class="eyebrow t-dim">Pages</dt><dd class="meta nums" style="margin:8px 0 0">${p.pages}</dd></div>` : ""}
             <div><dt class="eyebrow t-dim">Year</dt><dd class="meta nums" style="margin:8px 0 0">${p.year}</dd></div>
             <div style="grid-column:span 2"><dt class="eyebrow t-dim">Services</dt>
               <dd class="row" style="margin:10px 0 0;gap:8px">${p.services.map((s) => `<span class="tag" style="color:var(--mist)">${esc(s)}</span>`).join("")}</dd></div>
@@ -1820,12 +1872,15 @@ PAGES.project = (slug) => {
         </div>
       </div>
       <div data-reveal style="margin-top:56px">
-        ${browser(p, preview(p))}
-        <p style="margin-top:12px;font-size:12px;color:var(--dim)">Design mockup of the home page — replaced by a real screenshot once the project is live.</p>
+        ${p.preview
+          ? `${browser(p, preview(p))}
+             <p style="margin-top:12px;font-size:12px;color:var(--dim)">Design mockup of the home page — replaced by a real screenshot once the project is live.</p>`
+          : `<div style="overflow:hidden;border:1px solid var(--line);border-radius:var(--r-lg)">${noPreview(p, "16 / 7")}</div>`}
       </div>
     </div>
   </header>
 
+  ${!p.challenge ? "" : `
   <section class="section section--lg">
     <div class="shell split">
       <div class="sticky" data-reveal>
@@ -1841,8 +1896,9 @@ PAGES.project = (slug) => {
             </div>`).join("")}
       </div>
     </div>
-  </section>
+  </section>`}
 
+  ${!p.features.length ? "" : `
   <section class="section section--lg section--raised">
     <div class="shell">
       <div data-reveal>
@@ -1858,8 +1914,9 @@ PAGES.project = (slug) => {
           </div>`).join("")}
       </div>
     </div>
-  </section>
+  </section>`}
 
+  ${!p.mobile ? "" : `
   <section class="section section--lg">
     <div class="shell split split--even" style="align-items:center">
       <div data-reveal>
@@ -1875,8 +1932,9 @@ PAGES.project = (slug) => {
         <div style="width:min(17rem,70vw)">${phone(p)}</div>
       </div>
     </div>
-  </section>
+  </section>`}
 
+  ${!p.gallery.length ? "" : `
   <section class="section section--lg section--raised">
     <div class="shell">
       <div data-reveal>
@@ -1895,7 +1953,7 @@ PAGES.project = (slug) => {
           </figure>`).join("")}
       </div>
     </div>
-  </section>
+  </section>`}
 
   <section class="section">
     <div class="shell">
@@ -1903,9 +1961,9 @@ PAGES.project = (slug) => {
         ${eyebrow("Results")}
         <h2 style="font-size:var(--text-h3);margin-top:16px;max-width:36rem">No results are published for this project.</h2>
         <p class="meta t-mist" style="margin-top:16px;max-width:42rem">
-          This is a sample build, so there is no live traffic, no enquiry data and no client
-          feedback to report. Rather than invent figures, this section stays empty until there
-          is something real to put in it.
+          ${p.status === "live"
+            ? "Traffic and enquiry figures for this site are the client's to share, not mine. Nothing is published here unless they have agreed to it and it can be evidenced."
+            : "This is a demonstration build, so there is no live traffic, no enquiry data and no client feedback to report. Rather than invent figures, this section stays empty until there is something real to put in it."}
         </p>
       </div>
     </div>
@@ -1944,11 +2002,11 @@ PAGES.project = (slug) => {
 <script>
 /* --- gallery ------------------------------------------------------------- */
 
-const SHOTS = PROJECTS.flatMap((p) => [
+const SHOTS = PREVIEWABLE.flatMap((p) => [
   { id: p.slug + "-home", p, layout: p.preview.layout, cap: "Home page" },
   ...p.gallery.map(([cap, layout], i) => ({ id: `${p.slug}-${i}`, p, layout, cap }))
 ]);
-const CATS = ["All", ...new Set(PROJECTS.map((p) => p.category))];
+const CATS = ["All", ...new Set(PREVIEWABLE.map((p) => p.category))];
 const ASPECTS = ["16 / 10", "16 / 9", "4 / 3", "16 / 11", "3 / 2", "16 / 10"];
 
 let galleryFilter = "All";
@@ -2897,7 +2955,7 @@ let heroIndex = 0;
 let heroPaused = false;
 
 function setHero(i) {
-  const stack = PROJECTS.slice(0, 4);
+  const stack = PREVIEWABLE.slice(0, 4);
   heroIndex = (i + stack.length) % stack.length;
   const p = stack[heroIndex];
   const b = document.getElementById("heroBrowser");

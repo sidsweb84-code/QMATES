@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { adjacentProjects, getProject, projects } from "@/data/projects";
+import { adjacentProjects, displayUrl, getProject, projects } from "@/data/projects";
 import { site } from "@/data/site";
 import { Section } from "@/components/ui/Section";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
 import { Eyebrow } from "@/components/ui/SectionHeading";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonAnchor } from "@/components/ui/Button";
 import { ArrowLeft, ArrowRight, Check } from "@/components/ui/Icon";
-import { PlaceholderTag } from "@/components/site/ProjectCard";
+import { StatusTag } from "@/components/site/ProjectCard";
 import {
   BrowserFrame,
   MobileSitePreview,
@@ -87,7 +87,21 @@ export default async function ProjectPage({
               </Eyebrow>
               <h1 className="text-hero text-bone">{project.name}</h1>
               <p className="mt-6 max-w-2xl text-lead text-mist">{project.intro}</p>
-              {project.isPlaceholder ? <PlaceholderTag className="mt-6" /> : null}
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <StatusTag project={project} />
+                {project.liveUrl ? (
+                  <ButtonAnchor
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    variant="quiet"
+                    size="sm"
+                    withArrow
+                  >
+                    Visit the live site
+                  </ButtonAnchor>
+                ) : null}
+              </div>
             </Reveal>
 
             <Reveal delay={0.12}>
@@ -100,10 +114,12 @@ export default async function ProjectPage({
                   <dt className="eyebrow text-dim">Location</dt>
                   <dd className="mt-2 text-meta text-bone">{project.location}</dd>
                 </div>
-                <div>
-                  <dt className="eyebrow text-dim">Pages</dt>
-                  <dd className="nums mt-2 text-meta text-bone">{project.pages}</dd>
-                </div>
+                {project.pages > 0 ? (
+                  <div>
+                    <dt className="eyebrow text-dim">Pages</dt>
+                    <dd className="nums mt-2 text-meta text-bone">{project.pages}</dd>
+                  </div>
+                ) : null}
                 <div>
                   <dt className="eyebrow text-dim">Year</dt>
                   <dd className="nums mt-2 text-meta text-bone">{project.year}</dd>
@@ -139,21 +155,28 @@ export default async function ProjectPage({
                   className="h-auto w-full"
                 />
               </div>
-            ) : (
-              <BrowserFrame url={`${project.slug}.com.au`}>
+            ) : project.preview ? (
+              <BrowserFrame url={displayUrl(project)}>
                 <SitePreview project={project} />
               </BrowserFrame>
+            ) : (
+              <div className="overflow-hidden rounded-[var(--radius-lg)] border border-line">
+                <SitePreview project={project} aspect="aspect-[16/7]" />
+              </div>
             )}
-            <p className="mt-3 text-[0.75rem] text-dim">
-              {hasScreenshots
-                ? project.screenshots[0].alt
-                : "Design mockup of the home page — replaced by a real screenshot once the project is live."}
-            </p>
+            {project.preview || hasScreenshots ? (
+              <p className="mt-3 text-[0.75rem] text-dim">
+                {hasScreenshots
+                  ? project.screenshots[0].alt
+                  : "Design mockup of the home page — replaced by a real screenshot once the project is live."}
+              </p>
+            ) : null}
           </Reveal>
         </div>
       </header>
 
       {/* ==================== NARRATIVE ==================== */}
+      {project.challenge ? (
       <Section size="lg">
         <div className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-20">
           <Reveal className="lg:sticky lg:top-28 lg:self-start">
@@ -177,8 +200,10 @@ export default async function ProjectPage({
           </div>
         </div>
       </Section>
+      ) : null}
 
       {/* ==================== KEY FEATURES ==================== */}
+      {project.features.length > 0 ? (
       <Section tone="raised" size="lg">
         <Reveal>
           <Eyebrow className="mb-4">Key features</Eyebrow>
@@ -199,8 +224,10 @@ export default async function ProjectPage({
           ))}
         </Stagger>
       </Section>
+      ) : null}
 
       {/* ==================== MOBILE ==================== */}
+      {project.mobileNote ? (
       <Section size="lg">
         <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
           <Reveal>
@@ -232,8 +259,10 @@ export default async function ProjectPage({
           </Reveal>
         </div>
       </Section>
+      ) : null}
 
       {/* ==================== GALLERY ==================== */}
+      {project.gallery.length > 0 ? (
       <Section tone="raised" size="lg">
         <Reveal>
           <Eyebrow className="mb-4">Screens</Eyebrow>
@@ -253,7 +282,7 @@ export default async function ProjectPage({
                   i % 2 === 1 ? "lg:ml-auto lg:w-[88%]" : "lg:mr-auto lg:w-[88%]"
                 }
               >
-                <BrowserFrame url={`${project.slug}.com.au`}>
+                <BrowserFrame url={displayUrl(project)}>
                   <SitePreview project={project} layout={shot.layout} />
                 </BrowserFrame>
                 <figcaption className="mt-3 flex items-center gap-3 text-[0.75rem] text-dim">
@@ -266,6 +295,7 @@ export default async function ProjectPage({
           ))}
         </Stagger>
       </Section>
+      ) : null}
 
       {/* ==================== RESULTS ==================== */}
       <Section size="md">
@@ -285,9 +315,9 @@ export default async function ProjectPage({
                 No results are published for this project.
               </h2>
               <p className="mt-4 max-w-2xl text-meta text-mist">
-                This is a sample build, so there is no live traffic, no enquiry data
-                and no client feedback to report. Rather than invent figures, this
-                section stays empty until there is something real to put in it.
+                {project.status === "live"
+                  ? "Traffic and enquiry figures for this site are the client's to share, not mine. Nothing is published here unless they have agreed to it and it can be evidenced."
+                  : "This is a demonstration build, so there is no live traffic, no enquiry data and no client feedback to report. Rather than invent figures, this section stays empty until there is something real to put in it."}
               </p>
             </>
           )}

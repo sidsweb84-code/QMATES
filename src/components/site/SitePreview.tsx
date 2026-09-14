@@ -21,12 +21,27 @@
 
 import type { CSSProperties } from "react";
 import { cn } from "@/lib/cn";
-import type { PreviewLayout, Project } from "@/data/projects";
+import type {
+  PreviewLayout,
+  Project,
+  ProjectPalette,
+  SitePreviewSpec,
+} from "@/data/projects";
+
+/** A project that is known to carry a mockup — see `previewableProjects`. */
+type Previewable = Omit<Project, "preview" | "palette"> & {
+  preview: SitePreviewSpec;
+  palette: ProjectPalette;
+};
+
+export function hasPreview(project: Project): project is Previewable {
+  return project.preview !== null && project.palette !== null;
+}
 
 type PaletteVars = CSSProperties &
   Record<"--p-bg" | "--p-surface" | "--p-ink" | "--p-muted" | "--p-accent" | "--p-accent-ink", string>;
 
-function paletteVars(project: Project): PaletteVars {
+function paletteVars(project: Previewable): PaletteVars {
   return {
     "--p-bg": project.palette.bg,
     "--p-surface": project.palette.surface,
@@ -39,37 +54,37 @@ function paletteVars(project: Project): PaletteVars {
 
 /* --- shared miniature pieces ---------------------------------------------- */
 
-function MiniNav({ project }: { project: Project }) {
+function MiniNav({ project }: { project: Previewable }) {
   return (
-    <div className="flex items-center justify-between gap-[2cqw] px-[4cqw] py-[2.6cqw]">
-      <div className="flex items-center gap-[1.4cqw]">
+    <div className="flex items-center justify-between gap-[2cqw] overflow-hidden px-[4cqw] py-[2.6cqw] whitespace-nowrap">
+      <div className="flex shrink-0 items-center gap-[1.4cqw]">
         <span className="size-[2.2cqw] rounded-[0.4cqw] bg-[var(--p-accent)]" />
-        <span className="text-[2.1cqw] font-semibold tracking-tight text-[var(--p-ink)]">
+        <span className="truncate text-[2.1cqw] font-semibold tracking-tight text-[var(--p-ink)]">
           {project.name}
         </span>
       </div>
-      <div className="hidden items-center gap-[2.4cqw] @[22rem]:flex">
+      <div className="hidden min-w-0 items-center gap-[2.4cqw] overflow-hidden @[22rem]:flex">
         {project.preview.nav.map((item) => (
-          <span key={item} className="text-[1.55cqw] text-[var(--p-muted)]">
+          <span key={item} className="shrink-0 text-[1.55cqw] text-[var(--p-muted)]">
             {item}
           </span>
         ))}
       </div>
-      <span className="rounded-[0.6cqw] bg-[var(--p-accent)] px-[2.2cqw] py-[1cqw] text-[1.5cqw] font-semibold text-[var(--p-accent-ink)]">
+      <span className="shrink-0 rounded-[0.6cqw] bg-[var(--p-accent)] px-[2.2cqw] py-[1cqw] text-[1.5cqw] font-semibold text-[var(--p-accent-ink)]">
         {project.preview.cta}
       </span>
     </div>
   );
 }
 
-function MiniButtons({ project, compact = false }: { project: Project; compact?: boolean }) {
+function MiniButtons({ project, compact = false }: { project: Previewable; compact?: boolean }) {
   return (
     <div className={cn("flex flex-wrap items-center gap-[1.6cqw]", compact && "gap-[1.2cqw]")}>
-      <span className="rounded-[0.6cqw] bg-[var(--p-accent)] px-[3cqw] py-[1.4cqw] text-[1.7cqw] font-semibold text-[var(--p-accent-ink)]">
+      <span className="rounded-[0.6cqw] bg-[var(--p-accent)] px-[3cqw] py-[1.4cqw] text-[1.7cqw] font-semibold whitespace-nowrap text-[var(--p-accent-ink)]">
         {project.preview.cta}
       </span>
       {project.preview.secondaryCta ? (
-        <span className="rounded-[0.6cqw] border border-[var(--p-muted)]/35 px-[3cqw] py-[1.4cqw] text-[1.7cqw] text-[var(--p-ink)]">
+        <span className="rounded-[0.6cqw] border border-[var(--p-muted)]/35 px-[3cqw] py-[1.4cqw] text-[1.7cqw] whitespace-nowrap text-[var(--p-ink)]">
           {project.preview.secondaryCta}
         </span>
       ) : null}
@@ -77,7 +92,7 @@ function MiniButtons({ project, compact = false }: { project: Project; compact?:
   );
 }
 
-function MiniTiles({ project }: { project: Project }) {
+function MiniTiles({ project }: { project: Previewable }) {
   if (!project.preview.tiles?.length) return null;
   return (
     <div className="flex flex-wrap gap-[1.4cqw]">
@@ -125,7 +140,7 @@ function MiniLines({ count = 3, className }: { count?: number; className?: strin
   );
 }
 
-function Headline({ project, size }: { project: Project; size: string }) {
+function Headline({ project, size }: { project: Previewable; size: string }) {
   return (
     <p className={cn("font-semibold tracking-[-0.03em] text-[var(--p-ink)]", size)}>
       {project.preview.headline}
@@ -141,7 +156,7 @@ function Headline({ project, size }: { project: Project; size: string }) {
 
 /* --- layouts -------------------------------------------------------------- */
 
-function LayoutHero({ project }: { project: Project }) {
+function LayoutHero({ project }: { project: Previewable }) {
   return (
     <>
       <MiniNav project={project} />
@@ -163,7 +178,7 @@ function LayoutHero({ project }: { project: Project }) {
   );
 }
 
-function LayoutSplit({ project }: { project: Project }) {
+function LayoutSplit({ project }: { project: Previewable }) {
   return (
     <>
       <MiniNav project={project} />
@@ -188,7 +203,7 @@ function LayoutSplit({ project }: { project: Project }) {
   );
 }
 
-function LayoutEditorial({ project }: { project: Project }) {
+function LayoutEditorial({ project }: { project: Previewable }) {
   return (
     <>
       <MiniNav project={project} />
@@ -209,7 +224,7 @@ function LayoutEditorial({ project }: { project: Project }) {
   );
 }
 
-function LayoutGrid({ project }: { project: Project }) {
+function LayoutGrid({ project }: { project: Previewable }) {
   return (
     <>
       <MiniNav project={project} />
@@ -234,7 +249,7 @@ function LayoutGrid({ project }: { project: Project }) {
   );
 }
 
-const layouts: Record<PreviewLayout, (p: { project: Project }) => React.JSX.Element> = {
+const layouts: Record<PreviewLayout, (p: { project: Previewable }) => React.JSX.Element> = {
   hero: LayoutHero,
   split: LayoutSplit,
   editorial: LayoutEditorial,
@@ -254,6 +269,9 @@ export function SitePreview({
       `className` so two aspect-* classes never compete. */
   aspect?: string;
 }) {
+  if (!hasPreview(project)) {
+    return <NoPreview project={project} className={cn(aspect, className)} />;
+  }
   const Layout = layouts[layout ?? project.preview.layout];
   return (
     <div
@@ -275,6 +293,7 @@ export function SitePreview({
 
 /** The same project rendered as a phone-shaped layout. */
 export function MobileSitePreview({ project }: { project: Project }) {
+  if (!hasPreview(project)) return <NoPreview project={project} className="h-full" />;
   return (
     <div
       style={paletteVars(project)}
@@ -421,6 +440,49 @@ export function PhoneFrame({
         />
         {children}
       </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+ * NO PREVIEW
+ * Shown for a project that has no mockup yet. It states that plainly and
+ * points at the live site rather than standing in an invented screenshot.
+ * ========================================================================== */
+
+function NoPreview({ project, className }: { project: Project; className?: string }) {
+  return (
+    <div
+      className={cn(
+        "flex w-full flex-col items-center justify-center gap-3 bg-surface px-6 py-10 text-center",
+        className,
+      )}
+    >
+      <span className="flex size-10 items-center justify-center rounded-full border border-line-strong text-dim">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M7 17 17 7" />
+          <path d="M8 7h9v9" />
+        </svg>
+      </span>
+      <p className="font-display text-[0.9375rem] font-semibold text-bone">
+        {project.name}
+      </p>
+      <p className="max-w-xs text-[0.8125rem] text-dim">
+        No preview captured yet — open the live build to see it.
+      </p>
+      {project.liveLabel ? (
+        <p className="eyebrow text-reef">{project.liveLabel}</p>
+      ) : null}
     </div>
   );
 }

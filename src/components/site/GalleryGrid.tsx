@@ -11,7 +11,13 @@ import Link from "next/link";
 import { AnimatePresence,  motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
-import { projects, type PreviewLayout, type Project, type ProjectCategory } from "@/data/projects";
+import {
+  displayUrl,
+  previewableProjects,
+  type PreviewLayout,
+  type Project,
+  type ProjectCategory,
+} from "@/data/projects";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Close, Expand } from "@/components/ui/Icon";
 import { BrowserFrame, SitePreview } from "./SitePreview";
 
@@ -24,11 +30,11 @@ type Shot = {
 };
 
 /* Every project contributes its home screen plus each gallery screen. */
-const allShots: Shot[] = projects.flatMap((project) => [
+const allShots: Shot[] = previewableProjects.flatMap((project) => [
   {
     id: `${project.slug}-home`,
     project,
-    layout: project.preview.layout,
+    layout: project.preview!.layout,
     caption: "Home page",
     category: project.category,
   },
@@ -43,7 +49,7 @@ const allShots: Shot[] = projects.flatMap((project) => [
 
 const categories: ("All" | ProjectCategory)[] = [
   "All",
-  ...([...new Set(projects.map((p) => p.category))] as ProjectCategory[]),
+  ...([...new Set(previewableProjects.map((p) => p.category))] as ProjectCategory[]),
 ];
 
 /* A repeating rhythm of preview heights so the masonry columns stagger
@@ -270,7 +276,7 @@ export function GalleryGrid() {
                 transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
                 className="w-full max-w-5xl"
               >
-                <BrowserFrame url={`${open.project.slug}.com.au`}>
+                <BrowserFrame url={displayUrl(open.project)}>
                   <SitePreview project={open.project} layout={open.layout} />
                 </BrowserFrame>
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-4">

@@ -9,7 +9,7 @@ import { SectionHeading, Eyebrow } from "@/components/ui/SectionHeading";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { ArrowRight, Check } from "@/components/ui/Icon";
-import { featuredProjects } from "@/data/projects";
+import { previewableProjects } from "@/data/projects";
 import { testimonials } from "@/data/testimonials";
 import { services, process, principles } from "@/data/services";
 import { plans, pricesArePlaceholder } from "@/data/pricing";
@@ -71,7 +71,7 @@ export default function HomePage() {
         />
 
         <div className="mt-14 grid gap-x-8 gap-y-14 md:grid-cols-2 md:gap-y-20">
-          {featuredProjects.slice(0, 4).map((project, i) => (
+          {previewableProjects.slice(0, 4).map((project, i) => (
             <Reveal key={project.slug} delay={(i % 2) * 0.08}>
               <ProjectCard project={project} index={i} priority={i < 2} />
             </Reveal>

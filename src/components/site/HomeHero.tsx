@@ -14,14 +14,14 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
-import { featuredProjects } from "@/data/projects";
+import { displayUrl, previewableProjects } from "@/data/projects";
 import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/SectionHeading";
 import { ArrowDown, Check } from "@/components/ui/Icon";
 import { BrowserFrame, MobileSitePreview, SitePreview } from "./SitePreview";
 
 const ROTATE_MS = 5200;
-const stack = featuredProjects.slice(0, 4);
+const stack = previewableProjects.slice(0, 4);
 
 const proofChips = [
   { label: "Hand-coded", note: "No page builders" },
@@ -146,7 +146,7 @@ export function HomeHero() {
                     exit={{ opacity: 0, y: -12 }}
                     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <BrowserFrame url={`${project.slug}.com.au`}>
+                    <BrowserFrame url={displayUrl(project)}>
                       <SitePreview project={project} />
                     </BrowserFrame>
                   </motion.div>

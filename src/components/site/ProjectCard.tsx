@@ -1,20 +1,33 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import type { Project } from "@/data/projects";
+import { STATUS_LABEL, type Project } from "@/data/projects";
 import { ArrowRight } from "@/components/ui/Icon";
 import { SitePreview } from "./SitePreview";
 
-export function PlaceholderTag({ className }: { className?: string }) {
+export function StatusTag({
+  project,
+  className,
+}: {
+  project: Project;
+  className?: string;
+}) {
+  const isReal = project.status !== "sample";
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] border border-sand/35",
-        "bg-sand/10 px-2 py-1 text-[0.625rem] font-medium tracking-[0.12em] text-sand uppercase",
+        "inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] border px-2 py-1",
+        "text-[0.625rem] font-medium tracking-[0.12em] uppercase",
+        isReal
+          ? "border-reef/35 bg-reef/10 text-reef"
+          : "border-sand/35 bg-sand/10 text-sand",
         className,
       )}
     >
-      <span aria-hidden="true" className="size-1 rounded-full bg-sand" />
-      Sample project
+      <span
+        aria-hidden="true"
+        className={cn("size-1 rounded-full", isReal ? "bg-reef" : "bg-sand")}
+      />
+      {STATUS_LABEL[project.status]}
     </span>
   );
 }
@@ -47,7 +60,9 @@ export function ProjectCard({
           <span className="eyebrow nums text-dim">
             {String(index + 1).padStart(2, "0")} &mdash; {project.category}
           </span>
-          <span className="eyebrow truncate text-dim">{project.location}</span>
+          <span className="eyebrow truncate text-dim">
+            {project.liveLabel ?? project.location}
+          </span>
         </div>
 
         {/* --- preview --- */}
@@ -101,12 +116,14 @@ export function ProjectCard({
           </div>
           <div className="hidden shrink-0 text-right sm:block">
             <p className="eyebrow nums text-dim">{project.year}</p>
-            <p className="eyebrow mt-2 text-dim/80">{project.pages} pages</p>
+            {project.pages > 0 ? (
+              <p className="eyebrow nums mt-2 text-dim/80">{project.pages} pages</p>
+            ) : null}
           </div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          {project.isPlaceholder ? <PlaceholderTag /> : null}
+          <StatusTag project={project} />
           {project.services.slice(0, 3).map((s) => (
             <span
               key={s}

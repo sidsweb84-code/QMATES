@@ -15,12 +15,13 @@ export const site = {
   // TODO: replace with your real production domain before launch.
   url: "https://qmates.com.au",
 
-  // TODO: replace with your real contact details.
-  email: "hello@qmates.com.au",
-  phone: "04XX XXX XXX",
-  phoneHref: "tel:+614XXXXXXXX",
+  /* NOTE: the address supplied was "sidsweb84@gmail.com.au". There is no
+     gmail.com.au mail domain, so mail to it bounces — corrected to the
+     near-certain intent. Change it back if the original was deliberate. */
+  email: "sidsweb84@gmail.com",
+  phone: "0472 747 757",
+  phoneHref: "tel:+61472747757",
 
-  // TODO: confirm your service area wording.
   location: "Brisbane, Queensland",
   serviceArea: "Working with businesses across South East Queensland and regional QLD.",
 

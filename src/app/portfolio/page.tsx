@@ -10,7 +10,7 @@ import { services } from "@/data/services";
 export const metadata: Metadata = {
   title: "Portfolio",
   description:
-    "Selected website projects by QMATES — solar, trades, hospitality, health, retail and professional services businesses across Queensland.",
+    "Websites built by QMATES for Queensland businesses — wall and ceiling repair, smash repairs, guttering and more. Live sites, demo builds and case studies.",
   alternates: { canonical: "/portfolio" },
   openGraph: {
     title: "Portfolio — QMATES",
@@ -35,7 +35,7 @@ export default function PortfolioPage() {
             its <span className="accent-word text-reef">keep</span>.
           </>
         }
-        lead="Six projects across six industries. Each one opens into a full case study covering the problem, the approach and the decisions behind the design."
+        lead="Live sites, demo builds and concept work. Each one opens into a case study covering the problem, the approach and the decisions behind the design."
         aside={
           <dl className="grid grid-cols-2 gap-x-6 gap-y-6">
             <div>
@@ -69,19 +69,24 @@ export default function PortfolioPage() {
 
       <Section size="lg">
         <Reveal className="mb-12 rounded-[var(--radius-lg)] border border-sand/25 bg-sand/[0.06] p-5 md:p-6">
-          <p className="eyebrow mb-2.5 text-sand">A note on this portfolio</p>
+          <p className="eyebrow mb-2.5 text-sand">How to read this page</p>
           <p className="max-w-3xl text-meta text-mist">
-            Every project below is a <strong className="font-semibold text-bone">sample build</strong>{" "}
-            created to demonstrate how QMATES approaches each industry. They are not
-            real clients, and no results, reviews or statistics have been invented.
-            As real work is completed it replaces these entries directly.
+            Every project is labelled for exactly what it is.{" "}
+            <strong className="font-semibold text-bone">Live site</strong> means it is
+            online and serving a real business.{" "}
+            <strong className="font-semibold text-bone">Demo build</strong> means a real
+            build published as a working demonstration.{" "}
+            <strong className="font-semibold text-bone">Sample project</strong> means a
+            concept piece, not a real client. No traffic figures, results or reviews
+            are published anywhere on this site unless a client has agreed to them.
           </p>
         </Reveal>
 
         <Reveal className="mb-12">
           <h2 className="text-h2 text-bone">Every project</h2>
           <p className="mt-4 max-w-xl text-meta text-mist">
-            Ordered most recent first. Open any card for the full case study.
+            Open any card for the case study, or follow the link in its header
+            straight to the live build.
           </p>
         </Reveal>
 
