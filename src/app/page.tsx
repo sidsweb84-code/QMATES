@@ -178,7 +178,7 @@ export default function HomePage() {
           lead={
             pricesArePlaceholder
               ? "Figures below are placeholders until final pricing is set. The inclusions are real — request a quote and you get a fixed written figure for your scope."
-              : "Fixed pricing, agreed in writing before any work begins."
+              : "Real figures, listed plainly. Every plan is slightly negotiable depending on where your business is at."
           }
           link={{ href: "/pricing", label: "Full pricing detail" }}
         />
@@ -203,13 +203,13 @@ export default function HomePage() {
                 </div>
                 <p className="mt-4 text-meta text-mist">{plan.audience}</p>
                 <p className="mt-6 flex items-baseline gap-2">
-                  <span className="nums font-display text-[2.25rem] leading-none font-bold text-bone">
+                  <span className="nums font-display text-[clamp(1.75rem,2.2vw,2.25rem)] leading-none font-bold whitespace-nowrap text-bone">
                     {plan.price}
                   </span>
                   <span className="text-[0.75rem] text-dim">{plan.priceNote}</span>
                 </p>
                 <p className="mt-3 text-[0.8125rem] text-dim">
-                  {plan.pages} &middot; {plan.timeline}
+                  {plan.pages} &middot; {plan.support}
                 </p>
                 <ul className="mt-6 flex flex-1 flex-col gap-2.5">
                   {plan.includes.slice(0, 4).map((inc) => (

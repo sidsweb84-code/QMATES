@@ -6,19 +6,24 @@ import { Section } from "@/components/ui/Section";
 import { Eyebrow } from "@/components/ui/SectionHeading";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
-import { Check } from "@/components/ui/Icon";
-import { addOns, plans, pricesArePlaceholder, pricingFaqs } from "@/data/pricing";
-import { process } from "@/data/services";
+import { Alert, Check } from "@/components/ui/Icon";
+import {
+  addOns,
+  meetings,
+  negotiableNote,
+  plans,
+  pricingFaqs,
+} from "@/data/pricing";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "QMATES website packages — Starter, Growth and Custom. Fixed scope, fixed price, agreed in writing before any work begins.",
+    "QMATES website pricing — Booster from $300, Starter from $400, and a customised growth plan quoted per business. Real figures, listed plainly.",
   alternates: { canonical: "/pricing" },
   openGraph: {
     title: "Pricing — QMATES",
-    description: "Website packages for Queensland businesses. Fixed scope, fixed price.",
+    description: "Website pricing for Queensland businesses. Real figures, listed plainly.",
     url: "/pricing",
   },
 };
@@ -31,31 +36,13 @@ export default function PricingPage() {
         eyebrow="Pricing"
         title={
           <>
-            Fixed scope.
+            Three plans.
             <br />
-            Fixed <span className="accent-word text-reef">price</span>.
+            Priced <span className="accent-word text-reef">plainly</span>.
           </>
         }
-        lead="You get a written scope and a firm figure before anything starts. If the scope changes, you approve the change first — there is no open-ended hourly meter."
+        lead="Real figures, not headline numbers designed to get you on the phone. Everything outside a plan is listed further down at what it actually costs."
       />
-
-      {/* ==================== PLACEHOLDER NOTICE ==================== */}
-      {pricesArePlaceholder ? (
-        <Section size="sm">
-          <Reveal className="rounded-[var(--radius-lg)] border border-sand/25 bg-sand/[0.06] p-6 md:p-8">
-            <Eyebrow tone="sand" className="mb-3">
-              About the figures below
-            </Eyebrow>
-            <p className="max-w-3xl text-meta text-mist">
-              Package prices are shown as{" "}
-              <strong className="font-semibold text-bone">$XXX placeholders</strong>{" "}
-              because final pricing has not been set in this build. Everything else
-              on this page — inclusions, page counts, timelines — is real. Request a
-              quote and you will get a fixed written figure for your actual scope.
-            </p>
-          </Reveal>
-        </Section>
-      ) : null}
 
       {/* ==================== PLANS ==================== */}
       <Section size="lg">
@@ -81,7 +68,7 @@ export default function PricingPage() {
                 <p className="mt-3 text-meta text-mist">{plan.audience}</p>
 
                 <p className="mt-7 flex items-baseline gap-2">
-                  <span className="nums font-display text-[2.75rem] leading-none font-bold text-bone">
+                  <span className="nums font-display text-[clamp(2.125rem,2.6vw,2.75rem)] leading-none font-bold whitespace-nowrap text-bone">
                     {plan.price}
                   </span>
                   <span className="text-[0.8125rem] text-dim">{plan.priceNote}</span>
@@ -93,8 +80,8 @@ export default function PricingPage() {
                     <dd className="mt-1.5 text-[0.8125rem] text-mist">{plan.pages}</dd>
                   </div>
                   <div>
-                    <dt className="eyebrow text-dim">Timeline</dt>
-                    <dd className="mt-1.5 text-[0.8125rem] text-mist">{plan.timeline}</dd>
+                    <dt className="eyebrow text-dim">Support</dt>
+                    <dd className="mt-1.5 text-[0.8125rem] text-mist">{plan.support}</dd>
                   </div>
                 </dl>
 
@@ -109,6 +96,20 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
+
+                {plan.excludes?.length ? (
+                  <ul className="rule-t mt-6 flex flex-col gap-2 pt-5">
+                    {plan.excludes.map((ex) => (
+                      <li
+                        key={ex}
+                        className="flex items-start gap-2.5 text-[0.8125rem] text-sand"
+                      >
+                        <Alert size={15} className="mt-0.5 shrink-0" />
+                        {ex}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
 
                 <ButtonLink
                   href="/quote"
@@ -125,13 +126,21 @@ export default function PricingPage() {
         </Stagger>
       </Section>
 
+      {/* ==================== NEGOTIABLE NOTE ==================== */}
+      <Section size="sm">
+        <Reveal className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-line bg-surface/50 p-6 md:p-7">
+          <Alert size={18} className="mt-0.5 shrink-0 text-sand" />
+          <p className="max-w-3xl text-meta text-mist">{negotiableNote}</p>
+        </Reveal>
+      </Section>
+
       {/* ==================== ADD-ONS ==================== */}
       <Section tone="raised" size="lg">
         <Reveal>
           <Eyebrow className="mb-4">Add-ons</Eyebrow>
-          <h2 className="max-w-2xl text-h2 text-bone">Extras, priced separately</h2>
+          <h2 className="max-w-2xl text-h2 text-bone">Everything outside a plan</h2>
           <p className="mt-5 max-w-2xl text-meta text-mist">
-            Added only if you want them, and always quoted before they are built.
+            Added only if you want them, and always agreed before any work starts.
           </p>
         </Reveal>
 
@@ -154,21 +163,28 @@ export default function PricingPage() {
         </Stagger>
       </Section>
 
-      {/* ==================== WHAT HAPPENS ==================== */}
+      {/* ==================== MEETINGS ==================== */}
       <Section size="lg">
         <Reveal>
-          <Eyebrow className="mb-4">What you are paying for</Eyebrow>
+          <Eyebrow className="mb-4">Meetings and discussion</Eyebrow>
           <h2 className="max-w-2xl text-h2 text-bone">
-            Four stages, all included in the figure
+            How we actually <span className="accent-word text-sand">talk</span> it through
           </h2>
+          <p className="mt-5 max-w-2xl text-meta text-mist">
+            Scope gets agreed in a conversation, not a form. Where that happens
+            depends on where you are.
+          </p>
         </Reveal>
 
-        <Stagger className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line md:grid-cols-2 xl:grid-cols-4">
-          {process.map((step) => (
-            <StaggerItem key={step.index} className="bg-ink-2 p-7">
-              <p className="eyebrow nums text-reef">{step.index}</p>
-              <h3 className="mt-4 text-h3 text-bone">{step.title}</h3>
-              <p className="mt-3 text-meta text-mist">{step.body}</p>
+        <Stagger className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line md:grid-cols-2">
+          {meetings.map((m, i) => (
+            <StaggerItem key={m.title} className="bg-ink-2 p-7 md:p-9">
+              <p className="eyebrow nums text-reef">
+                {String(i + 1).padStart(2, "0")}
+              </p>
+              <h3 className="mt-5 text-h3 text-bone">{m.title}</h3>
+              <p className="eyebrow mt-3 text-dim">{m.who}</p>
+              <p className="mt-4 text-meta text-mist">{m.body}</p>
             </StaggerItem>
           ))}
         </Stagger>

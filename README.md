@@ -58,7 +58,7 @@ touch a component to update the site's content.
 | `src/data/site.ts` | Business name, tagline, email, phone, location, socials, nav | **Email, phone, domain, socials, ABN** — each marked `// TODO:` |
 | `src/data/projects.ts` | Every project and case study | All four are real work — nothing to replace |
 | `src/data/testimonials.ts` | Testimonials | All 6 slots are placeholders with no invented names |
-| `src/data/pricing.ts` | Packages, add-ons, FAQ | All prices are `$XXX`; set `pricesArePlaceholder = false` when real |
+| `src/data/pricing.ts` | Plans, add-ons, meeting options, FAQ | Real figures — nothing to replace |
 | `src/data/services.ts` | Services, process steps, principles | Real copy — edit freely |
 
 ### The portfolio
