@@ -1,0 +1,3257 @@
+<title>QMATES Web Design</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=DM+Sans:opsz,wght@9..40,400..600&family=Instrument+Serif:ital@0;1&display=swap">
+
+<style>
+/* ==========================================================================
+   QMATES — single-file rendition of the Next.js site.
+   Tokens copied verbatim from src/app/globals.css so this preview and the
+   real application stay one design system.
+   Deliberately single-theme: the dark canvas IS the brand. Every colour is
+   painted explicitly so the page holds on any host ground.
+   ========================================================================== */
+
+:root {
+  /* surfaces */
+  --ink: #06090a;
+  --ink-2: #0b1012;
+  --surface: #101618;
+  --surface-2: #161e21;
+  --surface-3: #1d272a;
+  /* lines */
+  --line: #1f2a2d;
+  --line-strong: #314145;
+  /* accents */
+  --reef: #37d9be;
+  --reef-bright: #4ee7cd;
+  --reef-ink: #04211c;
+  --sand: #e9c99b;
+  --sand-ink: #241a0d;
+  /* text */
+  --bone: #f3f6f5;
+  --mist: #9daaab;
+  --dim: #7c8a8c;
+  /* state */
+  --positive: #4ade80;
+  --negative: #ff7a6b;
+  --negative-soft: #2a1512;
+
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Instrument Serif", ui-serif, Georgia, serif;
+
+  --text-display: clamp(2.25rem, 4.4vw, 4.25rem);
+  --text-hero: clamp(2rem, 5vw, 4rem);
+  --text-h2: clamp(1.75rem, 3.6vw, 2.875rem);
+  --text-h3: clamp(1.2rem, 2.1vw, 1.625rem);
+  --text-lead: clamp(1.0625rem, 1.5vw, 1.25rem);
+
+  --r-xs: 2px;  --r-sm: 4px;  --r-md: 8px;  --r-lg: 14px;  --r-xl: 22px;
+
+  --shadow-mid: 0 12px 32px -12px rgb(0 0 0 / .7);
+  --shadow-high: 0 40px 80px -32px rgb(0 0 0 / .85);
+
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --fast: 160ms; --base: 260ms; --slow: 420ms;
+
+  --shell: 78rem;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  margin: 0;
+  letter-spacing: -.03em;
+}
+p { margin: 0; text-wrap: pretty; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font: inherit; color: inherit; }
+svg { display: block; }
+
+::selection { background: var(--reef); color: var(--reef-ink); }
+
+:focus-visible {
+  outline: 2px solid var(--reef);
+  outline-offset: 3px;
+  border-radius: var(--r-xs);
+}
+
+/* --- layout primitives --------------------------------------------------- */
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+@media (min-width: 768px) { .shell { padding-inline: 32px; } }
+@media (min-width: 1280px) { .shell { padding-inline: 40px; } }
+
+.section { padding-block: 80px; overflow-x: clip; }
+.section--lg { padding-block: 96px; }
+.section--sm { padding-block: 64px; }
+.section--raised { background: var(--ink-2); border-block: 1px solid var(--line); }
+@media (min-width: 768px) {
+  .section { padding-block: 112px; }
+  .section--lg { padding-block: 144px; }
+  .section--sm { padding-block: 80px; }
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.1;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+.t-reef { color: var(--reef); }
+.t-sand { color: var(--sand); }
+.t-mist { color: var(--mist); }
+.t-dim  { color: var(--dim); }
+.t-bone { color: var(--bone); }
+
+.accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -.01em;
+}
+.nums { font-variant-numeric: tabular-nums; }
+.lead { font-size: var(--text-lead); line-height: 1.6; color: var(--mist); }
+.meta { font-size: 13px; line-height: 1.5; }
+.rule-t { border-top: 1px solid var(--line); }
+
+/* A soft single-hue bloom. Purely decorative, always clipped by its parent. */
+.bloom {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(80px);
+  opacity: .5;
+}
+
+/* Static grain so large dark fields never read as flat dead space. */
+.grain { position: relative; isolation: isolate; overflow: hidden; }
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- reveal -------------------------------------------------------------- */
+/* Elements are visible by default. JS only hides the ones that start BELOW
+   the fold, so the page's first still frame is always fully readable. */
+[data-reveal].pending { opacity: 0; transform: translateY(24px); }
+[data-reveal] {
+  opacity: 1;
+  transform: none;
+  transition: opacity 720ms var(--ease), transform 720ms var(--ease);
+}
+
+/* --- buttons ------------------------------------------------------------- */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding-inline: 20px;
+  border: 0;
+  border-radius: var(--r-md);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--base) var(--ease), border-color var(--base) var(--ease),
+              color var(--base) var(--ease), transform var(--base) var(--ease),
+              box-shadow var(--base) var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn--lg { min-height: 56px; padding-inline: 28px; font-size: 16px; }
+.btn--sm { min-height: 44px; padding-inline: 16px; font-size: 13px; border-radius: var(--r-sm); }
+
+.btn--solid {
+  background: var(--reef);
+  color: var(--reef-ink);
+  font-weight: 600;
+  box-shadow: 0 12px 32px -16px rgb(55 217 190 / .9);
+}
+.btn--solid:hover { background: var(--reef-bright); box-shadow: 0 18px 44px -16px rgb(55 217 190 / .75); }
+
+.btn--outline {
+  background: transparent;
+  color: var(--bone);
+  border: 1px solid var(--line-strong);
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn--outline::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--reef);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--base) var(--ease);
+}
+.btn--outline:hover { color: var(--reef-ink); border-color: var(--reef); }
+.btn--outline:hover::before { transform: scaleY(1); }
+
+.btn--quiet {
+  background: var(--surface-2);
+  color: var(--bone);
+  border: 1px solid var(--line);
+}
+.btn--quiet:hover { background: var(--surface-3); border-color: var(--line-strong); }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--bone);
+  min-height: 40px;
+  padding-inline: 0;
+}
+.btn--ghost::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: var(--reef);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--base) var(--ease);
+}
+.btn--ghost:hover { color: var(--reef); }
+.btn--ghost:hover::after { transform: scaleX(1); }
+
+/* The arrow rotates from → to ↗ on hover, on every button that carries one. */
+.btn .arw, .lnk .arw {
+  transition: transform var(--base) var(--ease);
+  flex: none;
+}
+.btn:hover .arw, .lnk:hover .arw { transform: translate(2px, -1px) rotate(-45deg); }
+
+/* Label lifts and a duplicate rises to replace it — solid buttons only. */
+.swap { position: relative; display: grid; overflow: hidden; }
+.swap > span { grid-area: 1 / 1; transition: transform var(--base) var(--ease); }
+.swap > span:last-child { transform: translateY(130%); }
+.btn:hover .swap > span:first-child { transform: translateY(-130%); }
+.btn:hover .swap > span:last-child { transform: translateY(0); }
+
+.lnk {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+  font-size: 13px;
+  transition: color var(--base), border-color var(--base);
+}
+.lnk:hover { color: var(--reef); border-color: var(--reef); }
+
+/* --- navbar -------------------------------------------------------------- */
+
+.nav {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  padding-block: 16px;
+  border-bottom: 1px solid transparent;
+  transition: background-color var(--slow) var(--ease), border-color var(--slow) var(--ease),
+              padding var(--slow) var(--ease);
+}
+.nav.is-stuck {
+  background: rgb(6 9 10 / .85);
+  backdrop-filter: blur(18px);
+  border-bottom-color: var(--line);
+  padding-block: 10px;
+}
+.nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+.brand { display: flex; align-items: center; gap: 10px; flex: none; }
+.brand svg { transition: transform var(--slow) var(--ease); }
+.brand:hover svg { transform: rotate(-18deg); }
+.brand__name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+.brand__sub { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); margin-top: 4px; display: block; }
+
+.nav__links {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: rgb(16 22 24 / .6);
+  backdrop-filter: blur(6px);
+}
+@media (min-width: 1024px) { .nav__links { display: flex; } }
+
+.nav__link {
+  display: block;
+  padding: 8px 14px;
+  border-radius: var(--r-lg);
+  font-size: 13px;
+  color: var(--mist);
+  transition: color var(--base), background-color var(--base);
+}
+.nav__link:hover { color: var(--bone); }
+.nav__link[aria-current="page"] { background: var(--reef); color: var(--reef-ink); }
+
+.nav__cta {
+  position: relative;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  border: 1px solid rgb(55 217 190 / .6);
+  border-radius: var(--r-md);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--reef);
+  transition: color var(--base);
+}
+@media (min-width: 640px) { .nav__cta { display: inline-flex; } }
+.nav__cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--reef);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--base) var(--ease);
+}
+.nav__cta:hover { color: var(--reef-ink); }
+.nav__cta:hover::before { transform: scaleX(1); }
+
+.burger {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: rgb(16 22 24 / .7);
+  cursor: pointer;
+  transition: border-color var(--base);
+}
+.burger:hover { border-color: var(--line-strong); }
+@media (min-width: 1024px) { .burger { display: none; } }
+.burger i { position: relative; display: block; width: 20px; height: 12px; }
+.burger i::before, .burger i::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  height: 1px;
+  background: var(--bone);
+  transition: transform var(--base) var(--ease), top var(--base) var(--ease), width var(--base) var(--ease);
+}
+.burger i::before { top: 0; width: 20px; }
+.burger i::after { top: 12px; width: 14px; }
+.burger[aria-expanded="true"] i::before { top: 6px; transform: rotate(45deg); }
+.burger[aria-expanded="true"] i::after { top: 6px; width: 20px; transform: rotate(-45deg); }
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  flex-direction: column;
+  padding-top: 92px;
+  background: rgb(6 9 10 / .97);
+  backdrop-filter: blur(24px);
+  overflow-y: auto;
+}
+.sheet.is-open { display: flex; }
+@media (min-width: 1024px) { .sheet.is-open { display: none; } }
+.sheet__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 20px;
+  border-top: 1px solid var(--line);
+  animation: sheetIn 500ms var(--ease) backwards;
+}
+@keyframes sheetIn { from { opacity: 0; transform: translateY(16px); } }
+.sheet__row span:first-child { font-family: var(--font-display); font-size: 28px; font-weight: 600; letter-spacing: -.03em; }
+.sheet__row[aria-current="page"] { color: var(--reef); }
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: 16px;
+  top: 16px;
+  z-index: 100;
+  position: fixed;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  background: var(--reef);
+  color: var(--reef-ink);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* --- page hero ----------------------------------------------------------- */
+
+.phero { border-bottom: 1px solid var(--line); background: var(--ink-2); }
+.phero__in { position: relative; z-index: 1; padding-top: 128px; padding-bottom: 56px; }
+@media (min-width: 768px) { .phero__in { padding-top: 160px; padding-bottom: 80px; } }
+.phero__idx { display: flex; align-items: center; gap: 12px; }
+.phero__idx hr { flex: none; width: 32px; height: 1px; border: 0; background: var(--line-strong); margin: 0; }
+.phero h1 { font-size: var(--text-hero); line-height: .98; letter-spacing: -.035em; }
+
+/* --- grids & cards ------------------------------------------------------- */
+
+.grid { display: grid; gap: 24px; }
+.g2 { grid-template-columns: 1fr; }
+.g3 { grid-template-columns: 1fr; }
+.g4 { grid-template-columns: 1fr; }
+@media (min-width: 768px) { .g2, .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1200px) { .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Hairline mesh: one background line colour showing through a 1px gap. */
+.mesh {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.mesh > * { background: var(--ink-2); padding: 28px; }
+@media (min-width: 768px) { .mesh > * { padding: 32px; } }
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--ink-2);
+  padding: 28px;
+  transition: border-color var(--slow) var(--ease), transform var(--slow) var(--ease);
+}
+.card:hover { border-color: var(--line-strong); transform: translateY(-4px); }
+
+.tag {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.tag--sample {
+  border-color: rgb(233 201 155 / .35);
+  background: rgb(233 201 155 / .1);
+  color: var(--sand);
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.notice {
+  border: 1px solid rgb(233 201 155 / .25);
+  background: rgb(233 201 155 / .06);
+  border-radius: var(--r-lg);
+  padding: 24px;
+}
+@media (min-width: 768px) { .notice { padding: 32px; } }
+
+/* --- project card -------------------------------------------------------- */
+
+.pcard__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+.pcard__frame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  transition: border-color var(--slow) var(--ease), transform var(--slow) var(--ease), box-shadow var(--slow) var(--ease);
+}
+.pcard:hover .pcard__frame { transform: translateY(-6px); border-color: var(--line-strong); box-shadow: var(--shadow-high); }
+.pcard__frame > .prev { transition: transform 900ms var(--ease); }
+.pcard:hover .pcard__frame > .prev { transform: scale(1.035); }
+.pcard__scrim {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+  padding-top: 64px;
+  background: linear-gradient(to top, rgb(0 0 0 / .85), rgb(0 0 0 / .45) 45%, transparent);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--slow) var(--ease), transform var(--slow) var(--ease);
+  pointer-events: none;
+}
+.pcard:hover .pcard__scrim { opacity: 1; transform: none; }
+.pcard__go {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--reef);
+  color: var(--reef-ink);
+}
+.pcard h3 { font-size: var(--text-h3); transition: transform var(--slow) var(--ease); }
+.pcard:hover h3 { transform: translateX(4px); }
+
+/* --- site preview (a miniature website drawn in CSS) --------------------- */
+/* Everything inside is sized in container-query width units, so one component
+   scales from a card thumbnail to a full-width hero with identical
+   proportions. Palette arrives as custom properties per project. */
+
+.prev {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--p-bg);
+}
+.prev__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2cqw;
+  padding: 2.6cqw 4cqw;
+}
+.prev__logo { display: flex; align-items: center; gap: 1.4cqw; }
+.prev__dot { width: 2.2cqw; height: 2.2cqw; border-radius: .4cqw; background: var(--p-accent); }
+.prev__name { font-size: 2.1cqw; font-weight: 600; letter-spacing: -.02em; color: var(--p-ink); }
+.prev__menu { display: none; align-items: center; gap: 2.4cqw; }
+@container (min-width: 22rem) { .prev__menu { display: flex; } }
+.prev__menu span { font-size: 1.55cqw; color: var(--p-muted); }
+.prev__cta {
+  border-radius: .6cqw;
+  background: var(--p-accent);
+  padding: 1cqw 2.2cqw;
+  font-size: 1.5cqw;
+  font-weight: 600;
+  color: var(--p-accent-ink);
+}
+.prev__body { flex: 1; display: flex; flex-direction: column; padding: 0 4cqw 4cqw; gap: 2.4cqw; min-height: 0; }
+.prev__h { font-size: 5cqw; line-height: .95; font-weight: 600; letter-spacing: -.03em; color: var(--p-ink); margin: 0; }
+.prev__h em { font-style: normal; color: var(--p-accent); }
+.prev__sub { font-size: 1.75cqw; line-height: 1.5; color: var(--p-muted); }
+.prev__btns { display: flex; flex-wrap: wrap; gap: 1.6cqw; }
+.prev__b1 { border-radius: .6cqw; background: var(--p-accent); padding: 1.4cqw 3cqw; font-size: 1.7cqw; font-weight: 600; color: var(--p-accent-ink); }
+.prev__b2 { border-radius: .6cqw; border: 1px solid color-mix(in srgb, var(--p-muted) 35%, transparent); padding: 1.4cqw 3cqw; font-size: 1.7cqw; color: var(--p-ink); }
+.prev__tiles { display: flex; flex-wrap: wrap; gap: 1.4cqw; }
+.prev__tiles span {
+  border-radius: .5cqw;
+  border: 1px solid color-mix(in srgb, var(--p-muted) 25%, transparent);
+  background: var(--p-surface);
+  padding: 1cqw 2cqw;
+  font-size: 1.5cqw;
+  color: var(--p-muted);
+}
+/* Abstract photography stand-in: two soft accent fields under the surface. */
+.prev__img { position: relative; overflow: hidden; border-radius: 1cqw; background: var(--p-surface); }
+.prev__img::before, .prev__img::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(4cqw);
+  background: var(--p-accent);
+}
+.prev__img::before { inset: auto 10% -30% 10%; height: 80%; opacity: .25; }
+.prev__img::after { top: 14%; right: 12%; width: 34%; aspect-ratio: 1; opacity: .4; }
+.prev__lines { display: flex; flex-direction: column; gap: 1.1cqw; }
+.prev__lines i { height: .9cqw; border-radius: 999px; background: color-mix(in srgb, var(--p-muted) 25%, transparent); }
+.prev__row { display: flex; gap: 3cqw; align-items: flex-start; }
+.prev__col { display: flex; flex-direction: column; gap: 1.6cqw; }
+.prev__edit { display: flex; align-items: flex-end; justify-content: space-between; gap: 3cqw; border-bottom: 1px solid color-mix(in srgb, var(--p-muted) 20%, transparent); padding-bottom: 2.4cqw; }
+.prev__grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8cqw; flex: 1; }
+.prev__prod { display: flex; flex-direction: column; gap: 1.2cqw; }
+.prev__prod b { font-size: 1.6cqw; font-weight: 500; color: var(--p-ink); }
+.prev__prod s { font-size: 1.4cqw; color: var(--p-muted); text-decoration: none; }
+
+/* --- device frames ------------------------------------------------------- */
+
+.browser {
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-high);
+}
+.browser__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+  padding: 10px 14px;
+}
+.browser__lights { display: flex; gap: 6px; flex: none; }
+.browser__lights i { width: 10px; height: 10px; border-radius: 999px; }
+.browser__url {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+.browser__url span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: var(--r-sm);
+  background: rgb(6 9 10 / .7);
+  padding: 4px 12px;
+  font-size: 11px;
+  color: var(--dim);
+}
+.browser__spacer { width: 46px; flex: none; }
+
+.phone {
+  position: relative;
+  aspect-ratio: 9 / 19;
+  border: 1px solid var(--line-strong);
+  border-radius: 2rem;
+  background: var(--surface-2);
+  padding: 6px;
+  box-shadow: var(--shadow-high);
+}
+.phone__screen { position: relative; height: 100%; width: 100%; overflow: hidden; border-radius: 1.7rem; background: var(--ink); }
+.phone__island { position: absolute; top: 1.6%; left: 50%; transform: translateX(-50%); z-index: 2; height: 1rem; width: 28%; border-radius: 999px; background: #000; }
+
+.mprev {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--p-bg);
+}
+.mprev__status { display: flex; align-items: center; justify-content: space-between; padding: 3.5cqw 7cqw 1cqw; }
+.mprev__status b { font-size: 3.4cqw; font-weight: 600; color: var(--p-ink); }
+.mprev__sig { display: flex; align-items: flex-end; gap: .8cqw; }
+.mprev__sig i { width: 1cqw; border-radius: .3cqw; background: var(--p-ink); }
+.mprev__sig i:nth-child(1) { height: 1.6cqw; }
+.mprev__sig i:nth-child(2) { height: 2.4cqw; }
+.mprev__sig i:nth-child(3) { height: 3.2cqw; }
+.mprev__sig i:nth-child(4) { height: 4cqw; }
+.mprev__batt { margin-left: 1cqw; height: 3cqw; width: 6cqw; border-radius: 1cqw; border: 1px solid color-mix(in srgb, var(--p-ink) 60%, transparent); }
+.mprev__bar { display: flex; align-items: center; justify-content: space-between; padding: 3.5cqw 6cqw; }
+.mprev__bar .prev__dot { width: 4.5cqw; height: 4.5cqw; border-radius: 1cqw; }
+.mprev__bar b { font-size: 4cqw; font-weight: 600; letter-spacing: -.02em; color: var(--p-ink); }
+.mprev__burger { display: flex; flex-direction: column; gap: 1.2cqw; }
+.mprev__burger i { height: .7cqw; width: 6cqw; border-radius: 999px; background: color-mix(in srgb, var(--p-ink) 70%, transparent); }
+.mprev__body { flex: 1; display: flex; flex-direction: column; gap: 4cqw; padding: 0 6cqw 4cqw; min-height: 0; }
+.mprev__h { font-size: 9cqw; line-height: .95; font-weight: 600; letter-spacing: -.035em; color: var(--p-ink); margin: 0; }
+.mprev__h em { font-style: normal; color: var(--p-accent); }
+.mprev__sub { font-size: 3.5cqw; line-height: 1.5; color: var(--p-muted); }
+.mprev__cta { border-radius: 1.6cqw; background: var(--p-accent); padding: 3.4cqw; text-align: center; font-size: 3.6cqw; font-weight: 600; color: var(--p-accent-ink); }
+.mprev__tiles { display: flex; flex-wrap: wrap; gap: 2cqw; }
+.mprev__tiles span { border-radius: 1.2cqw; border: 1px solid color-mix(in srgb, var(--p-muted) 25%, transparent); padding: 1.8cqw 3.2cqw; font-size: 3cqw; color: var(--p-muted); }
+.mprev__home { display: flex; justify-content: center; padding-bottom: 2.5cqw; }
+.mprev__home i { height: 1cqw; width: 28%; border-radius: 999px; background: color-mix(in srgb, var(--p-ink) 35%, transparent); }
+
+/* --- home hero ----------------------------------------------------------- */
+
+.hero { border-bottom: 1px solid var(--line); background: var(--ink); }
+.hero__in { position: relative; z-index: 1; padding-top: 128px; padding-bottom: 64px; }
+@media (min-width: 768px) { .hero__in { padding-top: 160px; padding-bottom: 96px; } }
+.hero__grid { display: grid; grid-template-columns: 1fr; align-items: center; gap: 56px; }
+@media (min-width: 1024px) { .hero__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 48px; } }
+.hero__copy { min-width: 0; }
+.hero h1 { font-size: var(--text-display); line-height: .92; letter-spacing: -.04em; margin-top: 28px; }
+.hero h1 span { display: block; }
+.hero__visual { position: relative; min-width: 0; }
+.hero__stage { position: relative; margin-inline: auto; display: flex; max-width: 36rem; align-items: center; justify-content: center; padding-block: 24px 16px; }
+@media (min-width: 1024px) { .hero__stage { max-width: none; } }
+.hero__browser { position: relative; width: 100%; max-width: 34rem; min-width: 0; transform: rotate(-2.5deg); }
+@media (min-width: 1024px) { .hero__browser { margin-right: -64px; } }
+.hero__phone {
+  position: absolute;
+  right: 0;
+  bottom: -48px;
+  width: 7.5rem;
+  transform: rotate(4deg);
+  animation: float 7s ease-in-out infinite;
+}
+@media (min-width: 640px) { .hero__phone { width: 9.5rem; } }
+@media (min-width: 1024px) { .hero__phone { right: 8px; bottom: -56px; width: 13rem; } }
+@keyframes float { 0%, 100% { transform: rotate(4deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-10px); } }
+.hero__phone .bloom { inset: -32px; background: rgb(55 217 190 / .25); filter: blur(60px); z-index: -1; }
+.hero__phone .phone { border-radius: 1.6rem; padding: 5px; }
+.hero__phone .phone__screen { border-radius: 1.35rem; }
+.hero__phone .phone__island { height: .7rem; width: 30%; }
+
+.dots { display: flex; align-items: center; gap: 8px; flex: none; }
+.dot {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-size: 11px;
+  color: var(--dim);
+  cursor: pointer;
+  transition: border-color var(--base), color var(--base), background-color var(--base);
+}
+.dot:hover { border-color: var(--line-strong); color: var(--mist); }
+.dot[aria-current="true"] { border-color: var(--reef); background: var(--reef); color: var(--reef-ink); }
+
+.pulse { position: relative; display: flex; width: 8px; height: 8px; flex: none; }
+.pulse i { position: absolute; inset: 0; border-radius: 999px; background: var(--reef); animation: ping 2s cubic-bezier(0, 0, .2, 1) infinite; opacity: .6; }
+.pulse b { position: relative; width: 8px; height: 8px; border-radius: 999px; background: var(--reef); }
+.pulse--green i, .pulse--green b { background: var(--positive); }
+@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+
+/* --- gallery ------------------------------------------------------------- */
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: rgb(16 22 24 / .5);
+  padding-inline: 14px;
+  font-size: 13px;
+  color: var(--mist);
+  cursor: pointer;
+  transition: border-color var(--base), color var(--base), background-color var(--base);
+}
+.filter:hover { border-color: var(--line-strong); color: var(--bone); }
+.filter[aria-pressed="true"] { border-color: var(--reef); background: var(--reef); color: var(--reef-ink); }
+.filter b { font-size: 11px; font-weight: 400; opacity: .7; }
+
+.masonry { margin-top: 40px; column-gap: 20px; }
+@media (min-width: 640px) { .masonry { columns: 2; } }
+@media (min-width: 1200px) { .masonry { columns: 3; } }
+.masonry > li { margin-bottom: 20px; break-inside: avoid; }
+
+.gtile {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--slow) var(--ease), transform var(--slow) var(--ease), box-shadow var(--slow) var(--ease);
+}
+.gtile:hover { transform: translateY(-4px); border-color: var(--line-strong); box-shadow: var(--shadow-high); }
+.gtile__wrap { position: relative; display: block; overflow: hidden; }
+.gtile__wrap .prev { transition: transform 900ms var(--ease); }
+.gtile:hover .gtile__wrap .prev { transform: scale(1.04); }
+.gtile__over {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / .45);
+  opacity: 0;
+  transition: opacity var(--base);
+}
+.gtile:hover .gtile__over { opacity: 1; }
+.gtile__over i { display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 999px; background: var(--reef); color: var(--reef-ink); }
+.gtile__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; }
+.gtile__foot b { display: block; font-family: var(--font-display); font-size: 15px; font-weight: 600; }
+.gtile__foot s { display: block; margin-top: 2px; font-size: 12px; color: var(--dim); text-decoration: none; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  flex-direction: column;
+  background: rgb(6 9 10 / .95);
+  backdrop-filter: blur(18px);
+}
+.lightbox.is-open { display: flex; }
+.lightbox__bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); padding: 12px 16px; }
+@media (min-width: 768px) { .lightbox__bar { padding-inline: 24px; } }
+.lightbox__stage { flex: 1; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 16px; }
+@media (min-width: 768px) { .lightbox__stage { padding: 32px; } }
+.icobtn {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--mist);
+  cursor: pointer;
+  transition: border-color var(--base), color var(--base);
+}
+.icobtn:hover { border-color: var(--line-strong); color: var(--bone); }
+
+/* --- forms --------------------------------------------------------------- */
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field > label { display: flex; align-items: baseline; gap: 6px; font-size: 14px; font-weight: 500; }
+.field .req { color: var(--reef); }
+.field .opt { font-size: 12px; font-weight: 400; color: var(--dim); }
+.field .hint { font-size: 12px; color: var(--dim); }
+.ctrl {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--bone);
+  transition: border-color var(--base), background-color var(--base);
+}
+.ctrl::placeholder { color: color-mix(in srgb, var(--dim) 70%, transparent); }
+.ctrl:hover { border-color: var(--line-strong); }
+.ctrl:focus { border-color: var(--reef); background: var(--surface-3); outline: none; }
+.ctrl[aria-invalid="true"] { border-color: var(--negative); background: color-mix(in srgb, var(--negative-soft) 40%, var(--surface-2)); }
+textarea.ctrl { resize: vertical; min-height: 120px; }
+select.ctrl { appearance: none; cursor: pointer; padding-right: 44px; }
+.selwrap { position: relative; }
+.selwrap svg { position: absolute; top: 50%; right: 16px; transform: translateY(-50%); pointer-events: none; color: var(--dim); }
+.err { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; color: var(--negative); }
+
+.rcards { display: grid; gap: 12px; margin-top: 12px; }
+@media (min-width: 640px) { .rcards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color var(--base), background-color var(--base);
+}
+.rcard:hover { border-color: var(--line-strong); }
+.rcard:has(input:checked) { border-color: var(--reef); background: rgb(55 217 190 / .08); }
+.rcard:has(input:focus-visible) { outline: 2px solid var(--reef); outline-offset: 3px; }
+.rcard input { position: absolute; opacity: 0; pointer-events: none; }
+.rcard__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rcard__top b { font-size: 15px; font-weight: 500; }
+.rcard__tick { display: flex; width: 20px; height: 20px; flex: none; align-items: center; justify-content: center; border: 1px solid var(--line-strong); border-radius: 999px; color: transparent; transition: border-color var(--base), background-color var(--base), color var(--base); }
+.rcard:has(input:checked) .rcard__tick { border-color: var(--reef); background: var(--reef); color: var(--reef-ink); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  padding-inline: 14px;
+  font-size: 14px;
+  color: var(--mist);
+  cursor: pointer;
+  transition: border-color var(--base), color var(--base), background-color var(--base);
+}
+.chip:hover { border-color: var(--line-strong); color: var(--bone); }
+.chip:has(input:checked) { border-color: var(--reef); background: rgb(55 217 190 / .1); color: var(--bone); }
+.chip:has(input:focus-visible) { outline: 2px solid var(--reef); outline-offset: 3px; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip__tick { display: flex; width: 16px; height: 16px; flex: none; align-items: center; justify-content: center; border: 1px solid var(--line-strong); border-radius: 3px; color: transparent; transition: border-color var(--base), background-color var(--base), color var(--base); }
+.chip:has(input:checked) .chip__tick { border-color: var(--reef); background: var(--reef); color: var(--reef-ink); }
+
+.steps { display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 640px) { .steps { flex-direction: row; align-items: center; gap: 8px; } }
+.steps li { display: flex; flex: 1; align-items: center; gap: 12px; }
+.steps__n {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--dim);
+  transition: border-color var(--base), background-color var(--base), color var(--base);
+}
+.steps li.is-now .steps__n { border-color: var(--reef); background: var(--reef); color: var(--reef-ink); }
+.steps li.is-done .steps__n { border-color: rgb(55 217 190 / .5); color: var(--reef); }
+.steps li span { font-size: 13px; color: var(--dim); }
+.steps li.is-now span { color: var(--bone); font-weight: 500; }
+.steps__line { display: none; flex: 1; height: 1px; background: var(--line); }
+@media (min-width: 640px) { .steps__line { display: block; } }
+.steps li.is-done .steps__line { background: rgb(55 217 190 / .5); }
+
+.summary {
+  border: 1px solid rgb(255 122 107 / .5);
+  background: var(--negative-soft);
+  border-radius: var(--r-md);
+  padding: 20px;
+}
+.summary a { color: var(--negative); text-decoration: underline; text-underline-offset: 4px; display: inline-flex; min-height: 24px; align-items: center; font-size: 13px; }
+.summary a:hover { color: var(--bone); }
+
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* --- accordion ----------------------------------------------------------- */
+
+.faq { border-top: 1px solid var(--line); }
+.faq li { border-bottom: 1px solid var(--line); }
+.faq button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 20px;
+  background: none;
+  border: 0;
+  text-align: left;
+  color: var(--bone);
+  cursor: pointer;
+  transition: color var(--base);
+}
+.faq button:hover, .faq button[aria-expanded="true"] { color: var(--reef); }
+.faq button b { font-family: var(--font-display); font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+@media (min-width: 768px) { .faq button b { font-size: 19px; } }
+.faq__sign { display: flex; width: 32px; height: 32px; flex: none; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 999px; color: var(--mist); transition: border-color var(--base), color var(--base); }
+.faq button[aria-expanded="true"] .faq__sign { border-color: var(--reef); color: var(--reef); }
+.faq__panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 340ms var(--ease); }
+.faq__panel > div { overflow: hidden; }
+.faq li.is-open .faq__panel { grid-template-rows: 1fr; }
+.faq__panel p { max-width: 42rem; padding-bottom: 24px; }
+
+/* --- footer -------------------------------------------------------------- */
+
+.foot { border-top: 1px solid var(--line); background: var(--ink-2); }
+.foot__in { position: relative; z-index: 1; padding-top: 80px; padding-bottom: 40px; }
+@media (min-width: 768px) { .foot__in { padding-top: 96px; } }
+.foot__grid { display: grid; gap: 48px; }
+@media (min-width: 1024px) { .foot__grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 80px; } }
+.foot__word { font-family: var(--font-display); font-size: clamp(2.5rem, 7vw, 4.5rem); line-height: .9; font-weight: 700; letter-spacing: -.05em; }
+.foot__cols { display: grid; gap: 40px; }
+@media (min-width: 640px) { .foot__cols { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.foot__link { display: inline-flex; min-height: 24px; align-items: center; gap: 6px; padding-block: 2px; font-size: 13px; color: var(--mist); transition: color var(--base); overflow-wrap: anywhere; }
+.foot__link:hover { color: var(--reef); }
+.foot__base { display: flex; flex-direction: column; gap: 12px; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+@media (min-width: 640px) { .foot__base { flex-direction: row; align-items: center; justify-content: space-between; } }
+
+/* --- misc ---------------------------------------------------------------- */
+
+.flow > * + * { margin-top: var(--flow, 24px); }
+.stack { display: flex; flex-direction: column; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.between { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.check { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--mist); }
+.check svg { flex: none; margin-top: 2px; color: var(--reef); }
+.split { display: grid; gap: 56px; }
+@media (min-width: 1024px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 80px; } }
+.split--even { }
+@media (min-width: 1024px) { .split--even { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.sticky { position: sticky; top: 112px; align-self: start; }
+@media (max-width: 1023px) { .sticky { position: static; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  [data-reveal], [data-reveal].pending { opacity: 1 !important; transform: none !important; }
+}
+</style>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<header class="nav" id="nav">
+  <div class="shell nav__inner">
+    <a class="brand" href="#/" aria-label="QMATES — home">
+      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="15" r="11" stroke="currentColor" stroke-width="3"/>
+        <path d="M17.5 17.5 24 24" stroke="#37d9be" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <span>
+        <span class="brand__name">QMATES</span>
+        <span class="brand__sub">Queensland</span>
+      </span>
+    </a>
+
+    <nav aria-label="Primary">
+      <ul class="nav__links" id="navLinks"></ul>
+    </nav>
+
+    <div class="row" style="gap:8px;flex:none;flex-wrap:nowrap">
+      <a class="nav__cta" href="#/quote">
+        Get a Quote
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16"/><path d="m14 6 6 6-6 6"/></svg>
+      </a>
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="sheet" aria-label="Open menu"><i aria-hidden="true"></i></button>
+    </div>
+  </div>
+</header>
+
+<div class="sheet" id="sheet" tabindex="-1"></div>
+
+<main id="main" tabindex="-1"></main>
+
+<footer class="foot grain">
+  <div class="bloom" style="bottom:-224px;left:50%;transform:translateX(-50%);width:42rem;height:24rem;background:rgb(55 217 190 / .08)" aria-hidden="true"></div>
+  <div class="shell foot__in">
+    <div class="foot__grid">
+      <div>
+        <p class="foot__word">QMATES</p>
+        <p class="lead" style="margin-top:16px;max-width:24rem">Queensland's Online Business Partner</p>
+        <div class="row" style="margin-top:32px;gap:10px;border:1px solid var(--line);border-radius:var(--r-sm);background:rgb(16 22 24 / .6);padding:8px 14px;width:fit-content">
+          <span class="pulse pulse--green" aria-hidden="true"><i></i><b></b></span>
+          <span class="eyebrow t-mist">Taking on new projects</span>
+        </div>
+      </div>
+      <div class="foot__cols" id="footCols"></div>
+    </div>
+    <div class="foot__base">
+      <p>© <span id="year"></span> QMATES. Queensland's Online Business Partner.</p>
+      <p>Designed &amp; built in Queensland.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screen preview">
+  <div class="lightbox__bar">
+    <div style="min-width:0">
+      <p id="lbTitle" style="font-family:var(--font-display);font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></p>
+      <p id="lbCap" class="t-dim" style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></p>
+    </div>
+    <div class="row" style="flex:none;gap:8px;flex-wrap:nowrap">
+      <span class="nums t-dim" id="lbCount" style="font-size:12px"></span>
+      <button class="icobtn" type="button" data-lb="prev" aria-label="Previous screen"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H4"/><path d="m10 18-6-6 6-6"/></svg></button>
+      <button class="icobtn" type="button" data-lb="next" aria-label="Next screen"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16"/><path d="m14 6 6 6-6 6"/></svg></button>
+      <button class="icobtn" type="button" data-lb="close" id="lbClose" aria-label="Close preview"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6 18 18"/><path d="M18 6 6 18"/></svg></button>
+    </div>
+  </div>
+  <div class="lightbox__stage"><div style="width:100%;max-width:64rem" id="lbBody"></div></div>
+</div>
+
+<script>
+/* ==========================================================================
+   QMATES — static rendition of the Next.js application.
+   Same content, same tokens, hash routing in place of the App Router.
+   ========================================================================== */
+
+const SITE = {
+  email: "hello@qmates.com.au",
+  phone: "04XX XXX XXX",
+  phoneHref: "tel:+614XXXXXXXX",
+  location: "Brisbane, Queensland",
+  serviceArea: "Working with businesses across South East Queensland and regional QLD."
+};
+
+const NAV = [
+  ["Home", "#/"], ["Portfolio", "#/portfolio"], ["Gallery", "#/gallery"],
+  ["Testimonials", "#/testimonials"], ["Pricing", "#/pricing"],
+  ["About", "#/about"], ["Contact", "#/contact"]
+];
+
+const PROJECTS = [
+  {
+    slug: "coastline-solar", name: "Coastline Solar", industry: "Solar installation",
+    category: "Trades", year: "2025", location: "Sunshine Coast, QLD", pages: 11,
+    summary: "A quote-first website for a residential solar installer, built around one question: will this roof pay for itself?",
+    intro: "Coastline Solar is a sample project showing how QMATES approaches a trades business with a considered sales process and a high-value enquiry.",
+    services: ["Website Design", "Website Development", "Enquiry Flow", "Mobile Optimisation"],
+    challenge: "Solar buyers compare four or five installers before they call anyone. The old site listed panel brands and left the visitor to work out the rest, so most enquiries arrived cold and needed a long phone call before anything could be quoted.",
+    approach: "The entire site was rebuilt around the quote path. A short savings estimator sits in the hero, each system tier has its own page with plain-English inclusions, and every scroll depth has a way to start a quote without losing the reader's place.",
+    direction: "Warm dusk photography against a deep navy base, with a single amber accent reserved exclusively for actions. Long-form technical detail is set in a narrow measure so it stays readable on a phone in a driveway.",
+    features: [
+      ["Roof-size savings estimator", "Three inputs, an indicative figure and a direct path into the quote form with the answers carried across."],
+      ["System tier pages", "Each tier gets a real page with inclusions, warranty terms and finance options rather than a comparison table nobody reads."],
+      ["Installer-side enquiry brief", "The form output is structured so the installer can price the job before the first call."],
+      ["Rebate explainer", "A plain-language page covering current incentives, written so it can be updated without a developer."]
+    ],
+    mobile: "Most enquiries arrive from a phone. The estimator collapses to a single-column stepper, the call button is thumb-reachable on every screen, and the quote form uses numeric and tel keyboards so nothing has to be typed twice.",
+    palette: { bg: "#0d1420", surface: "#141d2d", ink: "#f4f7fb", muted: "#8ea0bb", accent: "#f0a03c", accentInk: "#21150a" },
+    preview: { layout: "hero", nav: ["Home", "Systems", "Savings", "About", "Contact"], h: "Solar, priced", em: "for your roof.", sub: "A system specified for the roof you already have — not a package guessed over the phone.", cta: "Get a quote", cta2: "Estimate savings", tiles: ["6.6kW", "10kW", "13.3kW"] },
+    gallery: [["Home — hero and savings estimator", "hero"], ["System tier detail page", "split"], ["Rebate explainer", "editorial"]]
+  },
+  {
+    slug: "driveway-mechanical", name: "Driveway Mechanical", industry: "Mobile mechanic",
+    category: "Trades", year: "2025", location: "Logan, QLD", pages: 8,
+    summary: "A booking-led site for a mobile mechanic, where the whole job is proving you'll actually turn up.",
+    intro: "Driveway Mechanical is a sample project demonstrating a service-area business whose conversion depends entirely on trust and availability.",
+    services: ["Website Design", "Website Development", "Booking Flow", "Local SEO Foundations"],
+    challenge: "A mobile mechanic has no workshop to visit and no shopfront to judge. Every visitor is silently asking whether this is a real business, whether it covers their suburb, and whether it can come out this week.",
+    approach: "Answer all three above the fold. The service area is stated by name, availability is visible, and the booking form asks for the vehicle and the problem rather than a generic message box.",
+    direction: "High-contrast charcoal with a cool electric accent, heavy condensed headings and a deliberately mechanical grid. Photography is tight and functional — hands and tools, not stock garages.",
+    features: [
+      ["Suburb coverage checker", "A visitor types their suburb and gets a yes, a no, or a call-out surcharge, immediately."],
+      ["Vehicle-aware booking", "Make, model and symptom captured up front so the van arrives carrying the right parts."],
+      ["Service pages per job type", "Logbook servicing, brakes, batteries and pre-purchase inspections each get their own indexable page."],
+      ["Clear pricing bands", "Indicative ranges published for common jobs so the first phone call is not about money."]
+    ],
+    mobile: "Built phone-first. The coverage checker and the call button sit in the first screen, service pages collapse to accordions, and the booking form remembers entries if the page is backgrounded mid-typing.",
+    palette: { bg: "#0a0c0f", surface: "#13171c", ink: "#f1f4f7", muted: "#93a1ae", accent: "#5ad2ff", accentInk: "#04202b" },
+    preview: { layout: "split", nav: ["Home", "Services", "Areas", "Pricing", "Book"], h: "Wheels don't stop.", em: "Neither do we.", sub: "A mobile mechanic that comes to the car, wherever it happens to be sitting.", cta: "Book a service", cta2: "Check my suburb", tiles: ["Logbook", "Brakes", "Batteries"] },
+    gallery: [["Home — coverage and booking", "split"], ["Service detail — logbook servicing", "editorial"], ["Pricing bands", "grid"]]
+  },
+  {
+    slug: "north-quay-kitchen", name: "North Quay Kitchen", industry: "Restaurant and bar",
+    category: "Hospitality", year: "2024", location: "Brisbane, QLD", pages: 7,
+    summary: "A menu-and-bookings site for a riverside kitchen, designed for someone deciding where to eat in the next twenty minutes.",
+    intro: "North Quay Kitchen is a sample project showing how QMATES handles hospitality, where the site is read quickly, usually while walking.",
+    services: ["Website Design", "Website Development", "Bookings Integration", "Content Structure"],
+    challenge: "Hospitality sites bury the two things anyone actually wants — the menu and a table. The previous site hid the menu behind a slow PDF that was unreadable on a phone.",
+    approach: "The menu became real, structured content: searchable, filterable by dietary requirement and updatable by the venue in minutes. Booking sits persistently in the header and never scrolls away.",
+    direction: "A dark, warm room translated to screen — deep olive base, brass accent, generous editorial spacing and a serif used only for dish names. Restrained enough that food photography carries the page.",
+    features: [
+      ["Structured live menu", "Dishes as content, not a PDF. Dietary filters, seasonal sections and staff-editable pricing."],
+      ["Persistent booking", "Table booking available from every page without interrupting what the visitor is reading."],
+      ["Function enquiries", "A separate path for group and event bookings so they never get mixed into table requests."],
+      ["Opening hours source of truth", "Hours defined once and reflected across the site, footer and structured data."]
+    ],
+    mobile: "The menu is the mobile experience. Sticky category navigation, no pinch-zoom required, and a booking button that stays within thumb reach through the entire scroll.",
+    palette: { bg: "#12140d", surface: "#1b1e14", ink: "#f6f4ea", muted: "#a8a68f", accent: "#d8b364", accentInk: "#231a08" },
+    preview: { layout: "editorial", nav: ["Menu", "Bookings", "Functions", "Find us"], h: "River light,", em: "long lunches.", sub: "Seasonal plates and a wine list worth staying for, on the north bank.", cta: "Book a table", cta2: "See the menu", tiles: ["Lunch", "Dinner", "Wine"] },
+    gallery: [["Home — editorial hero", "editorial"], ["Live menu with dietary filters", "grid"], ["Functions enquiry", "split"]]
+  },
+  {
+    slug: "hinterland-physio", name: "Hinterland Physio", industry: "Physiotherapy clinic",
+    category: "Health", year: "2024", location: "Toowoomba, QLD", pages: 9,
+    summary: "A calm, accessible clinic site where booking an appointment takes three taps and no phone call.",
+    intro: "Hinterland Physio is a sample project demonstrating an accessibility-led build for a healthcare practice with an older patient base.",
+    services: ["Website Design", "Website Development", "Accessibility", "Website Maintenance"],
+    challenge: "A significant share of patients are over sixty-five and read on tablets at a large system text size. The previous site broke badly at those settings and pushed everyone back to the phone line.",
+    approach: "Accessibility drove the layout rather than being audited in afterwards: fluid type that survives 200% zoom, no fixed-height containers, full keyboard operation and a booking flow that works entirely without a mouse.",
+    direction: "Soft sage and warm off-white, generous line height and a deliberately unhurried rhythm. Nothing flashes, nothing auto-plays, and the only motion is a gentle fade on entry.",
+    features: [
+      ["Practitioner profiles", "Each physio has a real page with focus areas and availability, so patients can choose rather than be assigned."],
+      ["Condition library", "Plain-language pages for common conditions, each ending in the relevant booking path."],
+      ["Three-tap booking", "Practitioner, time, details. No account creation, no phone call required."],
+      ["Text-scale resilience", "Tested to 200% browser zoom and largest system text with no clipping or overlap."]
+    ],
+    mobile: "Touch targets exceed 48px throughout, forms use the correct input types, and the layout reflows to a single column well before typical tablet breakpoints so nothing is cramped in portrait.",
+    palette: { bg: "#101613", surface: "#18211c", ink: "#f0f5f1", muted: "#9bb0a4", accent: "#7fd6a2", accentInk: "#082214" },
+    preview: { layout: "split", nav: ["Our team", "Conditions", "Fees", "Book"], h: "Move better,", em: "sooner.", sub: "Hands-on physiotherapy in the Toowoomba range, with appointments most weeks.", cta: "Book online", cta2: "Meet the team", tiles: ["Back", "Knee", "Sports"] },
+    gallery: [["Home — practitioner-led hero", "split"], ["Condition library index", "grid"], ["Booking flow, step one", "hero"]]
+  },
+  {
+    slug: "granite-belt-provisions", name: "Granite Belt Provisions", industry: "Regional produce and cellar door",
+    category: "Retail", year: "2024", location: "Stanthorpe, QLD", pages: 10,
+    summary: "A small-batch producer's shopfront, where the story does the selling and the checkout stays out of the way.",
+    intro: "Granite Belt Provisions is a sample project covering a product-led site for a regional producer selling both online and at the gate.",
+    services: ["Website Design", "Website Development", "Product Structure", "Website Maintenance"],
+    challenge: "Regional producers compete with supermarket pricing they cannot match. The site has to make provenance legible in seconds, or the visitor reduces the decision to dollars per kilo.",
+    approach: "Every product is anchored to its grower, season and batch. The checkout was stripped to the minimum number of fields that still capture a regional delivery address correctly.",
+    direction: "Granite grey and dried-grass ochre, photography-forward with a tight editorial grid. Product names set large, prices deliberately quiet.",
+    features: [
+      ["Provenance on every product", "Grower, season and batch shown inline rather than buried in a story page nobody clicks."],
+      ["Cellar door hours", "Gate opening times and seasonal closures surfaced prominently, managed in one place."],
+      ["Regional delivery logic", "Address handling that copes with rural delivery realities instead of rejecting them."],
+      ["Seasonal collections", "Collections that rotate with what is actually picked, editable without a developer."]
+    ],
+    mobile: "Product imagery crops to a portrait ratio on phones rather than letterboxing, the cart is a bottom sheet, and the checkout is a single scroll with no horizontal input rows.",
+    palette: { bg: "#14120f", surface: "#1d1a15", ink: "#f5f2ea", muted: "#aca394", accent: "#c9a227", accentInk: "#201a05" },
+    preview: { layout: "grid", nav: ["Shop", "Growers", "Cellar door", "Journal"], h: "Grown up the", em: "granite belt.", sub: "Small-batch preserves, stone fruit and cool-climate wine, sent from the gate.", cta: "Shop provisions", cta2: "Visit the gate", tiles: ["Preserves", "Stone fruit", "Wine"] },
+    gallery: [["Home — seasonal collection grid", "grid"], ["Product detail with provenance", "split"], ["Grower story", "editorial"]]
+  },
+  {
+    slug: "moreton-legal", name: "Moreton Legal", industry: "Family and property law",
+    category: "Professional Services", year: "2023", location: "Redcliffe, QLD", pages: 12,
+    summary: "A quiet, credible site for a small legal practice, rebuilt so first contact feels less like a commitment.",
+    intro: "Moreton Legal is a sample project showing a professional services build where restraint and clarity carry more weight than visual impact.",
+    services: ["Website Redesign", "Website Development", "Content Structure", "SEO Foundations"],
+    challenge: "People contacting a family lawyer are usually having a bad month. The previous site was written for other lawyers — dense, formal, and offering no low-commitment way to start a conversation.",
+    approach: "Rewritten to a plain-English structure with a clear fee position, then a deliberate low-pressure entry point: a fifteen-minute call that can be requested without explaining the whole situation in a form.",
+    direction: "Near-black with a muted slate accent and a text-forward layout. No stock handshakes, no columns, no glass towers. Typography does all the work.",
+    features: [
+      ["Plain-English practice areas", "Each area explained in the language a client would actually use to describe their problem."],
+      ["Fee transparency page", "How fees are structured and what triggers them, stated before anyone has to ask."],
+      ["Fifteen-minute call request", "A short, private, low-commitment first step separate from the full enquiry form."],
+      ["Resource library", "Downloadable checklists that give something useful away before any engagement."]
+    ],
+    mobile: "Long-form legal content is set to a comfortable measure with clear section anchors, so a visitor reading on a phone can find the relevant paragraph without pinching or endless scrolling.",
+    palette: { bg: "#0b0c0e", surface: "#141619", ink: "#eef0f3", muted: "#98a0ab", accent: "#8fa8c9", accentInk: "#0b1420" },
+    preview: { layout: "editorial", nav: ["Practice areas", "Fees", "About", "Contact"], h: "Clear advice,", em: "plainly put.", sub: "Family and property law on the peninsula, without the billable-hour anxiety.", cta: "Request a call", cta2: "How fees work", tiles: ["Family", "Property", "Wills"] },
+    gallery: [["Home — text-led hero", "editorial"], ["Practice area detail", "split"], ["Fee transparency", "hero"]]
+  }
+];
+
+const TESTIMONIALS = [
+  ["t1", "Placeholder — reserved for a client quote about the enquiry process. The intent of this slot is a client describing how the new site changed the quality of the leads arriving, not just the quantity.", "Trades — solar", "coastline-solar"],
+  ["t2", "Placeholder — reserved for a client quote about the build process. This slot is intended for a client describing what it was like to work with QMATES: communication, timelines and how decisions were made.", "Trades — mobile mechanic", "driveway-mechanical"],
+  ["t3", "Placeholder — reserved for a client quote about self-management. Intended for a client describing how easily they can update their own menu, pricing or hours without needing a developer.", "Hospitality", "north-quay-kitchen"],
+  ["t4", "Placeholder — reserved for a client quote about accessibility. Intended for a practice describing how their older patients found the new booking flow compared with phoning reception.", "Health — physiotherapy", "hinterland-physio"],
+  ["t5", "Placeholder — reserved for a client quote about mobile performance. Intended for a client describing how the site behaves for customers on patchy regional connections.", "Retail — regional produce", "granite-belt-provisions"],
+  ["t6", "Placeholder — reserved for a client quote about tone and credibility. Intended for a professional practice describing how the site changed the first impression clients form before making contact.", "Professional services — legal", "moreton-legal"]
+].map(([id, quote, type, slug]) => ({ id, quote, type, slug }));
+
+const SERVICES = [
+  ["01", "Website Design", "A considered design built around how your customers actually decide, not around a template's demo content.", "Layout, typography, colour and imagery chosen for your business specifically. You see real designs with your own content in them before anything gets built.", ["Design direction", "Page-by-page layouts"]],
+  ["02", "Website Development", "Hand-built, fast and stable. No page-builder bloat, no plugin stack that breaks on update.", "Clean, modern code with proper semantics and accessibility, built to load quickly on a phone connection anywhere in Queensland.", ["Responsive build", "Accessibility pass"]],
+  ["03", "Business Websites", "The complete package for a business that needs to look established and take enquiries reliably.", "Everything from structure and copy guidance through to contact forms, service pages and the details that make a small business read as a serious one.", ["Site structure", "Enquiry forms"]],
+  ["04", "Website Redesigns", "You already have a site. It looks dated, loads slowly, or nobody enquires through it.", "A redesign starts with working out what is actually failing — presentation, structure or trust — then rebuilds only what needs rebuilding.", ["Current-site review", "Redirect mapping"]],
+  ["05", "Mobile Optimisation", "Most of your visitors are on a phone. That is the design that matters most.", "Mobile is designed deliberately, not shrunk down from desktop — proper touch targets, thumb-reachable actions and layouts built for a small screen.", ["Mobile-first layouts", "Real-device testing"]],
+  ["06", "Website Maintenance", "Ongoing care so the site stays fast, current and online — without you thinking about it.", "Updates, backups, monitoring and small content changes handled on an ongoing basis, with a clear monthly scope.", ["Content updates", "Uptime monitoring"]]
+].map(([i, title, summary, detail, inc]) => ({ i, title, summary, detail, inc }));
+
+const PROCESS = [
+  ["01", "Discover", "We work out what the site actually has to do before anyone talks about how it should look.", ["Business and customer questions", "Competitor review", "Site structure and page list", "Fixed scope and quote"]],
+  ["02", "Design", "You see real designs with your content in them — desktop and mobile — and we refine from there.", ["Design direction", "Key page designs", "Mobile designs", "Revisions until it is right"]],
+  ["03", "Build", "The approved design gets hand-built, tested properly, and checked on real devices.", ["Responsive build", "Forms and integrations", "Accessibility and performance", "Cross-browser testing"]],
+  ["04", "Launch", "We go live carefully, then make sure you know how to run it yourself.", ["Domain and hosting setup", "Analytics and search setup", "Handover walkthrough", "Post-launch support window"]]
+].map(([i, title, body, detail]) => ({ i, title, body, detail }));
+
+const PRINCIPLES = [
+  ["You talk to the person building it", "There is no account manager relaying messages. The person you brief is the person designing and writing the code."],
+  ["Fixed scope, fixed price", "You get a written scope and a fixed figure before work starts. If the scope changes, you approve the change first."],
+  ["Built to be handed over", "You own the domain, the hosting account and the site. Nothing is held hostage, and leaving is always possible."],
+  ["Fast by default", "Performance is a design constraint from the first day, not an optimisation pass bolted on at the end."]
+];
+
+const PLANS = [
+  {
+    id: "starter", name: "Starter", price: "$XXX", note: "one-off, from", highlighted: false,
+    audience: "Smaller businesses that need a credible presence",
+    description: "A tight, well-built site that makes a small business look established and gives customers a way to get in touch.",
+    pages: "Up to 5 pages", timeline: "2–3 weeks", cta: "Start with Starter",
+    includes: ["Custom design — no templates", "Up to 5 pages", "Fully responsive build", "Contact form with spam protection", "SEO foundations — titles, descriptions, sitemap", "Google Business Profile guidance", "Deployment and domain connection", "30 days post-launch support"]
+  },
+  {
+    id: "growth", name: "Growth", price: "$XXX", note: "one-off, from", highlighted: true,
+    audience: "Businesses that need the site to actively bring in work",
+    description: "More pages, a proper enquiry or booking flow, and the content structure to rank for the services you actually sell.",
+    pages: "Up to 12 pages", timeline: "4–6 weeks", cta: "Start with Growth",
+    includes: ["Everything in Starter", "Up to 12 pages", "Service pages built for search", "Multi-step quote or booking flow", "Copy structure and guidance", "Gallery or portfolio section", "Analytics and conversion tracking", "Accessibility pass to WCAG AA", "60 days post-launch support"]
+  },
+  {
+    id: "custom", name: "Custom", price: "Quoted", note: "scoped per project", highlighted: false,
+    audience: "Businesses with requirements a package cannot cover",
+    description: "Larger sites, online stores, integrations with systems you already run, or anything that needs to be designed from the problem up.",
+    pages: "Unlimited", timeline: "Scoped per project", cta: "Discuss a custom build",
+    includes: ["Everything in Growth", "Unlimited pages", "E-commerce or bookings platform", "Third-party system integration", "Custom functionality", "Content migration", "Staged rollout", "Extended support window"]
+  }
+];
+
+const ADDONS = [
+  ["Website Maintenance", "$XX", "per month — updates, backups, monitoring and small content changes"],
+  ["Hosting & domain management", "$XX", "per month — managed hosting, SSL and domain renewals handled"],
+  ["Extra page", "$XXX", "per page — added to any package during the build"],
+  ["Copywriting", "$XXX", "per page — written for your business and your search terms"]
+];
+
+const FAQS = [
+  ["Why are the prices shown as placeholders?", "Because they have not been set in this build yet. Rather than publish a made-up figure, the packages are listed with their real inclusions and a placeholder price. Request a quote and you will get a fixed written figure for your actual scope."],
+  ["Is the price really fixed?", "Yes. Scope is agreed in writing before work starts and the price is fixed against it. If you ask for something outside that scope mid-project, you get a written variation to approve or decline before anything is built."],
+  ["Do I own the website?", "You do. The domain, the hosting account and the site itself are in your name. If you ever want to move on, everything comes with you."],
+  ["What do you need from me?", "Your logo if you have one, any photography you want used, and a sense of what your customers usually ask before they buy. If you do not have copy, there is guidance included and copywriting available as an add-on."],
+  ["How long does it take?", "Starter is typically two to three weeks and Growth four to six, from the point content is supplied. The usual cause of delay is waiting on content, so the process is structured to collect it early."],
+  ["Do you work with businesses outside Queensland?", "The focus is Queensland, but the work happens remotely either way, so location is not a barrier."]
+];
+
+/* --- icons --------------------------------------------------------------- */
+
+const S = (d, extra = "") => `<svg class="${extra}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICO = {
+  arrow: (c = "arw") => S('<path d="M4 12h16"/><path d="m14 6 6 6-6 6"/>', c),
+  left: () => S('<path d="M20 12H4"/><path d="m10 18-6-6 6-6"/>'),
+  check: () => S('<path d="m4 12.5 5 5L20 6.5"/>'),
+  mail: () => S('<rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 7 8.2 5.6a1.5 1.5 0 0 0 1.6 0L21 7"/>'),
+  phone: () => S('<path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 5.5 5.5L16 12l4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 3 6.2 2 2 0 0 1 5 4h1.5Z"/>'),
+  pin: () => S('<path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/>'),
+  alert: () => S('<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.3v.2"/>'),
+  expand: () => S('<path d="M9 4H4v5"/><path d="M15 20h5v-5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/>'),
+  chevron: () => S('<path d="m6 9 6 6 6-6"/>'),
+  plus: () => S('<path d="M12 5v14"/><path d="M5 12h14"/>'),
+  minus: () => S('<path d="M5 12h14"/>')
+};
+
+/* --- helpers ------------------------------------------------------------- */
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const byId = (slug) => PROJECTS.find((p) => p.slug === slug);
+const paletteVars = (p) =>
+  `--p-bg:${p.palette.bg};--p-surface:${p.palette.surface};--p-ink:${p.palette.ink};--p-muted:${p.palette.muted};--p-accent:${p.palette.accent};--p-accent-ink:${p.palette.accentInk}`;
+
+const btn = (label, href, variant = "solid", { arrow = false, size = "", cls = "" } = {}) => {
+  const inner = (variant === "solid" || variant === "sand")
+    ? `<span class="swap"><span>${label}</span><span aria-hidden="true">${label}</span></span>`
+    : `<span>${label}</span>`;
+  return `<a class="btn btn--${variant} ${size} ${cls}" href="${href}">${inner}${arrow ? ICO.arrow() : ""}</a>`;
+};
+
+const eyebrow = (t, tone = "t-reef") => `<p class="eyebrow ${tone}">${t}</p>`;
+
+const sectionHead = ({ eyebrow: eb, title, lead, link }) => `
+  <div class="between" data-reveal>
+    <div style="max-width:42rem">
+      ${eb ? eyebrow(eb) + '<div style="height:16px"></div>' : ""}
+      <h2 style="font-size:var(--text-h2);line-height:1.06">${title}</h2>
+      ${lead ? `<p class="lead" style="margin-top:20px">${lead}</p>` : ""}
+    </div>
+    ${link ? `<a class="lnk" href="${link[1]}">${link[0]}${ICO.arrow()}</a>` : ""}
+  </div>`;
+</script>
+
+<script>
+/* ==========================================================================
+   SITE PREVIEW — a miniature website drawn from a project's palette.
+   Sized in container-query units so the same markup works at 180px and
+   at full width. Stands in for screenshots that do not exist yet.
+   ========================================================================== */
+
+const pImg = (style = "") => `<div class="prev__img" style="${style}"></div>`;
+const pLines = (n = 3, style = "") => {
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    const w = i === n - 1 ? "55%" : i % 2 === 0 ? "100%" : "85%";
+    out += `<i style="width:${w}"></i>`;
+  }
+  return `<div class="prev__lines" style="${style}">${out}</div>`;
+};
+const pHead = (p, size) =>
+  `<p class="prev__h" style="font-size:${size}">${esc(p.preview.h)}${p.preview.em ? ` <em>${esc(p.preview.em)}</em>` : ""}</p>`;
+const pBtns = (p) =>
+  `<div class="prev__btns"><span class="prev__b1">${esc(p.preview.cta)}</span>${p.preview.cta2 ? `<span class="prev__b2">${esc(p.preview.cta2)}</span>` : ""}</div>`;
+const pTiles = (p) =>
+  p.preview.tiles ? `<div class="prev__tiles">${p.preview.tiles.map((t) => `<span>${esc(t)}</span>`).join("")}</div>` : "";
+const pNav = (p) => `
+  <div class="prev__nav">
+    <div class="prev__logo"><span class="prev__dot"></span><span class="prev__name">${esc(p.name)}</span></div>
+    <div class="prev__menu">${p.preview.nav.map((n) => `<span>${esc(n)}</span>`).join("")}</div>
+    <span class="prev__cta">${esc(p.preview.cta)}</span>
+  </div>`;
+
+const LAYOUTS = {
+  hero: (p) => `${pNav(p)}<div class="prev__body">
+      <div style="position:relative">
+        ${pImg("aspect-ratio:16/7")}
+        <div style="position:absolute;inset:8cqw 8cqw auto;display:flex;flex-direction:column;gap:2cqw">
+          ${pHead(p, "5.4cqw")}
+          <p class="prev__sub" style="max-width:52%">${esc(p.preview.sub)}</p>
+          ${pBtns(p)}
+        </div>
+      </div>
+      <div class="prev__row" style="justify-content:space-between">${pTiles(p)}${pLines(2, "width:34%")}</div>
+    </div>`,
+  split: (p) => `${pNav(p)}<div class="prev__body" style="flex-direction:row;align-items:center;gap:3.5cqw">
+      <div class="prev__col" style="width:50%;gap:2.2cqw">
+        ${pHead(p, "4.8cqw")}
+        <p class="prev__sub">${esc(p.preview.sub)}</p>
+        ${pBtns(p)}${pTiles(p)}
+      </div>
+      <div class="prev__col" style="width:50%">
+        ${pImg("aspect-ratio:5/4")}
+        <div class="prev__row" style="gap:1.6cqw">${pImg("aspect-ratio:1;width:50%")}${pImg("aspect-ratio:1;width:50%")}</div>
+      </div>
+    </div>`,
+  editorial: (p) => `${pNav(p)}<div class="prev__body" style="gap:2.6cqw">
+      <div class="prev__edit">
+        ${pHead(p, "6cqw")}
+        <p class="prev__sub" style="width:30%;flex:none">${esc(p.preview.sub)}</p>
+      </div>
+      ${pImg("aspect-ratio:16/6")}
+      <div class="prev__row" style="align-items:center;justify-content:space-between">${pBtns(p)}${pTiles(p)}</div>
+    </div>`,
+  grid: (p) => `${pNav(p)}<div class="prev__body" style="gap:2.4cqw">
+      <div class="prev__row" style="align-items:flex-end;justify-content:space-between">${pHead(p, "4.4cqw")}${pBtns(p)}</div>
+      <div class="prev__grid3">
+        ${[0, 1, 2].map((i) => `<div class="prev__prod">${pImg("aspect-ratio:4/5")}<b>${esc((p.preview.tiles || [])[i] || "Collection")}</b><s>From $XX</s></div>`).join("")}
+      </div>
+    </div>`
+};
+
+const preview = (p, layout, aspect = "16 / 10") =>
+  `<div class="prev" style="${paletteVars(p)};aspect-ratio:${aspect}">${LAYOUTS[layout || p.preview.layout](p)}</div>`;
+
+const mobilePreview = (p) => `
+  <div class="mprev" style="${paletteVars(p)}">
+    <div class="mprev__status">
+      <b>9:41</b>
+      <div class="mprev__sig"><i></i><i></i><i></i><i></i><span class="mprev__batt"></span></div>
+    </div>
+    <div class="mprev__bar">
+      <div class="prev__logo" style="gap:2cqw"><span class="prev__dot"></span><b>${esc(p.name)}</b></div>
+      <div class="mprev__burger"><i></i><i></i></div>
+    </div>
+    <div class="mprev__body">
+      <p class="mprev__h">${esc(p.preview.h)}${p.preview.em ? ` <em>${esc(p.preview.em)}</em>` : ""}</p>
+      <p class="mprev__sub">${esc(p.preview.sub)}</p>
+      <span class="mprev__cta">${esc(p.preview.cta)}</span>
+      ${pImg("aspect-ratio:4/3;border-radius:2.5cqw")}
+      <div class="mprev__tiles">${(p.preview.tiles || []).map((t) => `<span>${esc(t)}</span>`).join("")}</div>
+      ${pLines(3)}
+    </div>
+    <div class="mprev__home"><i></i></div>
+  </div>`;
+
+const browser = (p, inner) => `
+  <div class="browser">
+    <div class="browser__bar">
+      <div class="browser__lights" aria-hidden="true"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+      <div class="browser__url"><span>${esc(p.slug)}.com.au</span></div>
+      <div class="browser__spacer" aria-hidden="true"></div>
+    </div>
+    ${inner}
+  </div>`;
+
+const phone = (p, cls = "") => `
+  <div class="phone ${cls}">
+    <div class="phone__screen"><span class="phone__island" aria-hidden="true"></span>${mobilePreview(p)}</div>
+  </div>`;
+
+/* --- project card -------------------------------------------------------- */
+
+const projectCard = (p, i) => `
+  <article class="pcard" data-reveal>
+    <a href="#/portfolio/${p.slug}" aria-label="View the ${esc(p.name)} case study">
+      <div class="pcard__head">
+        <span class="eyebrow nums t-dim">${String(i + 1).padStart(2, "0")} — ${esc(p.category)}</span>
+        <span class="eyebrow t-dim" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.location)}</span>
+      </div>
+      <div class="pcard__frame">
+        ${preview(p)}
+        <div class="pcard__scrim" aria-hidden="true">
+          <span class="meta" style="font-weight:500;color:#fff">View case study</span>
+          <span class="pcard__go"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(-45deg)"><path d="M4 12h16"/><path d="m14 6 6 6-6 6"/></svg></span>
+        </div>
+      </div>
+      <div class="between" style="margin-top:24px;align-items:flex-start">
+        <div style="min-width:0;flex:1">
+          <h3>${esc(p.name)}</h3>
+          <p class="meta t-mist" style="margin-top:8px">${esc(p.summary)}</p>
+        </div>
+        <div style="text-align:right;flex:none">
+          <p class="eyebrow nums t-dim">${p.year}</p>
+          <p class="eyebrow t-dim" style="margin-top:8px;opacity:.8">${p.pages} pages</p>
+        </div>
+      </div>
+      <div class="row" style="margin-top:16px;gap:8px">
+        <span class="tag tag--sample">Sample project</span>
+        ${p.services.slice(0, 3).map((s) => `<span class="tag">${esc(s)}</span>`).join("")}
+      </div>
+    </a>
+  </article>`;
+
+const testimonialCard = (t) => {
+  const proj = t.slug ? byId(t.slug) : null;
+  return `
+  <figure class="card" data-reveal style="display:flex;flex-direction:column;height:100%;background:var(--surface)">
+    <blockquote style="flex:1">
+      <p style="font-size:17px;line-height:1.6;color:var(--dim);font-style:italic">${esc(t.quote)}</p>
+    </blockquote>
+    <figcaption class="rule-t" style="margin-top:24px;padding-top:20px">
+      <p class="eyebrow t-sand" style="display:inline-flex;align-items:center;gap:6px"><span style="width:4px;height:4px;border-radius:999px;background:var(--sand)" aria-hidden="true"></span>Awaiting client quote</p>
+      <div class="row" style="margin-top:12px;gap:12px">
+        <span class="eyebrow t-dim">${esc(t.type)}</span>
+        ${proj ? `<a href="#/portfolio/${proj.slug}" style="display:inline-flex;min-height:24px;align-items:center;font-size:12px;color:var(--mist);text-decoration:underline;text-underline-offset:4px">${esc(proj.name)} case study</a>` : ""}
+      </div>
+    </figcaption>
+  </figure>`;
+};
+
+const ctaSection = ({
+  eb = "Next step",
+  title = "Ready to give your business a better online presence?",
+  body = "Tell me what your business does and what you need the site to achieve. You will get a fixed written quote back — no obligation, no sales call unless you want one.",
+  primary = ["Get a Quote", "#/quote"],
+  secondary = ["See the work", "#/portfolio"]
+} = {}) => `
+  <section class="grain" style="border-top:1px solid var(--line);background:var(--ink-2);padding-block:96px">
+    <div class="bloom" style="top:50%;left:50%;transform:translate(-50%,-50%);width:min(56rem,90vw);height:20rem;background:rgb(55 217 190 / .12)" aria-hidden="true"></div>
+    <div class="shell" style="position:relative;z-index:1">
+      <div data-reveal style="max-width:48rem;margin-inline:auto;text-align:center">
+        ${eyebrow(eb)}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:20px">${title}</h2>
+        <p class="lead" style="margin-top:24px;margin-inline:auto;max-width:34rem">${body}</p>
+        <div class="row" style="margin-top:40px;justify-content:center">
+          ${btn(primary[0], primary[1], "solid", { arrow: true, size: "btn--lg" })}
+          ${secondary ? btn(secondary[0], secondary[1], "outline", { size: "btn--lg" }) : ""}
+        </div>
+        <p class="meta t-dim" style="margin-top:32px">Prefer to talk first? <a href="mailto:${SITE.email}" style="color:var(--mist);text-decoration:underline;text-underline-offset:4px">${SITE.email}</a></p>
+      </div>
+    </div>
+  </section>`;
+
+const pageHero = ({ index, eb, title, lead, aside, extra = "" }) => `
+  <header class="phero grain">
+    <div class="bloom" style="top:-160px;left:50%;transform:translateX(-50%);width:min(52rem,95vw);height:26rem;background:rgb(55 217 190 / .1)" aria-hidden="true"></div>
+    <div class="shell phero__in">
+      <div class="phero__idx" data-reveal>
+        <span class="eyebrow nums t-dim">${index}</span><hr>${eyebrow(eb)}
+      </div>
+      <div style="margin-top:32px;display:grid;gap:40px${aside ? ";grid-template-columns:1fr" : ""}" class="${aside ? "phero__split" : ""}">
+        <div data-reveal>
+          <h1>${title}</h1>
+          ${lead ? `<p class="lead" style="margin-top:24px;max-width:42rem">${lead}</p>` : ""}
+        </div>
+        ${aside ? `<div data-reveal style="padding-top:12px">${aside}</div>` : ""}
+      </div>
+      ${extra}
+    </div>
+  </header>`;
+</script>
+
+<style>
+  /* Two-column page hero, applied only where an aside exists. */
+  @media (min-width: 1024px) {
+    .phero__split { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) !important; gap: 64px !important; }
+  }
+</style>
+
+<script>
+/* ==========================================================================
+   PAGES
+   ========================================================================== */
+
+const PAGES = {};
+
+/* --- home ---------------------------------------------------------------- */
+
+PAGES.home = () => {
+  const stack = PROJECTS.slice(0, 4);
+  return `
+  <section class="hero grain">
+    <div class="bloom" style="top:-10%;right:-10%;width:min(44rem,90vw);aspect-ratio:1;background:rgb(55 217 190 / .12)" aria-hidden="true"></div>
+    <div class="bloom" style="bottom:-20%;left:-15%;width:min(34rem,80vw);aspect-ratio:1;background:rgb(233 201 155 / .06)" aria-hidden="true"></div>
+    <div class="shell hero__in">
+      <div class="hero__grid">
+        <div class="hero__copy">
+          <div class="row" style="gap:12px">
+            <span class="pulse" aria-hidden="true"><i></i><b></b></span>
+            ${eyebrow("Queensland's Online Business Partner", "t-mist")}
+          </div>
+          <h1>
+            <span>Websites that</span>
+            <span>make Queensland</span>
+            <span>businesses <span class="accent t-reef">impossible</span></span>
+            <span>to ignore.</span>
+          </h1>
+          <p class="lead" style="margin-top:28px;max-width:32rem">
+            QMATES designs and builds websites for Queensland businesses — the kind
+            that look established, load fast on a phone, and turn a visitor into an
+            enquiry instead of a bounce.
+          </p>
+          <div class="row" style="margin-top:36px;gap:12px">
+            ${btn("Get a Quote", "#/quote", "solid", { arrow: true, size: "btn--lg" })}
+            ${btn("View My Work", "#/portfolio", "outline", { size: "btn--lg" })}
+          </div>
+          <ul class="row" style="margin-top:40px;gap:12px 24px">
+            ${[["Hand-coded", "No page builders"], ["Mobile-first", "Designed for phones"], ["Fixed scope", "Priced before we start"]]
+              .map(([a, b]) => `<li class="row" style="gap:8px">${ICO.check()}<span class="meta t-mist">${a}</span><span class="meta t-dim hide-sm">— ${b}</span></li>`).join("")}
+          </ul>
+        </div>
+
+        <div class="hero__visual" id="heroVisual">
+          <div class="hero__stage">
+            <div class="hero__browser" id="heroBrowser">${browser(stack[0], preview(stack[0]))}</div>
+            <div class="hero__phone" id="heroPhone">
+              <div class="bloom" aria-hidden="true"></div>
+              ${phone(stack[0])}
+            </div>
+          </div>
+          <div class="between" style="margin-top:72px;align-items:center;flex-wrap:nowrap">
+            <div style="min-width:0">
+              ${eyebrow("Now showing", "t-dim")}
+              <p style="margin-top:6px;font-family:var(--font-display);font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="heroName">
+                ${esc(stack[0].name)} <span class="meta t-dim" style="font-family:var(--font-body);font-weight:400">${esc(stack[0].industry)}</span>
+              </p>
+            </div>
+            <div class="dots" id="heroDots">
+              ${stack.map((p, i) => `<button class="dot" type="button" data-hero="${i}" aria-current="${i === 0}" aria-label="Show ${esc(p.name)}"><span class="nums">${String(i + 1).padStart(2, "0")}</span></button>`).join("")}
+              <button class="dot" type="button" id="heroPause" aria-label="Pause preview rotation" style="margin-left:4px"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--raised">
+    <div class="shell split">
+      <div data-reveal>
+        ${eyebrow("Why QMATES")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:20px">A website is the first thing a customer <span class="accent t-sand">judges</span> you on.</h2>
+        <p class="lead" style="margin-top:24px;max-width:28rem">
+          Most people decide whether a business is worth contacting before they read a
+          single sentence. QMATES exists to make that first few seconds work in your
+          favour — then make the next step obvious.
+        </p>
+      </div>
+      <div class="mesh g2" data-reveal>
+        ${PRINCIPLES.map(([t, b]) => `<div><h3 style="font-size:17px">${t}</h3><p class="meta t-mist" style="margin-top:12px">${b}</p></div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell">
+      ${sectionHead({
+        eyebrow: "01 / Selected work",
+        title: "Different businesses.<br>Same attention to detail.",
+        lead: "Every project starts with what the business actually needs the site to do, then works backwards to the design.",
+        link: ["All projects", "#/portfolio"]
+      })}
+      <div class="grid g2" style="margin-top:56px;gap:56px 32px">
+        ${PROJECTS.slice(0, 4).map(projectCard).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      ${sectionHead({
+        eyebrow: "02 / Services",
+        title: "What QMATES actually does",
+        lead: "Six services, all pointed at the same outcome: a site that makes your business easy to trust and easy to contact."
+      })}
+      <ul style="margin-top:56px;border-top:1px solid var(--line)">
+        ${SERVICES.map((s) => `
+          <li data-reveal class="srv">
+            <span class="eyebrow nums t-dim">${s.i}</span>
+            <h3 style="font-size:var(--text-h3)">${s.title}</h3>
+            <p class="meta t-mist">${s.summary}</p>
+            <div class="row" style="gap:8px;justify-content:flex-end">${s.inc.map((x) => `<span class="tag">${x}</span>`).join("")}</div>
+          </li>`).join("")}
+      </ul>
+      <div data-reveal style="margin-top:40px">${btn("How the work gets done", "#/about", "ghost", { arrow: true })}</div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell">
+      ${sectionHead({
+        eyebrow: "03 / Process",
+        title: "Four steps, no surprises",
+        lead: "You always know what stage the project is at, what you owe and what happens next."
+      })}
+      <div class="mesh g4" style="margin-top:56px" data-reveal>
+        ${PROCESS.map((s) => `
+          <div class="step">
+            <p class="eyebrow nums t-reef">${s.i}</p>
+            <h3 style="font-size:var(--text-h3);margin-top:20px">${s.title}</h3>
+            <p class="meta t-mist" style="margin-top:12px">${s.body}</p>
+            <ul class="stack" style="margin-top:24px;gap:8px">
+              ${s.detail.map((d) => `<li class="check" style="font-size:13px;color:var(--dim)">${ICO.check()}${d}</li>`).join("")}
+            </ul>
+          </div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      ${sectionHead({
+        eyebrow: "04 / Testimonials",
+        title: "What clients say",
+        lead: "These slots are reserved for real client quotes. Nothing here is invented or attributed to anyone who has not said it.",
+        link: ["View all testimonials", "#/testimonials"]
+      })}
+      <div class="grid g3" style="margin-top:56px">${TESTIMONIALS.slice(0, 3).map(testimonialCard).join("")}</div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell">
+      ${sectionHead({
+        eyebrow: "05 / Pricing",
+        title: "Three ways to start",
+        lead: "Figures below are placeholders until final pricing is set. The inclusions are real — request a quote and you get a fixed written figure for your scope.",
+        link: ["Full pricing detail", "#/pricing"]
+      })}
+      <div class="grid g3" style="margin-top:56px">
+        ${PLANS.map((p) => `
+          <div data-reveal class="card" style="${p.highlighted ? "border-color:rgb(55 217 190 / .45);background:var(--surface)" : ""};display:flex;flex-direction:column;height:100%">
+            <div class="between" style="align-items:flex-start">
+              <h3 style="font-size:var(--text-h3)">${p.name}</h3>
+              ${p.highlighted ? '<span class="eyebrow" style="border-radius:var(--r-xs);background:var(--reef);color:var(--reef-ink);padding:4px 8px">Most chosen</span>' : ""}
+            </div>
+            <p class="meta t-mist" style="margin-top:16px">${p.audience}</p>
+            <p style="margin-top:24px;display:flex;align-items:baseline;gap:8px">
+              <span class="nums" style="font-family:var(--font-display);font-size:36px;font-weight:700;line-height:1">${p.price}</span>
+              <span style="font-size:12px;color:var(--dim)">${p.note}</span>
+            </p>
+            <p style="margin-top:12px;font-size:13px;color:var(--dim)">${p.pages} · ${p.timeline}</p>
+            <ul class="stack" style="margin-top:24px;gap:10px;flex:1">
+              ${p.includes.slice(0, 4).map((x) => `<li class="check" style="font-size:13px">${ICO.check()}${x}</li>`).join("")}
+            </ul>
+            <a class="lnk" style="margin-top:28px;align-self:flex-start" href="#/pricing">See what's included${ICO.arrow()}</a>
+          </div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  ${ctaSection()}`;
+};
+
+/* --- portfolio ----------------------------------------------------------- */
+
+PAGES.portfolio = () => {
+  const industries = [...new Set(PROJECTS.map((p) => p.category))];
+  const aside = `
+    <dl class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+      <div><dt class="eyebrow t-dim">Projects</dt><dd class="nums" style="margin:8px 0 0;font-family:var(--font-display);font-size:28px;font-weight:700">${PROJECTS.length}</dd></div>
+      <div><dt class="eyebrow t-dim">Industries</dt><dd class="nums" style="margin:8px 0 0;font-family:var(--font-display);font-size:28px;font-weight:700">${industries.length}</dd></div>
+      <div style="grid-column:span 2"><dt class="eyebrow t-dim">Services applied</dt>
+        <dd class="row" style="margin:10px 0 0;gap:8px">${SERVICES.slice(0, 4).map((s) => `<span class="tag" style="color:var(--mist)">${s.title}</span>`).join("")}</dd></div>
+    </dl>`;
+  return `
+    ${pageHero({
+      index: "01", eb: "Portfolio",
+      title: 'Work that has to earn<br>its <span class="accent t-reef">keep</span>.',
+      lead: "Six projects across six industries. Each one opens into a full case study covering the problem, the approach and the decisions behind the design.",
+      aside
+    })}
+    <section class="section section--lg">
+      <div class="shell">
+        <div class="notice" data-reveal style="margin-bottom:48px">
+          ${eyebrow("A note on this portfolio", "t-sand")}
+          <p class="meta t-mist" style="margin-top:10px;max-width:52rem">
+            Every project below is a <strong class="t-bone">sample build</strong> created to
+            demonstrate how QMATES approaches each industry. They are not real clients, and no
+            results, reviews or statistics have been invented. As real work is completed it
+            replaces these entries directly.
+          </p>
+        </div>
+        <div data-reveal style="margin-bottom:48px">
+          <h2 style="font-size:var(--text-h2);line-height:1.06">Every project</h2>
+          <p class="meta t-mist" style="margin-top:16px;max-width:34rem">Ordered most recent first. Open any card for the full case study.</p>
+        </div>
+        <div class="grid g2" style="gap:64px 32px">${PROJECTS.map(projectCard).join("")}</div>
+      </div>
+    </section>
+    ${ctaSection({
+      eb: "Your project",
+      title: "Your business could be the next one on this page.",
+      body: "Tell me what you do and what the site needs to achieve. You will get a fixed written quote — no obligation.",
+      secondary: ["See pricing", "#/pricing"]
+    })}`;
+};
+
+/* --- case study ---------------------------------------------------------- */
+
+PAGES.project = (slug) => {
+  const p = byId(slug);
+  if (!p) return PAGES.notFound();
+  const i = PROJECTS.indexOf(p);
+  const prev = PROJECTS[(i - 1 + PROJECTS.length) % PROJECTS.length];
+  const next = PROJECTS[(i + 1) % PROJECTS.length];
+
+  return `
+  <header class="phero grain">
+    <div class="bloom" style="top:-192px;left:50%;transform:translateX(-50%);width:min(52rem,95vw);height:26rem;background:rgb(55 217 190 / .1)" aria-hidden="true"></div>
+    <div class="shell phero__in">
+      <a class="row" data-reveal href="#/portfolio" style="gap:8px;min-height:36px;font-size:13px;color:var(--mist);width:fit-content">${ICO.left()}All projects</a>
+      <div class="phero__split" style="margin-top:32px;display:grid;gap:40px;grid-template-columns:1fr">
+        <div data-reveal>
+          ${eyebrow(`${p.category} · ${p.year}`)}
+          <h1 style="margin-top:16px">${esc(p.name)}</h1>
+          <p class="lead" style="margin-top:24px;max-width:42rem">${esc(p.intro)}</p>
+          <span class="tag tag--sample" style="margin-top:24px">Sample project</span>
+        </div>
+        <div data-reveal>
+          <dl class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;border:1px solid var(--line);border-radius:var(--r-lg);background:rgb(16 22 24 / .6);padding:24px">
+            <div><dt class="eyebrow t-dim">Industry</dt><dd class="meta" style="margin:8px 0 0">${esc(p.industry)}</dd></div>
+            <div><dt class="eyebrow t-dim">Location</dt><dd class="meta" style="margin:8px 0 0">${esc(p.location)}</dd></div>
+            <div><dt class="eyebrow t-dim">Pages</dt><dd class="meta nums" style="margin:8px 0 0">${p.pages}</dd></div>
+            <div><dt class="eyebrow t-dim">Year</dt><dd class="meta nums" style="margin:8px 0 0">${p.year}</dd></div>
+            <div style="grid-column:span 2"><dt class="eyebrow t-dim">Services</dt>
+              <dd class="row" style="margin:10px 0 0;gap:8px">${p.services.map((s) => `<span class="tag" style="color:var(--mist)">${esc(s)}</span>`).join("")}</dd></div>
+          </dl>
+        </div>
+      </div>
+      <div data-reveal style="margin-top:56px">
+        ${browser(p, preview(p))}
+        <p style="margin-top:12px;font-size:12px;color:var(--dim)">Design mockup of the home page — replaced by a real screenshot once the project is live.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="section section--lg">
+    <div class="shell split">
+      <div class="sticky" data-reveal>
+        ${eyebrow("The brief")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">What the site had to <span class="accent t-reef">solve</span></h2>
+      </div>
+      <div class="stack" style="gap:48px">
+        ${[["Challenge", p.challenge], ["Approach", p.approach], ["Design direction", p.direction]]
+          .map(([label, body]) => `
+            <div data-reveal class="rule-t" style="padding-top:28px">
+              ${eyebrow(label, "t-sand")}
+              <p class="lead" style="margin-top:16px;max-width:42rem">${esc(body)}</p>
+            </div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("Key features")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px;max-width:36rem">The parts that do the actual work</h2>
+      </div>
+      <div class="mesh g2" style="margin-top:48px" data-reveal>
+        ${p.features.map(([t, b], n) => `
+          <div>
+            <span class="eyebrow nums t-dim">${String(n + 1).padStart(2, "0")}</span>
+            <h3 style="font-size:var(--text-h3);margin-top:16px">${esc(t)}</h3>
+            <p class="meta t-mist" style="margin-top:12px">${esc(b)}</p>
+          </div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell split split--even" style="align-items:center">
+      <div data-reveal>
+        ${eyebrow("Mobile experience")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">Designed for a phone <span class="accent t-sand">first</span></h2>
+        <p class="lead" style="margin-top:24px;max-width:32rem">${esc(p.mobile)}</p>
+        <ul class="stack" style="margin-top:32px;gap:12px">
+          ${["Touch targets sized for thumbs, not cursors", "Correct keyboard for every input type", "No horizontal scrolling at any width", "Tested on real devices, not just a resized window"]
+            .map((x) => `<li class="check">${ICO.check()}${x}</li>`).join("")}
+        </ul>
+      </div>
+      <div data-reveal style="display:flex;justify-content:center">
+        <div style="width:min(17rem,70vw)">${phone(p)}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("Screens")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">Across the site</h2>
+        <p class="meta t-dim" style="margin-top:20px;max-width:34rem">Design mockups of the key templates. Real screenshots replace these once the project ships.</p>
+      </div>
+      <div class="stack" style="margin-top:48px;gap:40px">
+        ${p.gallery.map(([cap, layout], n) => `
+          <figure data-reveal style="margin:0" class="${n % 2 ? "shot--r" : "shot--l"}">
+            ${browser(p, preview(p, layout))}
+            <figcaption class="row" style="margin-top:12px;gap:12px;font-size:12px;color:var(--dim)">
+              <span class="nums">${String(n + 1).padStart(2, "0")}</span>
+              <span aria-hidden="true" style="width:24px;height:1px;background:var(--line-strong)"></span>${esc(cap)}
+            </figcaption>
+          </figure>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div data-reveal style="border:1px solid var(--line);border-radius:var(--r-lg);background:rgb(16 22 24 / .5);padding:40px">
+        ${eyebrow("Results")}
+        <h2 style="font-size:var(--text-h3);margin-top:16px;max-width:36rem">No results are published for this project.</h2>
+        <p class="meta t-mist" style="margin-top:16px;max-width:42rem">
+          This is a sample build, so there is no live traffic, no enquiry data and no client
+          feedback to report. Rather than invent figures, this section stays empty until there
+          is something real to put in it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--sm section--raised">
+    <div class="shell">
+      <nav class="mesh g2" aria-label="Project navigation">
+        <a href="#/portfolio/${prev.slug}" class="pnav" style="display:flex;align-items:center;gap:16px">
+          <span class="t-reef" style="flex:none">${ICO.left()}</span>
+          <span style="min-width:0">
+            <span class="eyebrow t-dim" style="display:block">Previous</span>
+            <span style="display:block;margin-top:6px;font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(prev.name)}</span>
+          </span>
+        </a>
+        <a href="#/portfolio/${next.slug}" class="pnav" style="display:flex;align-items:center;justify-content:flex-end;gap:16px;text-align:right">
+          <span style="min-width:0">
+            <span class="eyebrow t-dim" style="display:block">Next</span>
+            <span style="display:block;margin-top:6px;font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(next.name)}</span>
+          </span>
+          <span class="t-reef" style="flex:none">${ICO.arrow("")}</span>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  ${ctaSection({
+    eb: "Need a website like this?",
+    title: `Want something built the way ${esc(p.name)} was?`,
+    body: "Tell me about your business and what the site needs to do. You will get a fixed written quote for your actual scope.",
+    secondary: ["More projects", "#/portfolio"]
+  })}`;
+};
+</script>
+
+<script>
+/* --- gallery ------------------------------------------------------------- */
+
+const SHOTS = PROJECTS.flatMap((p) => [
+  { id: p.slug + "-home", p, layout: p.preview.layout, cap: "Home page" },
+  ...p.gallery.map(([cap, layout], i) => ({ id: `${p.slug}-${i}`, p, layout, cap }))
+]);
+const CATS = ["All", ...new Set(PROJECTS.map((p) => p.category))];
+const ASPECTS = ["16 / 10", "16 / 9", "4 / 3", "16 / 11", "3 / 2", "16 / 10"];
+
+let galleryFilter = "All";
+let lbIndex = -1;
+
+const visibleShots = () => galleryFilter === "All" ? SHOTS : SHOTS.filter((s) => s.p.category === galleryFilter);
+
+const galleryTiles = () => visibleShots().map((s, i) => `
+  <li>
+    <button class="gtile" type="button" data-shot="${i}" aria-label="Open ${esc(s.p.name)} — ${esc(s.cap)}">
+      <span class="gtile__wrap">
+        ${preview(s.p, s.layout, ASPECTS[i % ASPECTS.length])}
+        <span class="gtile__over" aria-hidden="true"><i>${ICO.expand()}</i></span>
+      </span>
+      <span class="gtile__foot">
+        <span style="min-width:0;overflow:hidden">
+          <b style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.p.name)}</b>
+          <s style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.cap)}</s>
+        </span>
+        <span class="eyebrow t-dim" style="flex:none">${esc(s.p.category)}</span>
+      </span>
+    </button>
+  </li>`).join("");
+
+PAGES.gallery = () => `
+  ${pageHero({
+    index: "02", eb: "Gallery",
+    title: 'Every screen,<br>up <span class="accent t-reef">close</span>.',
+    lead: "Home pages, service pages, booking flows and product screens pulled out of every project. Filter by industry, or open any screen for a closer look."
+  })}
+  <section class="section section--lg">
+    <div class="shell">
+      <div class="filters" role="group" aria-label="Filter gallery by industry">
+        ${CATS.map((c) => {
+          const n = c === "All" ? SHOTS.length : SHOTS.filter((s) => s.p.category === c).length;
+          return `<button class="filter" type="button" data-cat="${esc(c)}" aria-pressed="${c === galleryFilter}">${esc(c)}<b class="nums">${n}</b></button>`;
+        }).join("")}
+      </div>
+      <ul class="masonry" id="masonry">${galleryTiles()}</ul>
+    </div>
+  </section>
+  ${ctaSection({
+    eb: "Your turn",
+    title: "Which of these looks closest to what you need?",
+    body: "Mention it in your quote request and we can use it as a starting point for the direction.",
+    secondary: ["Read the case studies", "#/portfolio"]
+  })}`;
+
+/* --- testimonials -------------------------------------------------------- */
+
+PAGES.testimonials = () => {
+  const f = TESTIMONIALS[0];
+  const proj = byId(f.slug);
+  return `
+  ${pageHero({
+    index: "03", eb: "Testimonials",
+    title: 'Words that have to be<br><span class="accent t-reef">earned</span>, not written.',
+    lead: "This page only ever carries quotes that a client has actually given. Until then the slots below stay clearly marked as empty."
+  })}
+
+  <section class="section section--sm">
+    <div class="shell">
+      <div class="notice" data-reveal>
+        ${eyebrow("Nothing here is invented", "t-sand")}
+        <h2 style="font-size:var(--text-h3);margin-top:12px;max-width:44rem">QMATES has no published client testimonials yet.</h2>
+        <p class="meta t-mist" style="margin-top:16px;max-width:48rem">
+          Rather than fabricate reviews or attribute words to businesses that have never said
+          them, this page shows the structure a real testimonial will sit in. Each card describes
+          the kind of feedback that slot is reserved for. When a client gives a quote, it goes in
+          verbatim with their name, business and — if they give one — their rating.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("Featured")}
+        <figure class="grain" style="margin:24px 0 0;position:relative;border:1px solid var(--line);border-radius:var(--r-xl);background:var(--surface);padding:32px">
+          <div class="bloom" style="top:-128px;right:-80px;width:20rem;height:20rem;background:rgb(55 217 190 / .1)" aria-hidden="true"></div>
+          <span aria-hidden="true" style="position:absolute;top:8px;left:24px;font-family:var(--font-accent);font-size:clamp(6rem,14vw,13rem);line-height:1;color:rgb(55 217 190 / .1);user-select:none">&ldquo;</span>
+          <blockquote style="position:relative;z-index:1;max-width:48rem;margin:0">
+            <p style="font-size:clamp(1.125rem,2.2vw,1.625rem);line-height:1.4;color:var(--dim);font-style:italic">${esc(f.quote)}</p>
+          </blockquote>
+          <figcaption class="rule-t between" style="position:relative;z-index:1;margin-top:40px;padding-top:24px;align-items:center">
+            <div>
+              <p class="eyebrow t-sand" style="display:inline-flex;align-items:center;gap:6px"><span style="width:4px;height:4px;border-radius:999px;background:var(--sand)" aria-hidden="true"></span>Awaiting client quote</p>
+              <p class="eyebrow t-dim" style="margin-top:12px">${esc(f.type)}</p>
+            </div>
+            ${proj ? btn(`${esc(proj.name)} case study`, `#/portfolio/${proj.slug}`, "quiet", { arrow: true, size: "btn--sm" }) : ""}
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("More feedback")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">One slot per project</h2>
+        <p class="meta t-mist" style="margin-top:20px;max-width:42rem">Each card is tied to a specific project, so feedback can always be read alongside the work it refers to.</p>
+      </div>
+      <div class="grid g3" style="margin-top:48px">${TESTIMONIALS.slice(1).map(testimonialCard).join("")}</div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("In the meantime")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">What you can hold QMATES to <span class="accent t-sand">today</span></h2>
+        <p class="meta t-mist" style="margin-top:20px;max-width:42rem">With no reviews to point at yet, these are commitments rather than claims — written into every scope before work starts.</p>
+      </div>
+      <div class="mesh g2" style="margin-top:48px" data-reveal>
+        ${PRINCIPLES.map(([t, b]) => `<div>${ICO.check()}<h3 style="font-size:var(--text-h3);margin-top:16px">${t}</h3><p class="meta t-mist" style="margin-top:12px">${b}</p></div>`).join("")}
+      </div>
+      <p class="meta t-dim" data-reveal style="margin-top:40px">
+        Worked with QMATES and happy to be quoted?
+        <a href="#/contact" style="color:var(--mist);text-decoration:underline;text-underline-offset:4px">Send it through</a>
+        and it goes on this page in your words.
+      </p>
+    </div>
+  </section>
+
+  ${ctaSection({
+    eb: "Start here",
+    title: "Be the first testimonial on this page.",
+    body: "Tell me what your business needs and you will get a fixed written quote back.",
+    secondary: ["See the work first", "#/portfolio"]
+  })}`;
+};
+
+/* --- pricing ------------------------------------------------------------- */
+
+PAGES.pricing = () => `
+  ${pageHero({
+    index: "04", eb: "Pricing",
+    title: 'Fixed scope.<br>Fixed <span class="accent t-reef">price</span>.',
+    lead: "You get a written scope and a firm figure before anything starts. If the scope changes, you approve the change first — there is no open-ended hourly meter."
+  })}
+
+  <section class="section section--sm">
+    <div class="shell">
+      <div class="notice" data-reveal>
+        ${eyebrow("About the figures below", "t-sand")}
+        <p class="meta t-mist" style="margin-top:12px;max-width:48rem">
+          Package prices are shown as <strong class="t-bone">$XXX placeholders</strong> because
+          final pricing has not been set in this build. Everything else on this page —
+          inclusions, page counts, timelines — is real. Request a quote and you will get a fixed
+          written figure for your actual scope.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell">
+      <div class="grid g3" style="align-items:start">
+        ${PLANS.map((p) => `
+          <article data-reveal class="card" style="position:relative;display:flex;flex-direction:column;height:100%;padding:32px;${p.highlighted ? "border-color:rgb(55 217 190 / .45);background:var(--surface);box-shadow:var(--shadow-mid)" : ""}">
+            ${p.highlighted ? '<span class="eyebrow" style="position:absolute;top:-12px;left:28px;border-radius:var(--r-xs);background:var(--reef);color:var(--reef-ink);padding:6px 10px">Most chosen</span>' : ""}
+            <h2 style="font-size:var(--text-h3)">${p.name}</h2>
+            <p class="meta t-mist" style="margin-top:12px">${p.audience}</p>
+            <p style="margin-top:28px;display:flex;align-items:baseline;gap:8px">
+              <span class="nums" style="font-family:var(--font-display);font-size:44px;font-weight:700;line-height:1">${p.price}</span>
+              <span style="font-size:13px;color:var(--dim)">${p.note}</span>
+            </p>
+            <dl class="rule-t grid" style="margin-top:24px;padding-top:20px;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
+              <div><dt class="eyebrow t-dim">Scope</dt><dd style="margin:6px 0 0;font-size:13px;color:var(--mist)">${p.pages}</dd></div>
+              <div><dt class="eyebrow t-dim">Timeline</dt><dd style="margin:6px 0 0;font-size:13px;color:var(--mist)">${p.timeline}</dd></div>
+            </dl>
+            <p class="meta t-mist" style="margin-top:24px">${p.description}</p>
+            <p class="eyebrow t-dim" style="margin-top:32px;margin-bottom:16px">What's included</p>
+            <ul class="stack" style="gap:12px;flex:1">${p.includes.map((x) => `<li class="check">${ICO.check()}${x}</li>`).join("")}</ul>
+            ${btn(p.cta, "#/quote", p.highlighted ? "solid" : "outline", { arrow: true, cls: "plan-cta" })}
+          </article>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("Add-ons")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">Extras, priced separately</h2>
+        <p class="meta t-mist" style="margin-top:20px;max-width:42rem">Added only if you want them, and always quoted before they are built.</p>
+      </div>
+      <ul style="margin-top:48px;border-top:1px solid var(--line)">
+        ${ADDONS.map(([n, price, note]) => `
+          <li data-reveal class="addon">
+            <h3 style="font-family:var(--font-display);font-size:17px;font-weight:600">${n}</h3>
+            <p class="meta t-mist">${note}</p>
+            <p class="nums t-reef" style="font-family:var(--font-display);font-size:20px;font-weight:700">${price}</p>
+          </li>`).join("")}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("What you are paying for")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">Four stages, all included in the figure</h2>
+      </div>
+      <div class="mesh g4" style="margin-top:48px" data-reveal>
+        ${PROCESS.map((s) => `<div><p class="eyebrow nums t-reef">${s.i}</p><h3 style="font-size:var(--text-h3);margin-top:16px">${s.title}</h3><p class="meta t-mist" style="margin-top:12px">${s.body}</p></div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell split">
+      <div class="sticky" data-reveal>
+        ${eyebrow("Questions")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">The things people ask <span class="accent t-sand">first</span></h2>
+      </div>
+      <ul class="faq" data-reveal id="faq">
+        ${FAQS.map(([q, a], i) => `
+          <li class="${i === 0 ? "is-open" : ""}">
+            <h3 style="margin:0">
+              <button type="button" data-faq="${i}" aria-expanded="${i === 0}" aria-controls="faqp${i}" id="faqb${i}">
+                <b>${q}</b>
+                <span class="faq__sign" aria-hidden="true">${i === 0 ? ICO.minus() : ICO.plus()}</span>
+              </button>
+            </h3>
+            <div class="faq__panel" id="faqp${i}" role="region" aria-labelledby="faqb${i}"><div><p class="meta t-mist">${a}</p></div></div>
+          </li>`).join("")}
+      </ul>
+    </div>
+  </section>
+
+  ${ctaSection({
+    eb: "Get a figure",
+    title: "Want a real number instead of a package?",
+    body: "Send through your scope and you will get a fixed written quote for your specific project.",
+    secondary: ["Ask a question first", "#/contact"]
+  })}`;
+
+/* --- about --------------------------------------------------------------- */
+
+PAGES.about = () => `
+  ${pageHero({
+    index: "06", eb: "About",
+    title: 'A web designer,<br>not a <span class="accent t-reef">web builder</span>.',
+    lead: "QMATES is a one-person studio. The person you brief is the person who designs it, writes the code and hands it over. There is no account manager in between and nothing gets outsourced."
+  })}
+
+  <section class="section section--lg">
+    <div class="shell split">
+      <div data-reveal>
+        ${eyebrow("What QMATES is")}
+        <div class="flow lead" style="margin-top:20px;max-width:42rem">
+          <p>Most small businesses in Queensland end up with one of two websites. Either a template
+          picked off a builder, filled with someone else's stock photos and copy that could belong
+          to any business in the country — or a site a relative built once, years ago, that nobody
+          has touched since.</p>
+          <p>Both cost you the same thing: a customer who had every intention of enquiring, decided
+          in about four seconds that you looked smaller or less established than you are, and went
+          back to the search results.</p>
+          <p class="t-bone">QMATES exists to close that gap. Every site is designed for the specific
+          business, built by hand, and pointed at a single outcome — making it obvious that you are
+          worth contacting, and making the contacting easy.</p>
+        </div>
+      </div>
+      <div data-reveal style="display:flex;justify-content:center;align-items:flex-start">
+        <div style="width:min(16rem,65vw)">${phone(PROJECTS[0])}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("The philosophy")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px;max-width:48rem">A website is a <span class="accent t-sand">sales tool</span>, not a brochure</h2>
+        <p class="lead" style="margin-top:24px;max-width:42rem">
+          Looking good is the minimum, not the goal. Every decision — the layout, what goes above
+          the fold, how many fields the form asks for — is made against one question: does this
+          make it more likely someone gets in touch?
+        </p>
+      </div>
+      <div class="mesh g2" style="margin-top:56px" data-reveal>
+        ${PRINCIPLES.map(([t, b], i) => `
+          <div><span class="eyebrow nums t-reef">${String(i + 1).padStart(2, "0")}</span>
+          <h3 style="font-size:var(--text-h3);margin-top:16px">${t}</h3>
+          <p class="meta t-mist" style="margin-top:12px">${b}</p></div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("What makes it different")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">Three things worth knowing</h2>
+      </div>
+      <ul style="margin-top:48px;border-top:1px solid var(--line)">
+        ${[
+          ["01", "Nothing is built on a page builder", "No WordPress theme, no drag-and-drop plugin stack. Sites are written by hand, which is why they load fast and do not break the week a plugin updates itself."],
+          ["02", "Mobile is designed, not shrunk", "The phone layout gets its own design pass. It is not the desktop layout squeezed until it fits — which is what most template sites give you."],
+          ["03", "Accessibility is built in, not bolted on", "Proper contrast, full keyboard operation, real labels and text that survives being scaled up. It is better for every visitor, and it is how the site should have been built anyway."]
+        ].map(([n, t, b]) => `
+          <li data-reveal class="diff">
+            <span class="eyebrow nums t-reef">${n}</span>
+            <h3 style="font-size:var(--text-h3)">${t}</h3>
+            <p class="meta t-mist">${b}</p>
+          </li>`).join("")}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--lg section--raised">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("Who QMATES works with")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px;max-width:42rem">Queensland businesses that need to look the part</h2>
+        <p class="meta t-mist" style="margin-top:20px;max-width:42rem">${SITE.serviceArea}</p>
+      </div>
+      <div class="grid g2" style="margin-top:48px">
+        ${[
+          ["Trades and service businesses", "Solar, mechanical, electrical, landscaping — businesses where the site has to prove you are real, cover the right suburbs and make booking easy."],
+          ["Hospitality and retail", "Venues and shops where the menu, the hours and the booking link are the only three things most visitors came for."],
+          ["Professional practices", "Legal, health and advisory practices where credibility and a low-pressure first contact matter more than visual fireworks."],
+          ["Businesses with a site that is not working", "You already have a website. It looks dated, loads slowly, or nobody ever enquires through it."]
+        ].map(([t, b]) => `<div class="card" data-reveal>${ICO.check()}<h3 style="font-size:var(--text-h3);margin-top:16px">${t}</h3><p class="meta t-mist" style="margin-top:12px">${b}</p></div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("The process")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">How a project actually <span class="accent t-reef">runs</span></h2>
+      </div>
+      <div class="mesh g4" style="margin-top:48px" data-reveal>
+        ${PROCESS.map((s) => `
+          <div>
+            <p class="eyebrow nums t-reef">${s.i}</p>
+            <h3 style="font-size:var(--text-h3);margin-top:20px">${s.title}</h3>
+            <p class="meta t-mist" style="margin-top:12px">${s.body}</p>
+            <ul class="rule-t stack" style="margin-top:24px;padding-top:20px;gap:8px">
+              ${s.detail.map((d) => `<li class="check" style="font-size:13px;color:var(--dim)">${ICO.check()}${d}</li>`).join("")}
+            </ul>
+          </div>`).join("")}
+      </div>
+      <div class="row" data-reveal style="margin-top:48px;gap:12px">
+        ${btn("What it costs", "#/pricing", "outline", { arrow: true })}
+        ${btn("See the work", "#/portfolio", "ghost", { arrow: true })}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--raised">
+    <div class="shell">
+      <div data-reveal>
+        ${eyebrow("Everything offered")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">Six services</h2>
+      </div>
+      <div class="grid g3" style="margin-top:40px;gap:16px">
+        ${SERVICES.map((s) => `
+          <div data-reveal style="border:1px solid var(--line);border-radius:var(--r-md);background:var(--ink-2);padding:20px">
+            <span class="eyebrow nums t-dim">${s.i}</span>
+            <h3 style="font-family:var(--font-display);font-size:17px;font-weight:600;margin-top:12px">${s.title}</h3>
+            <p class="t-mist" style="margin-top:8px;font-size:13px">${s.detail}</p>
+          </div>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  ${ctaSection({
+    eb: "Work together",
+    title: "Sound like the right fit?",
+    body: "Tell me about the business and what the site needs to do. You will get a fixed written quote back — no obligation.",
+    secondary: ["Ask something first", "#/contact"]
+  })}`;
+</script>
+
+<style>
+  /* Editorial list rows — one rule set, three list variants. */
+  .srv, .diff { display: grid; gap: 12px; padding-block: 28px; border-bottom: 1px solid var(--line); transition: background-color var(--base); }
+  .srv h3, .diff h3 { transition: transform var(--slow) var(--ease); }
+  .addon { display: flex; flex-direction: column; gap: 8px; padding-block: 24px; border-bottom: 1px solid var(--line); }
+  @media (min-width: 768px) {
+    .srv { grid-template-columns: auto minmax(0, 14rem) minmax(0, 1fr) auto; align-items: baseline; gap: 32px; padding-inline: 16px; }
+    .srv:hover { background: rgb(16 22 24 / .4); }
+    .srv:hover h3 { transform: translateX(4px); }
+    .diff { grid-template-columns: auto minmax(0, 18rem) minmax(0, 1fr); gap: 40px; padding-block: 32px; }
+    .addon { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 32px; }
+    .addon h3 { width: 16rem; flex: none; }
+    .addon p:last-child { width: 6rem; text-align: right; flex: none; }
+    .addon .meta { flex: 1; }
+  }
+  .hide-sm { display: none; }
+  @media (min-width: 640px) { .hide-sm { display: inline; } }
+  .plan-cta { margin-top: 32px; width: 100%; }
+  .step { position: relative; }
+  .step::before { content: ""; position: absolute; top: 0; left: 0; height: 1px; width: 0; background: var(--reef); transition: width 720ms var(--ease); }
+  .step:hover::before { width: 100%; }
+  .pnav { transition: background-color var(--base); }
+  .pnav:hover { background: var(--surface) !important; }
+  @media (min-width: 1024px) {
+    .shot--l { width: 88%; margin-right: auto; }
+    .shot--r { width: 88%; margin-left: auto; }
+  }
+</style>
+
+<script>
+/* ==========================================================================
+   QUOTE FORM
+   Three steps, per-step validation, a focusable error summary, and an
+   honest success state. This preview has no backend at all, so it never
+   claims a submission was sent — it hands you a pre-filled mailto instead.
+   ========================================================================== */
+
+const STEPS = [
+  { id: "you", title: "About you", fields: ["name", "business", "email", "phone", "businessType"] },
+  { id: "project", title: "The project", fields: ["existingSite", "projectType", "pages", "features"] },
+  { id: "scope", title: "Budget & timing", fields: ["budget", "timeframe", "notes"] }
+];
+
+const BUSINESS_TYPES = ["Trades & construction", "Hospitality", "Health & wellbeing", "Professional services", "Retail & e-commerce", "Property & real estate", "Creative & events", "Other"];
+const PROJECT_TYPES = [
+  ["New website", "A new website", "Starting from nothing"],
+  ["Redesign", "A redesign", "I have a site, it needs replacing"],
+  ["Improvements", "Improvements", "Fix or extend what exists"],
+  ["Not sure yet", "Not sure yet", "Help me work it out"]
+];
+const PAGE_COUNTS = ["1–3 pages", "4–6 pages", "7–12 pages", "12+ pages", "Not sure yet"];
+const FEATURES = ["Contact form", "Quote or booking flow", "Online payments", "Photo gallery", "Blog or news", "Menu or price list", "Customer reviews", "Maps & directions", "Multi-location", "Copywriting help"];
+const BUDGETS = ["Under $1,500", "$1,500 – $3,000", "$3,000 – $6,000", "$6,000 +", "Not sure — advise me"];
+const TIMEFRAMES = ["As soon as possible", "Within 1 month", "1–3 months", "3+ months", "Just exploring"];
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const quote = {
+  step: 0, sent: false, blocked: false, ref: "",
+  values: { name: "", business: "", email: "", phone: "", businessType: "", existingSite: "", projectType: "", pages: "", features: [], budget: "", timeframe: "", notes: "" },
+  errors: {}, touched: {}
+};
+
+function validateQuote(v) {
+  const e = {};
+  if (!v.name.trim()) e.name = "Enter your name so I know who I am replying to.";
+  if (!v.email.trim()) e.email = "Enter an email address so I can send the quote back.";
+  else if (!EMAIL_RE.test(v.email.trim())) e.email = "That does not look like a valid email address — check for a typo.";
+  if (v.phone.trim() && v.phone.replace(/\D/g, "").length < 8) e.phone = "That phone number looks too short. Include the area or mobile prefix.";
+  if (!v.projectType) e.projectType = "Choose what you need so the quote can be scoped.";
+  return e;
+}
+
+const formatQuote = (v) => [
+  ["Name", v.name], ["Business", v.business], ["Email", v.email], ["Phone", v.phone],
+  ["Business type", v.businessType], ["Existing website", v.existingSite],
+  ["What they need", v.projectType], ["Approx pages", v.pages],
+  ["Features", v.features.join(", ")], ["Budget", v.budget],
+  ["Timeframe", v.timeframe], ["Notes", v.notes]
+].filter(([, val]) => val && String(val).trim()).map(([k, val]) => `${k}: ${val}`).join("\n");
+
+const errFor = (k) => (quote.touched[k] || quote.blocked) && quote.errors[k] ? quote.errors[k] : "";
+
+const fieldWrap = (id, label, required, hint, inner) => {
+  const e = errFor(id);
+  return `
+  <div class="field">
+    <label for="${id}">${label}${required ? '<span class="req" aria-hidden="true">*</span>' : '<span class="opt">(optional)</span>'}</label>
+    ${hint ? `<p class="hint" id="${id}-hint">${hint}</p>` : ""}
+    ${inner(e)}
+    ${e ? `<p class="err" id="${id}-error" role="alert">${ICO.alert()}${e}</p>` : ""}
+  </div>`;
+};
+const describedBy = (id, hint, e) => {
+  const parts = [hint ? `${id}-hint` : "", e ? `${id}-error` : ""].filter(Boolean);
+  return parts.length ? ` aria-describedby="${parts.join(" ")}"` : "";
+};
+
+const textField = (id, label, { required, hint, type = "text", placeholder = "", autocomplete = "", inputmode = "" } = {}) =>
+  fieldWrap(id, label, required, hint, (e) =>
+    `<input class="ctrl" id="${id}" name="${id}" type="${type}" value="${esc(quote.values[id])}"
+      ${placeholder ? `placeholder="${esc(placeholder)}"` : ""} ${autocomplete ? `autocomplete="${autocomplete}"` : ""}
+      ${inputmode ? `inputmode="${inputmode}"` : ""} ${e ? 'aria-invalid="true"' : ""}${describedBy(id, hint, e)} data-qf="${id}">`);
+
+const textArea = (id, label, { hint, placeholder = "", rows = 6 } = {}) =>
+  fieldWrap(id, label, false, hint, (e) =>
+    `<textarea class="ctrl" id="${id}" name="${id}" rows="${rows}" placeholder="${esc(placeholder)}"${describedBy(id, hint, e)} data-qf="${id}">${esc(quote.values[id])}</textarea>`);
+
+const selectField = (id, label, options, { hint } = {}) =>
+  fieldWrap(id, label, false, hint, (e) => `
+    <div class="selwrap">
+      <select class="ctrl" id="${id}" name="${id}"${describedBy(id, hint, e)} data-qf="${id}">
+        <option value="">Select an option</option>
+        ${options.map((o) => `<option value="${esc(o)}" ${quote.values[id] === o ? "selected" : ""}>${esc(o)}</option>`).join("")}
+      </select>
+      ${ICO.chevron()}
+    </div>`);
+
+const quoteStepBody = () => {
+  if (quote.step === 0) return `
+    <div class="grid g2" style="gap:24px">
+      ${textField("name", "Your name", { required: true, placeholder: "Jordan Smith", autocomplete: "name" })}
+      ${textField("business", "Business name", { placeholder: "Smith & Co", autocomplete: "organization" })}
+    </div>
+    <div class="grid g2" style="gap:24px">
+      ${textField("email", "Email", { required: true, type: "email", inputmode: "email", placeholder: "you@business.com.au", autocomplete: "email", hint: "The written quote comes back to this address." })}
+      ${textField("phone", "Phone", { type: "tel", inputmode: "tel", placeholder: "0400 000 000", autocomplete: "tel", hint: "Only used if a quick call would be faster than email." })}
+    </div>
+    ${selectField("businessType", "What kind of business is it?", BUSINESS_TYPES)}`;
+
+  if (quote.step === 1) {
+    const e = errFor("projectType");
+    return `
+    ${textField("existingSite", "Existing website", { type: "url", inputmode: "url", placeholder: "https://yourbusiness.com.au", hint: "Leave blank if you do not have one yet." })}
+    <fieldset style="border:0;padding:0;margin:0"${e ? ' aria-describedby="projectType-error"' : ""}>
+      <legend style="font-size:14px;font-weight:500;padding:0">What do you need?<span class="req" aria-hidden="true"> *</span></legend>
+      <div class="rcards">
+        ${PROJECT_TYPES.map(([val, label, note]) => `
+          <label class="rcard">
+            <input type="radio" name="projectType" value="${esc(val)}" ${quote.values.projectType === val ? "checked" : ""} data-qf="projectType">
+            <span class="rcard__top"><b>${label}</b><span class="rcard__tick">${ICO.check()}</span></span>
+            <span style="font-size:12px;color:var(--dim)">${note}</span>
+          </label>`).join("")}
+      </div>
+      ${e ? `<p class="err" id="projectType-error" role="alert" style="margin-top:12px">${ICO.alert()}${e}</p>` : ""}
+    </fieldset>
+    ${selectField("pages", "Roughly how many pages?", PAGE_COUNTS, { hint: "A best guess is fine — this gets refined in the quote." })}
+    <fieldset style="border:0;padding:0;margin:0">
+      <legend style="font-size:14px;font-weight:500;padding:0">Anything specific you need? <span class="opt">(optional)</span></legend>
+      <p class="hint" style="margin-top:6px">Select everything that applies.</p>
+      <div class="chips">
+        ${FEATURES.map((f) => `
+          <label class="chip">
+            <input type="checkbox" name="features" value="${esc(f)}" ${quote.values.features.includes(f) ? "checked" : ""} data-qf="features">
+            <span class="chip__tick">${ICO.check()}</span>${f}
+          </label>`).join("")}
+      </div>
+    </fieldset>`;
+  }
+
+  return `
+    <div class="grid g2" style="gap:24px">
+      ${selectField("budget", "Approximate budget", BUDGETS, { hint: "Used to scope the right package. Nothing is locked in." })}
+      ${selectField("timeframe", "When do you need it live?", TIMEFRAMES)}
+    </div>
+    ${textArea("notes", "Anything else worth knowing?", { placeholder: "What your customers usually ask before they buy, sites you like, anything that has to be on there…" })}`;
+};
+
+function quoteFormHTML() {
+  if (quote.sent) {
+    const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent("Website quote request — " + (quote.values.business || quote.values.name))}&body=${encodeURIComponent(formatQuote(quote.values))}`;
+    return `
+    <div id="quoteDone" tabindex="-1" style="outline:none;border:1px solid rgb(55 217 190 / .35);border-radius:var(--r-lg);background:var(--surface);padding:32px">
+      <span style="display:flex;width:48px;height:48px;align-items:center;justify-content:center;border-radius:999px;background:var(--reef);color:var(--reef-ink)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12.5 5 5L20 6.5"/></svg>
+      </span>
+      <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:24px">Your request has been captured.</h2>
+      <p class="lead" style="margin-top:16px;max-width:34rem">Reference <span class="nums t-bone" style="font-weight:600">${quote.ref}</span>. Everything you entered passed validation.</p>
+      <div style="margin-top:32px;border:1px solid rgb(233 201 155 / .3);border-radius:var(--r-md);background:rgb(233 201 155 / .07);padding:20px">
+        <p class="eyebrow t-sand" style="display:flex;align-items:center;gap:8px">${ICO.alert()}One honest caveat</p>
+        <p class="meta t-mist" style="margin-top:10px">
+          This is a static preview with no server behind it, so
+          <strong class="t-bone">your request has not been emailed to anyone</strong>.
+          Use the button below to send the exact same details straight to ${SITE.email}
+          from your own mail app — it is pre-filled with everything you just entered.
+        </p>
+      </div>
+      <div class="row" style="margin-top:32px;gap:12px">
+        <a class="btn btn--solid btn--lg" href="${mailto}">${ICO.mail()}Send it by email now</a>
+        <button class="btn btn--outline btn--lg" type="button" id="quoteReset">Submit another request</button>
+      </div>
+      <details style="margin-top:32px">
+        <summary style="cursor:pointer;min-height:40px;display:flex;align-items:center;font-size:13px;color:var(--mist)">Review what you submitted</summary>
+        <pre style="margin-top:16px;overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);background:var(--ink-2);padding:16px;font-size:13px;white-space:pre-wrap;color:var(--mist);font-family:var(--font-body)">${esc(formatQuote(quote.values))}</pre>
+      </details>
+    </div>`;
+  }
+
+  const listed = Object.entries(quote.errors).filter(([, v]) => v);
+  const showSummary = quote.blocked && listed.length > 0;
+
+  return `
+  <form id="quoteForm" novalidate class="stack" style="gap:32px">
+    <ol class="steps">
+      ${STEPS.map((s, i) => `
+        <li class="${i === quote.step ? "is-now" : i < quote.step ? "is-done" : ""}">
+          <span class="steps__n">${i < quote.step ? ICO.check() : `<span class="nums">${i + 1}</span>`}</span>
+          <span>${s.title}</span>
+          ${i < STEPS.length - 1 ? '<span class="steps__line" aria-hidden="true"></span>' : ""}
+        </li>`).join("")}
+    </ol>
+    <p class="sr" aria-live="polite">Step ${quote.step + 1} of ${STEPS.length}: ${STEPS[quote.step].title}</p>
+
+    ${showSummary ? `
+      <div class="summary" id="quoteSummary" tabindex="-1" role="alert">
+        <p class="row" style="gap:8px;font-weight:500;color:var(--negative)">${ICO.alert()}There ${listed.length === 1 ? "is 1 answer" : `are ${listed.length} answers`} that need attention.</p>
+        <ul class="stack" style="margin-top:12px;gap:6px">
+          ${listed.map(([k, m]) => `<li><a href="#${k}" data-goto="${k}">${m}</a></li>`).join("")}
+        </ul>
+      </div>` : ""}
+
+    <fieldset class="stack" style="border:0;padding:0;margin:0;gap:24px" id="quoteStep">
+      <legend class="sr">${STEPS[quote.step].title}</legend>
+      ${quoteStepBody()}
+    </fieldset>
+
+    <div class="rule-t" style="padding-top:24px;display:flex;flex-direction:column-reverse;gap:12px">
+      ${quote.step > 0
+        ? `<button class="btn btn--ghost" type="button" id="quoteBack" style="align-self:flex-start">${ICO.left()}${STEPS[quote.step - 1].title}</button>`
+        : `<p style="font-size:12px;color:var(--dim)"><span class="req">*</span> Required. Takes about two minutes.</p>`}
+      ${quote.step < STEPS.length - 1
+        ? `<button class="btn btn--solid btn--lg" type="button" id="quoteNext" style="align-self:flex-start">Continue${ICO.arrow()}</button>`
+        : `<button class="btn btn--solid btn--lg" type="submit" id="quoteSend" style="align-self:flex-start"><span class="swap"><span>Send my request</span><span aria-hidden="true">Send my request</span></span>${ICO.arrow()}</button>`}
+    </div>
+  </form>`;
+}
+
+PAGES.quote = () => `
+  ${pageHero({
+    index: "05", eb: "Request a quote",
+    title: 'Tell me what you need.<br>Get a <span class="accent t-reef">real</span> number.',
+    lead: "Three short steps. The more you can tell me about the business and what the site has to achieve, the more accurate the quote comes back."
+  })}
+  <section class="section section--lg">
+    <div class="shell" style="display:grid;gap:48px" id="quoteGrid">
+      <div id="quoteMount">${quoteFormHTML()}</div>
+      <div class="sticky" data-reveal>
+        <div style="border:1px solid var(--line);border-radius:var(--r-lg);background:rgb(16 22 24 / .5);padding:28px">
+          ${eyebrow("What you get back")}
+          <ul class="stack" style="margin-top:20px;gap:14px">
+            ${["A fixed written figure, not a range", "No obligation and no sales call unless you want one", "A reply within two business days", "Your details are never passed to anyone else"]
+              .map((x) => `<li class="check">${ICO.check()}${x}</li>`).join("")}
+          </ul>
+          <div class="rule-t" style="margin-top:28px;padding-top:24px">
+            ${eyebrow("Then what happens")}
+            <ol class="stack" style="margin-top:16px;gap:16px">
+              ${PROCESS.map((s) => `
+                <li style="display:flex;gap:14px">
+                  <span class="eyebrow nums t-reef" style="flex:none;padding-top:2px">${s.i}</span>
+                  <span><span style="display:block;font-size:14px;font-weight:500">${s.title}</span>
+                  <span style="display:block;margin-top:4px;font-size:13px;color:var(--dim)">${s.body}</span></span>
+                </li>`).join("")}
+            </ol>
+          </div>
+          <div class="rule-t" style="margin-top:28px;padding-top:24px">
+            ${eyebrow("Rather just talk?")}
+            <div class="stack" style="margin-top:16px;gap:10px">
+              <a class="foot__link" href="mailto:${SITE.email}">${ICO.mail()}<span>${SITE.email}</span></a>
+              <a class="foot__link" href="${SITE.phoneHref}">${ICO.phone()}${SITE.phone}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+/* --- contact ------------------------------------------------------------- */
+
+PAGES.contact = () => `
+  ${pageHero({
+    index: "07", eb: "Contact",
+    title: 'Ask anything.<br>No <span class="accent t-reef">pitch</span> attached.',
+    lead: "For a general question, a second opinion on an existing site, or just to find out whether QMATES is the right fit. Nothing here goes on a mailing list."
+  })}
+  <section class="section section--lg">
+    <div class="shell split" id="contactGrid">
+      <div class="stack" style="gap:24px">
+        <div data-reveal>
+          ${eyebrow("Direct")}
+          <ul class="mesh" style="margin-top:20px;gap:1px">
+            <li><a class="pnav" href="mailto:${SITE.email}" style="display:flex;align-items:center;gap:16px;margin:-28px;padding:20px">
+              <span style="display:flex;width:40px;height:40px;flex:none;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:var(--r-md);color:var(--reef)">${ICO.mail()}</span>
+              <span style="min-width:0"><span class="eyebrow t-dim" style="display:block">Email</span>
+              <span class="meta" style="display:block;margin-top:4px;overflow-wrap:anywhere">${SITE.email}</span></span>
+              <span style="margin-left:auto;flex:none;color:var(--dim)">${ICO.arrow("")}</span>
+            </a></li>
+            <li><a class="pnav" href="${SITE.phoneHref}" style="display:flex;align-items:center;gap:16px;margin:-28px;padding:20px">
+              <span style="display:flex;width:40px;height:40px;flex:none;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:var(--r-md);color:var(--reef)">${ICO.phone()}</span>
+              <span style="min-width:0"><span class="eyebrow t-dim" style="display:block">Phone</span>
+              <span class="meta" style="display:block;margin-top:4px">${SITE.phone}</span></span>
+              <span style="margin-left:auto;flex:none;color:var(--dim)">${ICO.arrow("")}</span>
+            </a></li>
+            <li><span style="display:flex;align-items:center;gap:16px;margin:-28px;padding:20px">
+              <span style="display:flex;width:40px;height:40px;flex:none;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:var(--r-md);color:var(--reef)">${ICO.pin()}</span>
+              <span><span class="eyebrow t-dim" style="display:block">Based in</span>
+              <span class="meta" style="display:block;margin-top:4px">${SITE.location}</span></span>
+            </span></li>
+          </ul>
+        </div>
+
+        <div class="card" data-reveal style="background:rgb(16 22 24 / .5)">
+          ${eyebrow("Hours")}
+          <dl class="stack" style="margin-top:12px;gap:8px;font-size:13px">
+            <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><dt class="t-mist">Monday – Friday</dt><dd class="nums" style="margin:0">8:00 – 17:00 AEST</dd></div>
+            <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><dt class="t-mist">Weekends</dt><dd class="t-dim" style="margin:0">Email only</dd></div>
+          </dl>
+          <p style="margin-top:16px;font-size:12px;color:var(--dim)">${SITE.serviceArea}</p>
+        </div>
+
+        <a class="card" data-reveal href="#/quote" style="border-color:rgb(55 217 190 / .35);background:rgb(55 217 190 / .06);display:block">
+          ${eyebrow("Ready to scope a project?")}
+          <p class="meta t-mist" style="margin-top:12px">The quote request asks the right questions up front, so the first reply you get is a real figure rather than a list of questions.</p>
+          <span class="row" style="margin-top:16px;gap:8px;font-size:13px;font-weight:500;color:var(--reef)">Request a quote instead${ICO.arrow()}</span>
+        </a>
+      </div>
+
+      <div data-reveal>
+        <div style="border:1px solid var(--line);border-radius:var(--r-lg);background:var(--ink-2);padding:28px">
+          ${eyebrow("Send a message")}
+          <div id="contactMount" style="margin-top:20px"></div>
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+/* --- 404 ----------------------------------------------------------------- */
+
+PAGES.notFound = () => `
+  <section class="grain" style="display:flex;align-items:center;min-height:80vh;background:var(--ink);padding-top:128px;padding-bottom:80px">
+    <div class="bloom" style="top:25%;left:50%;transform:translateX(-50%);width:min(30rem,90vw);height:20rem;background:rgb(55 217 190 / .1)" aria-hidden="true"></div>
+    <div class="shell" style="position:relative;z-index:1">
+      ${eyebrow("Error 404")}
+      <p class="nums" style="font-family:var(--font-display);font-size:clamp(4rem,16vw,11rem);line-height:.85;font-weight:700;letter-spacing:-.05em;margin-top:24px">404</p>
+      <h1 style="font-size:var(--text-h2);line-height:1.06;margin-top:32px;max-width:36rem">That page does not exist — or it has moved.</h1>
+      <p class="lead" style="margin-top:20px;max-width:32rem">Check the address, or pick up from one of the pages below.</p>
+      <div class="row" style="margin-top:40px;gap:12px">
+        ${btn("Back to home", "#/", "solid", { arrow: true, size: "btn--lg" })}
+        ${btn("View the work", "#/portfolio", "outline", { size: "btn--lg" })}
+      </div>
+      <nav class="rule-t" aria-label="All pages" style="margin-top:64px;padding-top:32px">
+        ${eyebrow("All pages", "t-dim")}
+        <ul class="row" style="margin-top:20px;gap:12px 32px">
+          ${[...NAV, ["Get a Quote", "#/quote"]].map(([l, h]) => `<li><a class="foot__link" href="${h}">${l}${ICO.arrow()}</a></li>`).join("")}
+        </ul>
+      </nav>
+    </div>
+  </section>`;
+</script>
+
+<style>
+  @media (min-width: 1024px) {
+    #quoteGrid { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 64px; }
+    #contactGrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 64px; }
+  }
+  @media (min-width: 640px) {
+    #quoteForm .rule-t { flex-direction: row !important; align-items: center; justify-content: space-between; }
+  }
+</style>
+
+<script>
+/* ==========================================================================
+   CONTACT FORM
+   ========================================================================== */
+
+const SUBJECTS = ["General question", "About an existing site", "Maintenance or updates", "Something else"];
+const contact = { values: { name: "", email: "", subject: "", message: "" }, errors: {}, touched: {}, blocked: false, sent: false, ref: "" };
+
+function validateContact(v) {
+  const e = {};
+  if (!v.name.trim()) e.name = "Enter your name.";
+  if (!v.email.trim()) e.email = "Enter an email address so I can reply.";
+  else if (!EMAIL_RE.test(v.email.trim())) e.email = "That does not look like a valid email address.";
+  if (!v.message.trim()) e.message = "Add a message — even a sentence is enough.";
+  else if (v.message.trim().length < 10) e.message = "Add a little more detail (at least 10 characters).";
+  return e;
+}
+
+function contactFormHTML() {
+  const cErr = (k) => (contact.touched[k] || contact.blocked) && contact.errors[k] ? contact.errors[k] : "";
+
+  if (contact.sent) {
+    const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(contact.values.subject || "Website enquiry")}&body=${encodeURIComponent(contact.values.message + "\n\n— " + contact.values.name + " (" + contact.values.email + ")")}`;
+    return `
+    <div id="contactDone" tabindex="-1" style="outline:none">
+      <span style="display:flex;width:44px;height:44px;align-items:center;justify-content:center;border-radius:999px;background:var(--reef);color:var(--reef-ink)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12.5 5 5L20 6.5"/></svg>
+      </span>
+      <h2 style="font-size:var(--text-h3);margin-top:20px">Message captured</h2>
+      <p class="meta t-mist" style="margin-top:12px">Reference <span class="nums t-bone" style="font-weight:600">${contact.ref}</span>.</p>
+      <div style="margin-top:24px;border:1px solid rgb(233 201 155 / .3);border-radius:var(--r-md);background:rgb(233 201 155 / .07);padding:16px">
+        <p class="eyebrow t-sand" style="display:flex;align-items:center;gap:8px">${ICO.alert()}Not yet emailed</p>
+        <p class="t-mist" style="margin-top:8px;font-size:13px">
+          This is a static preview with no server behind it, so your message has not been
+          delivered to an inbox. Send it directly with the button below — it is pre-filled
+          with exactly what you wrote.
+        </p>
+      </div>
+      <div class="row" style="margin-top:24px;gap:12px">
+        <a class="btn btn--solid" href="${mailto}">${ICO.mail()}Send by email</a>
+        <button class="btn btn--outline" type="button" id="contactReset">Write another</button>
+      </div>
+    </div>`;
+  }
+
+  const listed = Object.entries(contact.errors).filter(([, v]) => v);
+  const cField = (id, label, required, extra) => {
+    const e = cErr(id);
+    return `<div class="field">
+      <label for="c-${id}">${label}${required ? '<span class="req" aria-hidden="true">*</span>' : '<span class="opt">(optional)</span>'}</label>
+      ${extra(e)}
+      ${e ? `<p class="err" id="c-${id}-error" role="alert">${ICO.alert()}${e}</p>` : ""}
+    </div>`;
+  };
+
+  return `
+  <form id="contactForm" novalidate class="stack" style="gap:24px">
+    ${contact.blocked && listed.length ? `
+      <div class="summary" id="contactSummary" tabindex="-1" role="alert">
+        <p class="row" style="gap:8px;font-size:14px;font-weight:500;color:var(--negative)">${ICO.alert()}Check the highlighted fields below.</p>
+        <ul class="stack" style="margin-top:10px;gap:6px">${listed.map(([k, m]) => `<li><a href="#c-${k}" data-cgoto="${k}">${m}</a></li>`).join("")}</ul>
+      </div>` : ""}
+
+    <div class="grid g2" style="gap:24px">
+      ${cField("name", "Your name", true, (e) => `<input class="ctrl" id="c-name" type="text" autocomplete="name" value="${esc(contact.values.name)}" ${e ? 'aria-invalid="true" aria-describedby="c-name-error"' : ""} data-cf="name">`)}
+      ${cField("email", "Email", true, (e) => `<input class="ctrl" id="c-email" type="email" inputmode="email" autocomplete="email" value="${esc(contact.values.email)}" ${e ? 'aria-invalid="true" aria-describedby="c-email-error"' : ""} data-cf="email">`)}
+    </div>
+    ${cField("subject", "What is it about?", false, () => `
+      <div class="selwrap">
+        <select class="ctrl" id="c-subject" data-cf="subject">
+          <option value="">Select an option</option>
+          ${SUBJECTS.map((s) => `<option ${contact.values.subject === s ? "selected" : ""}>${s}</option>`).join("")}
+        </select>${ICO.chevron()}
+      </div>`)}
+    ${cField("message", "Message", true, (e) => `<textarea class="ctrl" id="c-message" rows="6" placeholder="Ask anything — no detail required." ${e ? 'aria-invalid="true" aria-describedby="c-message-error"' : ""} data-cf="message">${esc(contact.values.message)}</textarea>`)}
+
+    <div style="display:flex;flex-direction:column-reverse;gap:16px" class="cfoot">
+      <p style="font-size:12px;color:var(--dim)"><span class="req">*</span> Required. Replies usually within two business days.</p>
+      <button class="btn btn--solid btn--lg" type="submit" style="align-self:flex-start"><span class="swap"><span>Send message</span><span aria-hidden="true">Send message</span></span>${ICO.arrow()}</button>
+    </div>
+  </form>`;
+}
+
+/* ==========================================================================
+   ROUTER
+   ========================================================================== */
+
+const main = document.getElementById("main");
+const sheet = document.getElementById("sheet");
+const burger = document.getElementById("burger");
+const nav = document.getElementById("nav");
+const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+let revealObserver = null;
+let heroTimer = null;
+
+function parseRoute() {
+  const raw = (location.hash || "#/").replace(/^#/, "");
+  const parts = raw.split("/").filter(Boolean);
+  if (parts.length === 0) return { name: "home" };
+  if (parts[0] === "portfolio") return parts[1] ? { name: "project", slug: parts[1] } : { name: "portfolio" };
+  if (PAGES[parts[0]] && parts.length === 1) return { name: parts[0] };
+  return { name: "notFound" };
+}
+
+function activePath() {
+  const r = parseRoute();
+  if (r.name === "home") return "#/";
+  if (r.name === "project") return "#/portfolio";
+  return "#/" + r.name;
+}
+
+function renderNav() {
+  const active = activePath();
+  document.getElementById("navLinks").innerHTML = NAV.map(([l, h]) =>
+    `<li><a class="nav__link" href="${h}" ${h === active ? 'aria-current="page"' : ""}>${l}</a></li>`).join("");
+
+  sheet.innerHTML = `
+    <div class="shell stack" style="flex:1;padding-bottom:40px">
+      <ul>
+        ${NAV.map(([l, h], i) => `
+          <li><a class="sheet__row" href="${h}" ${h === active ? 'aria-current="page"' : ""} style="animation-delay:${40 + i * 45}ms">
+            <span>${l}</span><span class="eyebrow nums t-dim">${String(i + 1).padStart(2, "0")}</span>
+          </a></li>`).join("")}
+      </ul>
+      <div style="margin-top:auto;padding-top:40px">
+        <a class="btn btn--solid" href="#/quote" style="width:100%;justify-content:space-between;min-height:56px">Get a Quote${ICO.arrow()}</a>
+        <div class="stack" style="margin-top:24px;gap:4px">
+          <a class="foot__link" href="mailto:${SITE.email}">${SITE.email}</a>
+          <a class="foot__link" href="${SITE.phoneHref}">${SITE.phone}</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function closeSheet() {
+  sheet.classList.remove("is-open");
+  burger.setAttribute("aria-expanded", "false");
+  burger.setAttribute("aria-label", "Open menu");
+  document.body.style.overflow = "";
+}
+
+/* Reveals: only elements that start BELOW the fold are hidden, so the page's
+   first still frame is always fully readable. */
+function initReveals() {
+  if (revealObserver) revealObserver.disconnect();
+  if (prefersReduced.matches || !("IntersectionObserver" in window)) return;
+
+  const nodes = [...main.querySelectorAll("[data-reveal]")];
+  const fold = window.innerHeight;
+  const pending = nodes.filter((n) => n.getBoundingClientRect().top > fold);
+  pending.forEach((n) => n.classList.add("pending"));
+
+  revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.remove("pending");
+        revealObserver.unobserve(e.target);
+      }
+    });
+  });
+
+  pending.forEach((n) => revealObserver.observe(n));
+}
+
+function render() {
+  const r = parseRoute();
+  clearInterval(heroTimer);
+  closeSheet();
+
+  main.innerHTML = r.name === "project" ? PAGES.project(r.slug) : PAGES[r.name]();
+  renderNav();
+  document.title = {
+    home: "QMATES — Queensland's Online Business Partner",
+    portfolio: "Portfolio — QMATES",
+    gallery: "Website Gallery — QMATES",
+    testimonials: "Testimonials — QMATES",
+    pricing: "Pricing — QMATES",
+    quote: "Request a Quote — QMATES",
+    about: "About — QMATES",
+    contact: "Contact — QMATES",
+    notFound: "Page not found — QMATES",
+    project: (byId(r.slug)?.name || "Project") + " — QMATES"
+  }[r.name];
+
+  window.scrollTo(0, 0);
+  initReveals();
+  if (r.name === "home") initHero();
+  if (r.name === "contact") document.getElementById("contactMount").innerHTML = contactFormHTML();
+}
+
+window.addEventListener("hashchange", render);
+
+/* --- home hero rotator --------------------------------------------------- */
+
+let heroIndex = 0;
+let heroPaused = false;
+
+function setHero(i) {
+  const stack = PROJECTS.slice(0, 4);
+  heroIndex = (i + stack.length) % stack.length;
+  const p = stack[heroIndex];
+  const b = document.getElementById("heroBrowser");
+  const ph = document.getElementById("heroPhone");
+  const nm = document.getElementById("heroName");
+  if (!b) return;
+  b.innerHTML = browser(p, preview(p));
+  ph.innerHTML = `<div class="bloom" aria-hidden="true"></div>${phone(p)}`;
+  nm.innerHTML = `${esc(p.name)} <span class="meta t-dim" style="font-family:var(--font-body);font-weight:400">${esc(p.industry)}</span>`;
+  document.querySelectorAll("[data-hero]").forEach((d) =>
+    d.setAttribute("aria-current", String(Number(d.dataset.hero) === heroIndex)));
+}
+
+function heroGlyph() {
+  const el = document.getElementById("heroPause");
+  if (!el) return;
+  el.innerHTML = heroPaused
+    ? '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8 10 6l-7 4.2Z" fill="currentColor"/></svg>'
+    : '<span style="display:flex;gap:3px" aria-hidden="true"><span style="display:block;width:2px;height:12px;border-radius:999px;background:currentColor"></span><span style="display:block;width:2px;height:12px;border-radius:999px;background:currentColor"></span></span>';
+  el.setAttribute("aria-label", heroPaused ? "Resume preview rotation" : "Pause preview rotation");
+}
+
+function initHero() {
+  heroIndex = 0;
+  heroPaused = false;
+  heroGlyph();
+  const visual = document.getElementById("heroVisual");
+  if (!visual) return;
+
+  // Rotation is a nicety, never the only way to reach a project.
+  if (prefersReduced.matches) {
+    document.getElementById("heroPause")?.remove();
+    return;
+  }
+  const tick = () => { if (!heroPaused) setHero(heroIndex + 1); };
+  heroTimer = setInterval(tick, 5200);
+  visual.addEventListener("mouseenter", () => { heroPaused = true; heroGlyph(); });
+  visual.addEventListener("mouseleave", () => { heroPaused = false; heroGlyph(); });
+}
+
+/* --- lightbox ------------------------------------------------------------ */
+
+const lightbox = document.getElementById("lightbox");
+
+function openLightbox(i) {
+  const shots = visibleShots();
+  lbIndex = (i + shots.length) % shots.length;
+  const s = shots[lbIndex];
+  document.getElementById("lbTitle").textContent = s.p.name;
+  document.getElementById("lbCap").textContent = s.cap;
+  document.getElementById("lbCount").textContent = `${lbIndex + 1} / ${shots.length}`;
+  document.getElementById("lbBody").innerHTML = `
+    ${browser(s.p, preview(s.p, s.layout))}
+    <div class="between" style="margin-top:20px;align-items:center">
+      <p class="meta t-mist" style="max-width:36rem">${esc(s.p.summary)}</p>
+      <a class="btn btn--solid" href="#/portfolio/${s.p.slug}" data-lb="go">View case study${ICO.arrow()}</a>
+    </div>`;
+  lightbox.classList.add("is-open");
+  document.body.style.overflow = "hidden";
+  document.getElementById("lbClose").focus();
+}
+
+function closeLightbox() {
+  lightbox.classList.remove("is-open");
+  document.body.style.overflow = "";
+  lbIndex = -1;
+}
+</script>
+
+<script>
+/* ==========================================================================
+   EVENT WIRING — delegated, so re-rendered pages never need re-binding.
+   ========================================================================== */
+
+/* --- navbar -------------------------------------------------------------- */
+
+const onScroll = () => nav.classList.toggle("is-stuck", window.scrollY > 24 || sheet.classList.contains("is-open"));
+window.addEventListener("scroll", onScroll, { passive: true });
+
+burger.addEventListener("click", () => {
+  const open = sheet.classList.toggle("is-open");
+  burger.setAttribute("aria-expanded", String(open));
+  burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  document.body.style.overflow = open ? "hidden" : "";
+  if (open) sheet.focus();
+  onScroll();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (lightbox.classList.contains("is-open")) { closeLightbox(); return; }
+  if (sheet.classList.contains("is-open")) { closeSheet(); burger.focus(); onScroll(); }
+});
+
+/* --- global click delegation --------------------------------------------- */
+
+document.addEventListener("click", (e) => {
+  /* hero rotator */
+  const heroDot = e.target.closest("[data-hero]");
+  if (heroDot) { setHero(Number(heroDot.dataset.hero)); return; }
+  if (e.target.closest("#heroPause")) { heroPaused = !heroPaused; heroGlyph(); return; }
+
+  /* gallery filter */
+  const filter = e.target.closest("[data-cat]");
+  if (filter) {
+    galleryFilter = filter.dataset.cat;
+    document.querySelectorAll("[data-cat]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cat === galleryFilter)));
+    const grid = document.getElementById("masonry");
+    grid.innerHTML = galleryTiles();
+    return;
+  }
+
+  /* gallery tile → lightbox */
+  const tile = e.target.closest("[data-shot]");
+  if (tile) { openLightbox(Number(tile.dataset.shot)); return; }
+
+  /* lightbox controls */
+  const lb = e.target.closest("[data-lb]");
+  if (lb) {
+    const act = lb.dataset.lb;
+    if (act === "close") closeLightbox();
+    else if (act === "next") openLightbox(lbIndex + 1);
+    else if (act === "prev") openLightbox(lbIndex - 1);
+    else if (act === "go") closeLightbox();
+    return;
+  }
+
+  /* FAQ accordion */
+  const faqBtn = e.target.closest("[data-faq]");
+  if (faqBtn) {
+    const li = faqBtn.closest("li");
+    const open = li.classList.toggle("is-open");
+    faqBtn.setAttribute("aria-expanded", String(open));
+    faqBtn.querySelector(".faq__sign").innerHTML = open ? ICO.minus() : ICO.plus();
+    return;
+  }
+
+  /* quote form controls */
+  if (e.target.closest("#quoteNext")) { quoteNext(); return; }
+  if (e.target.closest("#quoteBack")) { quote.step = Math.max(0, quote.step - 1); remountQuote(); return; }
+  if (e.target.closest("#quoteReset")) {
+    Object.assign(quote, { step: 0, sent: false, blocked: false, ref: "", errors: {}, touched: {},
+      values: { name: "", business: "", email: "", phone: "", businessType: "", existingSite: "", projectType: "", pages: "", features: [], budget: "", timeframe: "", notes: "" } });
+    remountQuote();
+    return;
+  }
+  const goto = e.target.closest("[data-goto]");
+  if (goto) {
+    e.preventDefault();
+    const k = goto.dataset.goto;
+    const idx = STEPS.findIndex((s) => s.fields.includes(k));
+    if (idx !== -1 && idx !== quote.step) { quote.step = idx; remountQuote(); }
+    requestAnimationFrame(() => document.getElementById(k)?.focus());
+    return;
+  }
+
+  /* contact form controls */
+  if (e.target.closest("#contactReset")) {
+    Object.assign(contact, { values: { name: "", email: "", subject: "", message: "" }, errors: {}, touched: {}, blocked: false, sent: false, ref: "" });
+    remountContact();
+    return;
+  }
+  const cgoto = e.target.closest("[data-cgoto]");
+  if (cgoto) { e.preventDefault(); document.getElementById("c-" + cgoto.dataset.cgoto)?.focus(); return; }
+
+  /* any in-page link closes the mobile sheet */
+  const link = e.target.closest('a[href^="#/"]');
+  if (link && sheet.classList.contains("is-open")) closeSheet();
+});
+
+/* --- lightbox arrow keys ------------------------------------------------- */
+
+document.addEventListener("keydown", (e) => {
+  if (!lightbox.classList.contains("is-open")) return;
+  if (e.key === "ArrowRight") openLightbox(lbIndex + 1);
+  if (e.key === "ArrowLeft") openLightbox(lbIndex - 1);
+});
+
+/* --- quote form ---------------------------------------------------------- */
+
+function remountQuote() {
+  const mount = document.getElementById("quoteMount");
+  if (!mount) return;
+  mount.innerHTML = quoteFormHTML();
+  if (quote.sent) { document.getElementById("quoteDone")?.focus(); return; }
+  if (quote.blocked) requestAnimationFrame(() => document.getElementById("quoteSummary")?.focus());
+}
+
+function quoteNext() {
+  const all = validateQuote(quote.values);
+  const fields = STEPS[quote.step].fields;
+  const found = Object.fromEntries(Object.entries(all).filter(([k]) => fields.includes(k)));
+  if (Object.keys(found).length) {
+    quote.errors = { ...quote.errors, ...found };
+    Object.keys(found).forEach((k) => (quote.touched[k] = true));
+    quote.blocked = true;
+    remountQuote();
+    return;
+  }
+  quote.blocked = false;
+  quote.errors = {};
+  quote.step = Math.min(STEPS.length - 1, quote.step + 1);
+  remountQuote();
+}
+
+document.addEventListener("input", (e) => {
+  const qf = e.target.closest("[data-qf]");
+  if (qf) {
+    const k = qf.dataset.qf;
+    if (k === "features") {
+      quote.values.features = [...document.querySelectorAll('[data-qf="features"]:checked')].map((i) => i.value);
+    } else {
+      quote.values[k] = qf.value;
+      if (quote.errors[k]) { quote.errors[k] = ""; }
+    }
+    return;
+  }
+  const cf = e.target.closest("[data-cf]");
+  if (cf) {
+    contact.values[cf.dataset.cf] = cf.value;
+    if (contact.errors[cf.dataset.cf]) contact.errors[cf.dataset.cf] = "";
+  }
+});
+
+/* Radio cards need a change listener — clicking the label fires change. */
+document.addEventListener("change", (e) => {
+  const r = e.target.closest('[data-qf="projectType"]');
+  if (r) {
+    quote.values.projectType = r.value;
+    quote.touched.projectType = true;
+    quote.errors.projectType = "";
+    const errNode = document.getElementById("projectType-error");
+    if (errNode) errNode.remove();
+  }
+});
+
+/* Validate on blur, never on keystroke. */
+document.addEventListener("focusout", (e) => {
+  const qf = e.target.closest("[data-qf]");
+  if (qf && qf.dataset.qf !== "features") {
+    const k = qf.dataset.qf;
+    quote.touched[k] = true;
+    const all = validateQuote(quote.values);
+    const was = quote.errors[k];
+    quote.errors[k] = all[k] || "";
+    if (was !== quote.errors[k]) remountQuoteField(k);
+  }
+  const cf = e.target.closest("[data-cf]");
+  if (cf) {
+    const k = cf.dataset.cf;
+    contact.touched[k] = true;
+    const all = validateContact(contact.values);
+    const was = contact.errors[k];
+    contact.errors[k] = all[k] || "";
+    if (was !== contact.errors[k]) remountContact(k);
+  }
+});
+
+/* Re-render just the step so an inline error appears without losing scroll. */
+function remountQuoteField(focusKey) {
+  const step = document.getElementById("quoteStep");
+  if (!step) return;
+  const active = document.activeElement?.id;
+  step.innerHTML = `<legend class="sr">${STEPS[quote.step].title}</legend>${quoteStepBody()}`;
+  if (active && active !== focusKey) document.getElementById(active)?.focus();
+}
+
+function remountContact(focusKey) {
+  const mount = document.getElementById("contactMount");
+  if (!mount) return;
+  const active = document.activeElement?.id;
+  const pos = document.activeElement?.selectionStart;
+  mount.innerHTML = contactFormHTML();
+  if (contact.sent) { document.getElementById("contactDone")?.focus(); return; }
+  if (contact.blocked) { requestAnimationFrame(() => document.getElementById("contactSummary")?.focus()); return; }
+  if (active && active !== focusKey) {
+    const el = document.getElementById(active);
+    if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
+  }
+}
+
+document.addEventListener("submit", (e) => {
+  if (e.target.id === "quoteForm") {
+    e.preventDefault();
+    const found = validateQuote(quote.values);
+    if (Object.keys(found).length) {
+      quote.errors = found;
+      Object.keys(found).forEach((k) => (quote.touched[k] = true));
+      quote.blocked = true;
+      const bad = STEPS.findIndex((s) => s.fields.some((f) => f in found));
+      if (bad !== -1) quote.step = bad;
+      remountQuote();
+      return;
+    }
+    quote.sent = true;
+    quote.blocked = false;
+    quote.ref = "Q-" + Date.now().toString(36).toUpperCase();
+    remountQuote();
+    return;
+  }
+
+  if (e.target.id === "contactForm") {
+    e.preventDefault();
+    const found = validateContact(contact.values);
+    if (Object.keys(found).length) {
+      contact.errors = found;
+      Object.keys(found).forEach((k) => (contact.touched[k] = true));
+      contact.blocked = true;
+      remountContact();
+      return;
+    }
+    contact.sent = true;
+    contact.blocked = false;
+    contact.ref = "C-" + Date.now().toString(36).toUpperCase();
+    remountContact();
+  }
+});
+
+/* --- footer + boot ------------------------------------------------------- */
+
+document.getElementById("year").textContent = new Date().getFullYear();
+document.getElementById("footCols").innerHTML = `
+  <nav aria-label="Pages">
+    ${eyebrow("Pages", "t-dim")}
+    <ul class="stack" style="margin-top:20px;gap:4px">
+      ${NAV.slice(0, 4).map(([l, h]) => `<li><a class="foot__link" href="${h}">${l}</a></li>`).join("")}
+    </ul>
+  </nav>
+  <nav aria-label="More">
+    ${eyebrow("More", "t-dim")}
+    <ul class="stack" style="margin-top:20px;gap:4px">
+      ${[...NAV.slice(4), ["Get a Quote", "#/quote"]].map(([l, h]) => `<li><a class="foot__link" href="${h}">${l}</a></li>`).join("")}
+    </ul>
+  </nav>
+  <div>
+    ${eyebrow("Contact", "t-dim")}
+    <ul class="stack" style="margin-top:20px;gap:4px">
+      <li><a class="foot__link" href="mailto:${SITE.email}">${ICO.mail()}<span>${SITE.email}</span></a></li>
+      <li><a class="foot__link" href="${SITE.phoneHref}">${ICO.phone()}${SITE.phone}</a></li>
+      <li><span class="foot__link" style="color:var(--mist)">${ICO.pin()}${SITE.location}</span></li>
+    </ul>
+    ${eyebrow("Social", "t-dim")}
+    <ul class="stack" style="margin-top:16px;gap:4px">
+      ${["Instagram", "Facebook", "LinkedIn"].map((s) =>
+        `<li class="foot__link" style="color:var(--dim)">${s} <span style="opacity:.7">— link to be added</span></li>`).join("")}
+    </ul>
+  </div>`;
+
+if (!location.hash) location.replace("#/");
+render();
+onScroll();
+</script>
+
+<style>
+  #footCols .eyebrow + ul + .eyebrow { margin-top: 32px; }
+  @media (min-width: 640px) { .cfoot { flex-direction: row !important; align-items: center; justify-content: space-between; } }
+</style>
