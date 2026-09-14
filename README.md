@@ -1,0 +1,195 @@
+# QMATES — Queensland's Online Business Partner
+
+A multipage portfolio and sales website for QMATES, a Queensland web design
+business. Built with Next.js 15 (App Router), React 19, Tailwind CSS v4 and
+Motion.
+
+---
+
+## Running it locally
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+```
+
+Other scripts:
+
+```bash
+npm run build      # production build
+npm run start      # serve the production build
+npm run typecheck  # tsc --noEmit
+```
+
+Requires Node 18.18+ (developed on Node 22).
+
+---
+
+## Routes
+
+Every item below is a real route with its own URL, its own `<title>` and
+meta description, and works when visited directly or refreshed.
+
+| Route | Page |
+|---|---|
+| `/` | Home |
+| `/portfolio` | Portfolio index |
+| `/portfolio/[slug]` | Case study (6 prerendered) |
+| `/gallery` | Website gallery, filterable + lightbox |
+| `/testimonials` | Testimonials |
+| `/pricing` | Pricing, add-ons and FAQ |
+| `/quote` | Three-step quote request |
+| `/about` | About QMATES |
+| `/contact` | Contact details + short form |
+| `*` | 404 page with full navigation |
+
+Plus `/sitemap.xml`, `/robots.txt`, a generated favicon, and the
+`/api/quote` and `/api/contact` submission endpoints.
+
+---
+
+## Where to edit content
+
+All copy that changes regularly lives in `src/data/` — you should not need to
+touch a component to update the site's content.
+
+| File | Controls | Placeholders to replace |
+|---|---|---|
+| `src/data/site.ts` | Business name, tagline, email, phone, location, socials, nav | **Email, phone, domain, socials, ABN** — each marked `// TODO:` |
+| `src/data/projects.ts` | Every project and case study | All 6 projects are `isPlaceholder: true` |
+| `src/data/testimonials.ts` | Testimonials | All 6 slots are placeholders with no invented names |
+| `src/data/pricing.ts` | Packages, add-ons, FAQ | All prices are `$XXX`; set `pricesArePlaceholder = false` when real |
+| `src/data/services.ts` | Services, process steps, principles | Real copy — edit freely |
+
+### Adding a real project
+
+1. Copy any object in `src/data/projects.ts`.
+2. Set `isPlaceholder: false` — the amber "Sample project" badge disappears.
+3. Only fill `outcomes` with results you can evidence. Leave it `null` and
+   the Results section explains that no results are published, rather than
+   inventing any.
+4. For real screenshots, drop images into `public/work/<slug>/` and list them
+   in `screenshots`. While that array is empty the case study renders the
+   built-in code-drawn preview instead, so nothing is ever a broken image.
+
+### Adding a real testimonial
+
+Set `isPlaceholder: false` and fill `quote`, `author`, `role` and `business`.
+Use the client's own words. Any slot left as a placeholder renders with a
+visible "Awaiting client quote" marker, so unreplaced content can never be
+mistaken for a real endorsement.
+
+---
+
+## Connecting email delivery — READ THIS
+
+**The forms do not send email yet.** No provider is configured, so:
+
+- `POST /api/quote` and `POST /api/contact` validate the submission
+  server-side, log it, and return a reference — with `delivered: false`.
+- The success screens say plainly that nothing has been emailed, and offer a
+  pre-filled `mailto:` carrying the full submission so the enquiry still
+  reaches a person today.
+
+To connect real delivery:
+
+1. `npm install resend` (or Postmark, SendGrid, Nodemailer — anything).
+2. Put the key in `.env.local` as `QUOTE_EMAIL_KEY`. Never commit it.
+3. Send `summary` to `site.email` in the marked block in
+   `src/app/api/quote/route.ts`, and do the same in `api/contact/route.ts`.
+4. Change the response to `delivered: true`.
+5. The "not emailed" notices in `QuoteForm.tsx` and `ContactForm.tsx` are
+   already conditional on that flag and will disappear on their own.
+
+---
+
+## Design system
+
+Tokens live in one place: `src/app/globals.css`, under `@theme`.
+
+- **Canvas** — near-black ink (`#06090a`) with raised surfaces.
+- **Accents** — reef aqua `#37d9be` (primary, 11.2:1 on the canvas) and warm
+  sand `#e9c99b` (secondary, reserved for placeholder and caution markers).
+- **Type** — Bricolage Grotesque (display), DM Sans (body/UI), Instrument
+  Serif italic (single accent words only). Self-hosted via `next/font`.
+- **Radii** are deliberately restrained (2/4/8/14/22px) rather than a blanket
+  pill shape.
+- **Motion** — shared easing and duration tokens; every animation respects
+  `prefers-reduced-motion`.
+
+### Two rules worth knowing before editing components
+
+Both are documented in the files that enforce them:
+
+1. **Never branch the rendered tree on `useReducedMotion()`** — it resolves
+   `false` on the server and `true` after mount, which causes a hydration
+   mismatch for every visitor with reduced motion enabled. Reduction is
+   handled by `<MotionConfig reducedMotion="user">` in the root layout plus a
+   CSS guard on `[data-reveal]`. See `src/components/ui/Reveal.tsx`.
+2. **Never call `motion.create()` inside a render** — it returns a new
+   component type each render and remounts the subtree. `Reveal.tsx` caches
+   them at module scope.
+
+---
+
+## Notable components
+
+| Component | What it does |
+|---|---|
+| `site/SitePreview.tsx` | Renders a **miniature website** in markup and CSS from a project's palette. Used for cards, gallery, case studies and the hero. Sized entirely in container-query units, so one component scales from a thumbnail to a full-width hero. Also exports `MobileSitePreview`, `BrowserFrame` and `PhoneFrame`. |
+| `site/HomeHero.tsx` | Animated portfolio stack — a phone in front of a browser window, both stepping through featured projects, with dot controls and a pause toggle. |
+| `site/QuoteForm.tsx` | Three-step form: per-step validation, focusable error summary, loading and success states. |
+| `site/GalleryGrid.tsx` | Masonry gallery with industry filtering and a keyboard-operable lightbox. |
+| `ui/Button.tsx` | Five variants, each with a different hover mechanic. |
+| `ui/Field.tsx` | Accessible inputs, selects, radio cards and checkbox chips. |
+| `ui/Reveal.tsx` | Scroll-entry and stagger animations. |
+
+### Why the previews are drawn in code
+
+There are no real client screenshots yet. A code-drawn preview is honest (it
+is a design mockup, not a photograph of a real site), weighs nothing, stays
+sharp at any size, and can never 404. When real screenshots arrive they take
+over automatically — see "Adding a real project" above.
+
+---
+
+## What was verified
+
+Checked with headless Chromium against the production build:
+
+- All 10 routes return the correct status at 320 / 360 / 390 / 430 / 600 /
+  768 / 820 / 1024 / 1280 / 1440 / 1920px, and work on direct navigation.
+- No console errors, no broken images, no unnamed links or buttons.
+- Exactly one `<h1>` per page, no skipped heading levels, meta description on
+  every page.
+- No horizontally clipped text at any tested width.
+- Mobile menu: opens, locks scroll, closes on Escape and on navigation,
+  restores focus and scroll.
+- Quote form: blocks on invalid input, focuses the error summary, validates
+  email inline on blur, sets `aria-invalid`, advances all three steps,
+  submits, and produces a working `mailto` fallback.
+- Gallery: filtering (24 → 4 items), lightbox open/close, arrow-key
+  navigation, Escape to close, scroll restored.
+- Keyboard: first tab stop is the skip link, 2px focus ring, 25 consecutive
+  tab stops all land on visible elements.
+- Reduced motion: no hydration mismatch, no content left faded out, full
+  gallery renders.
+
+Two inline links (`hello@qmates.com.au` in the closing CTA and "Send it
+through" on the testimonials page) are under 24×24px. Both sit inside a
+sentence, which is the documented exception in WCAG 2.2 SC 2.5.8.
+
+---
+
+## Still needed from you
+
+1. **Real contact details** — email, phone, service area, socials, ABN
+   (`src/data/site.ts`).
+2. **The production domain** (`site.url`) so canonical URLs, Open Graph tags
+   and the sitemap point somewhere real.
+3. **Real projects and screenshots** to replace the six sample builds.
+4. **Real testimonials**, in clients' own words.
+5. **Real pricing** to replace the `$XXX` placeholders.
+6. **An email provider** so the forms actually deliver.
+7. Optional: a logo file. The current mark is drawn in
+   `src/components/ui/Icon.tsx` and matches `src/app/icon.svg`.

@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   QMATES DESIGN SYSTEM
+   Canvas: deep ink. Accents: reef aqua (primary) + sand (secondary).
+   Every visual decision in the site resolves to a token defined here.
+   ========================================================================== */
+
+@theme {
+  /* --- Surfaces -------------------------------------------------------- */
+  --color-ink: #06090a;
+  --color-ink-2: #0b1012;
+  --color-surface: #101618;
+  --color-surface-2: #161e21;
+  --color-surface-3: #1d272a;
+
+  /* --- Lines ----------------------------------------------------------- */
+  --color-line: #1f2a2d;
+  --color-line-strong: #314145;
+
+  /* --- Brand accents --------------------------------------------------- */
+  --color-reef: #37d9be;
+  --color-reef-deep: #1f9e8b;
+  --color-reef-ink: #04211c;
+  --color-sand: #e9c99b;
+  --color-sand-deep: #b9915f;
+  --color-sand-ink: #241a0d;
+
+  /* --- Text ------------------------------------------------------------ */
+  --color-bone: #f3f6f5;
+  --color-mist: #9daaab;
+  --color-dim: #7c8a8c;
+
+  /* --- Semantic states ------------------------------------------------- */
+  --color-positive: #4ade80;
+  --color-negative: #ff7a6b;
+  --color-negative-soft: #2a1512;
+
+  /* --- Typography ------------------------------------------------------ */
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, sans-serif;
+  --font-body: var(--font-dm-sans), "DM Sans", ui-sans-serif, sans-serif;
+  --font-accent: var(--font-instrument), "Instrument Serif", ui-serif, Georgia, serif;
+
+  --text-display: clamp(2.25rem, 4.4vw, 4.25rem);
+  --text-display--line-height: 0.92;
+  --text-display--letter-spacing: -0.04em;
+  --text-hero: clamp(2.25rem, 5.4vw, 4.25rem);
+  --text-hero--line-height: 0.98;
+  --text-hero--letter-spacing: -0.035em;
+  --text-h2: clamp(1.75rem, 3.6vw, 2.875rem);
+  --text-h2--line-height: 1.06;
+  --text-h2--letter-spacing: -0.03em;
+  --text-h3: clamp(1.25rem, 2.1vw, 1.625rem);
+  --text-h3--line-height: 1.18;
+  --text-h3--letter-spacing: -0.02em;
+  --text-lead: clamp(1.0625rem, 1.5vw, 1.25rem);
+  --text-lead--line-height: 1.6;
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.1;
+  --text-label--letter-spacing: 0.18em;
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.5;
+
+  /* --- Radii (restrained; no blanket pill shapes) ---------------------- */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 22px;
+
+  /* --- Elevation ------------------------------------------------------- */
+  --shadow-low: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-mid: 0 12px 32px -12px rgb(0 0 0 / 0.7);
+  --shadow-high: 0 40px 80px -32px rgb(0 0 0 / 0.85);
+  --shadow-reef: 0 0 0 1px rgb(55 217 190 / 0.28), 0 16px 48px -20px rgb(55 217 190 / 0.45);
+
+  /* --- Motion ---------------------------------------------------------- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 160ms;
+  --duration-base: 260ms;
+  --duration-slow: 420ms;
+  --duration-reveal: 720ms;
+
+  /* --- Layout ---------------------------------------------------------- */
+  --container-page: 78rem;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Keeps anchored headings clear of the fixed navbar */
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    font-feature-settings: "kern", "liga";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Guards against any child overflowing the viewport horizontally */
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  ::selection {
+    background: var(--color-reef);
+    color: var(--color-reef-ink);
+  }
+
+  /* Single, consistent focus treatment across the whole site. */
+  :focus-visible {
+    outline: 2px solid var(--color-reef);
+    outline-offset: 3px;
+    border-radius: var(--radius-xs);
+  }
+
+  /* Native field autofill would otherwise repaint inputs bright blue. */
+  input:-webkit-autofill,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-bone);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-2) inset;
+    caret-color: var(--color-bone);
+  }
+}
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+
+/* Page gutter + max width, applied once per section wrapper. */
+@utility shell {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= 80rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Uppercase tracked metadata label. */
+@utility eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  text-transform: uppercase;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Serif italic accent used on a single word inside a display heading. */
+@utility accent-word {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Hairline top border used to separate stacked editorial rows. */
+@utility rule-t {
+  border-top: 1px solid var(--color-line);
+}
+
+/* Tabular figures for prices, counts, indices. */
+@utility nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* A soft single-hue bloom. Positioned by the consumer. */
+@utility bloom {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   TEXTURE — a very low-opacity static grain so large dark fields
+   never read as flat dead space. Pure CSS, no image request.
+   ========================================================================== */
+
+@layer components {
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   Every animation in the site is either a Motion component (which reads
+   the same media query in JS) or a CSS animation caught here.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Scroll-reveal content is forced to its final state, so nothing depends
+     on a motion script to become readable. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
