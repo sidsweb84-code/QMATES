@@ -608,7 +608,7 @@ svg { display: block; }
 }
 .prev__logo { display: flex; flex: none; align-items: center; gap: 1.4cqw; }
 .prev__dot { width: 2.2cqw; height: 2.2cqw; border-radius: .4cqw; background: var(--p-accent); }
-.prev__name { font-size: 2.1cqw; font-weight: 600; letter-spacing: -.02em; color: var(--p-ink); }
+.prev__name { max-width: 26cqw; overflow: hidden; text-overflow: ellipsis; font-size: 2.1cqw; font-weight: 600; letter-spacing: -.02em; color: var(--p-ink); }
 .prev__menu { display: none; min-width: 0; align-items: center; gap: 2.4cqw; overflow: hidden; }
 @container (min-width: 22rem) { .prev__menu { display: flex; } }
 .prev__menu span { flex: none; font-size: 1.55cqw; color: var(--p-muted); }
@@ -627,6 +627,9 @@ svg { display: block; }
 .prev__sub { font-size: 1.75cqw; line-height: 1.5; color: var(--p-muted); }
 .prev__btns { display: flex; flex-wrap: wrap; gap: 1.6cqw; }
 .prev__b1 { white-space: nowrap; border-radius: .6cqw; background: var(--p-accent); padding: 1.4cqw 3cqw; font-size: 1.7cqw; font-weight: 600; color: var(--p-accent-ink); }
+/* A second accent means the site deliberately colours its two primary
+   actions differently — show that rather than flattening it. */
+.prev__b1--alt { background: var(--p-accent2); color: var(--p-accent2-ink); }
 .prev__b2 { white-space: nowrap; border-radius: .6cqw; border: 1px solid color-mix(in srgb, var(--p-muted) 35%, transparent); padding: 1.4cqw 3cqw; font-size: 1.7cqw; color: var(--p-ink); }
 .prev__tiles { display: flex; flex-wrap: wrap; gap: 1.4cqw; }
 .prev__tiles span {
@@ -1203,6 +1206,30 @@ const PROJECTS = [
     gallery: [["Home — hero and stats bar", "hero"], ["Contact — incident-led enquiry form", "editorial"], ["Our Work — repair gallery", "grid"]]
   },
   {
+    slug: "gallys-gutter-solar", name: "Gally's Gutter & Solar", industry: "Gutter cleaning & solar panel cleaning",
+    category: "Trades", year: "2025", location: "Brisbane, QLD", pages: 6,
+    status: "demo", liveLabel: "View the demo", liveUrl: "https://samplegallygutter.vercel.app/",
+    summary: "A gutter and solar cleaning site where every job type is illustrated rather than photographed, so the work reads clearly before a single photo exists.",
+    intro: "Gally's Gutter & Solar is a demo build for a Brisbane gutter cleaning, solar panel cleaning and gutter guard business. Three services, one operator, and a roofline most customers have never actually looked at.",
+    services: ["Website Design", "Website Development", "Quote Flow", "Reviews Integration", "Illustration"],
+    challenge: "Roofline maintenance is invisible work. A customer cannot see their own gutters, has no idea what a clean actually involves, and no way to judge one quote against another. Operators in this trade also rarely have usable job photography — the work happens at height, in poor light, and a good result looks like nothing at all.",
+    approach: "Rather than wait on photography that may never arrive, every service is explained with a purpose-drawn illustration: a gutter before and after a clean, a clear-out, solar panels either side of a wash, a guard installation. The gallery is browsable by service, so a visitor can see exactly what they are buying before they call.",
+    direction: "Near-black with emerald green for actions and a warm amber held back for the phone — two accents doing two different jobs, so \u201ccall now\u201d never competes with \u201cget a quote\u201d. Illustration replaces stock photography throughout, drawn in the site's own palette so the whole thing reads as one piece rather than a template with pictures dropped in.",
+    features: [
+      ["Illustrated service gallery", "Before and after a gutter clean, a clear-out, panels either side of a wash and a guard install — all drawn, all filterable by service. The work is legible before a single job photo exists."],
+      ["Reviews filtered by what matters", "All 17 Google reviews, tagged not only by service but by what customers actually mention: pricing, punctuality, communication, politeness, job quality. A visitor filters straight to the concern they arrived with."],
+      ["Two-accent call hierarchy", "Green for the quote form, amber for the phone. Both are primary actions for a trade, and separating them by colour stops one cannibalising the other."],
+      ["Property-first quote form", "Name, suburb, phone, email, service required. Suburb sits in the first row because service-area coverage is the single thing most likely to disqualify a lead."]
+    ],
+    mobile: "Roofline work gets booked from the yard, phone in hand. The number sits in the header on every screen, the amber call card is the largest element on the contact page, and the quote form is a single-column scroll with the right keyboard on every field.",
+    palette: { bg: "#0a0c0b", surface: "#141815", ink: "#f2f5f3", muted: "#8f9792", accent: "#24c98a", accentInk: "#04231a", accent2: "#f2a52b", accent2Ink: "#241703" },
+    preview: { layout: "split", nav: ["Home", "Services", "About", "Gallery", "Reviews", "Contact"],
+      h: "Cleaner Gutters.", em: "Brighter Solar.",
+      sub: "Professional gutter cleaning, solar panel cleaning and gutter guard installation for homes around Brisbane.",
+      cta: "Get a Free Quote", cta2: "Call now", tiles: ["Gutter Cleaning", "Solar Panel Cleaning", "Gutter Guard"] },
+    gallery: [["Home — hero and trust strip", "split"], ["Gallery — illustrated work, filtered by service", "grid"], ["Contact — property-first quote form", "editorial"]]
+  },
+  {
     slug: "qmates", name: "QMATES", industry: "Web design studio",
     category: "Web Design", year: "2026", location: "Brisbane, QLD", pages: 9,
     status: "live", liveLabel: "You are on it", liveUrl: null,
@@ -1226,44 +1253,12 @@ const PROJECTS = [
       cta: "Get a Quote", cta2: "View my work", tiles: ["Hand-coded", "Mobile-first", "Fixed scope"] },
     gallery: [["Home — animated portfolio stack", "editorial"], ["Portfolio — every project, its own route", "split"], ["Quote — three-step request flow", "hero"]]
   },
-  {
-    slug: "gally-gutter", name: "Gally Gutter", industry: "Guttering",
-    category: "Trades", year: "2025", location: "Brisbane, QLD", pages: 0,
-    status: "demo", liveLabel: "View the demo", liveUrl: "https://samplegallygutter.vercel.app/",
-    summary: "A guttering demo build. The write-up and preview for this one are still to come — the live demo is one click away.",
-    intro: "A demo build for a guttering business. The case study below has not been written up yet, so rather than fill it with invented detail the live demo is linked directly.",
-    services: ["Website Design", "Website Development"],
-    challenge: "", approach: "", direction: "", features: [], mobile: "",
-    palette: null, preview: null, gallery: []
-  },
-  {
-    slug: "north-quay-kitchen", name: "North Quay Kitchen", industry: "Restaurant and bar",
-    category: "Hospitality", year: "2024", location: "Brisbane, QLD", pages: 7,
-    status: "sample", liveLabel: null, liveUrl: null,
-    summary: "A concept build for a riverside kitchen, designed for someone deciding where to eat in the next twenty minutes.",
-    intro: "North Quay Kitchen is a sample project — not a real client — showing how QMATES approaches hospitality, where the site is read quickly and usually while walking.",
-    services: ["Website Design", "Website Development", "Bookings Integration", "Content Structure"],
-    challenge: "Hospitality sites bury the two things anyone actually wants — the menu and a table. The usual culprit is a slow PDF menu that is unreadable on a phone.",
-    approach: "The menu becomes real, structured content: searchable, filterable by dietary requirement and updatable by the venue in minutes. Booking sits persistently in the header and never scrolls away.",
-    direction: "A dark, warm room translated to screen — deep olive base, brass accent, generous editorial spacing and a serif used only for dish names. Restrained enough that food photography carries the page.",
-    features: [
-      ["Structured live menu", "Dishes as content, not a PDF. Dietary filters, seasonal sections and staff-editable pricing."],
-      ["Persistent booking", "Table booking available from every page without interrupting what the visitor is reading."],
-      ["Function enquiries", "A separate path for group and event bookings so they never get mixed into table requests."],
-      ["Opening hours source of truth", "Hours defined once and reflected across the site, footer and structured data."]
-    ],
-    mobile: "The menu is the mobile experience. Sticky category navigation, no pinch-zoom required, and a booking button that stays within thumb reach through the entire scroll.",
-    palette: { bg: "#12140d", surface: "#1b1e14", ink: "#f6f4ea", muted: "#a8a68f", accent: "#d8b364", accentInk: "#231a08" },
-    preview: { layout: "editorial", nav: ["Menu", "Bookings", "Functions", "Find us"],
-      h: "River light,", em: "long lunches.",
-      sub: "Seasonal plates and a wine list worth staying for, on the north bank.",
-      cta: "Book a table", cta2: "See the menu", tiles: ["Lunch", "Dinner", "Wine"] },
-    gallery: [["Home — editorial hero", "editorial"], ["Live menu with dietary filters", "grid"], ["Functions enquiry", "split"]]
-  }
 ];
 
 /** Only projects carrying a mockup can appear in the gallery or hero stack. */
 const PREVIEWABLE = PROJECTS.filter((p) => p.preview && p.palette);
+/** Only describe project labels that actually appear on the page. */
+const STATUSES = new Set(PROJECTS.map((p) => p.status));
 
 const TESTIMONIALS = [
   ["t1", "Placeholder — reserved for a client quote about the enquiry process. The intent of this slot is a client describing how the new site changed the quality of the leads arriving, not just the quantity.", "Trades — solar", "coastline-solar"],
@@ -1359,7 +1354,8 @@ const ICO = {
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const byId = (slug) => PROJECTS.find((p) => p.slug === slug);
 const paletteVars = (p) =>
-  `--p-bg:${p.palette.bg};--p-surface:${p.palette.surface};--p-ink:${p.palette.ink};--p-muted:${p.palette.muted};--p-accent:${p.palette.accent};--p-accent-ink:${p.palette.accentInk}`;
+  `--p-bg:${p.palette.bg};--p-surface:${p.palette.surface};--p-ink:${p.palette.ink};--p-muted:${p.palette.muted};--p-accent:${p.palette.accent};--p-accent-ink:${p.palette.accentInk}` +
+  (p.palette.accent2 ? `;--p-accent2:${p.palette.accent2};--p-accent2-ink:${p.palette.accent2Ink || p.palette.bg}` : "");
 
 const btn = (label, href, variant = "solid", { arrow = false, size = "", cls = "" } = {}) => {
   const inner = (variant === "solid" || variant === "sand")
@@ -1400,13 +1396,17 @@ const pLines = (n = 3, style = "") => {
 const pHead = (p, size) =>
   `<p class="prev__h" style="font-size:${size}">${esc(p.preview.h)}${p.preview.em ? ` <em>${esc(p.preview.em)}</em>` : ""}</p>`;
 const pBtns = (p) =>
-  `<div class="prev__btns"><span class="prev__b1">${esc(p.preview.cta)}</span>${p.preview.cta2 ? `<span class="prev__b2">${esc(p.preview.cta2)}</span>` : ""}</div>`;
+  `<div class="prev__btns"><span class="prev__b1">${esc(p.preview.cta)}</span>${
+    p.preview.cta2
+      ? `<span class="${p.palette.accent2 ? "prev__b1 prev__b1--alt" : "prev__b2"}">${esc(p.preview.cta2)}</span>`
+      : ""
+  }</div>`;
 const pTiles = (p) =>
   p.preview.tiles ? `<div class="prev__tiles">${p.preview.tiles.map((t) => `<span>${esc(t)}</span>`).join("")}</div>` : "";
 const pNav = (p) => `
   <div class="prev__nav">
     <div class="prev__logo"><span class="prev__dot"></span><span class="prev__name">${esc(p.name)}</span></div>
-    <div class="prev__menu">${p.preview.nav.map((n) => `<span>${esc(n)}</span>`).join("")}</div>
+    <div class="prev__menu">${p.preview.nav.slice(0, 4).map((n) => `<span>${esc(n)}</span>`).join("")}</div>
     <span class="prev__cta">${esc(p.preview.cta)}</span>
   </div>`;
 
@@ -1805,7 +1805,7 @@ PAGES.portfolio = () => {
     ${pageHero({
       index: "01", eb: "Portfolio",
       title: 'Work that has to earn<br>its <span class="accent t-reef">keep</span>.',
-      lead: "Live sites, demo builds and concept work. Each one opens into a case study covering the problem, the approach and the decisions behind the design.",
+      lead: "Live sites and demo builds for Queensland businesses. Each one opens into a case study covering the problem, the approach and the decisions behind the design.",
       aside
     })}
     <section class="section section--lg">
@@ -1814,11 +1814,11 @@ PAGES.portfolio = () => {
           ${eyebrow("How to read this page", "t-sand")}
           <p class="meta t-mist" style="margin-top:10px;max-width:52rem">
             Every project is labelled for exactly what it is.
-            <strong class="t-bone">Live site</strong> means it is online and serving a real
-            business. <strong class="t-bone">Demo build</strong> means a real build published
-            as a working demonstration. <strong class="t-bone">Sample project</strong> means a
-            concept piece, not a real client. No traffic figures, results or reviews are
-            published anywhere on this site unless a client has agreed to them.
+            ${STATUSES.has("live") ? `<strong class="t-bone">Live site</strong> means it is online and serving a real business. ` : ""}
+            ${STATUSES.has("demo") ? `<strong class="t-bone">Demo build</strong> means a real build published as a working demonstration. ` : ""}
+            ${STATUSES.has("sample") ? `<strong class="t-bone">Sample project</strong> means a concept piece, not a real client. ` : ""}
+            No traffic figures, results or reviews are published anywhere on this site
+            unless a client has agreed to them.
           </p>
         </div>
         <div data-reveal style="margin-bottom:48px">

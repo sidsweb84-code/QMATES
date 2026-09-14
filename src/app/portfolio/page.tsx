@@ -10,7 +10,7 @@ import { services } from "@/data/services";
 export const metadata: Metadata = {
   title: "Portfolio",
   description:
-    "Websites built by QMATES for Queensland businesses — wall and ceiling repair, smash repairs, guttering and more. Live sites, demo builds and case studies.",
+    "Websites built by QMATES for Queensland businesses — wall and ceiling repair, smash repairs and gutter cleaning. Live sites, demo builds and full case studies.",
   alternates: { canonical: "/portfolio" },
   openGraph: {
     title: "Portfolio — QMATES",
@@ -21,6 +21,9 @@ export const metadata: Metadata = {
 };
 
 const industries = [...new Set(projects.map((p) => p.category))];
+/* The notice below describes only the labels actually on the page, so it can
+   never claim a category of work that is not shown. */
+const statuses = new Set(projects.map((p) => p.status));
 
 export default function PortfolioPage() {
   return (
@@ -35,7 +38,7 @@ export default function PortfolioPage() {
             its <span className="accent-word text-reef">keep</span>.
           </>
         }
-        lead="Live sites, demo builds and concept work. Each one opens into a case study covering the problem, the approach and the decisions behind the design."
+        lead="Live sites and demo builds for Queensland businesses. Each one opens into a case study covering the problem, the approach and the decisions behind the design."
         aside={
           <dl className="grid grid-cols-2 gap-x-6 gap-y-6">
             <div>
@@ -72,13 +75,26 @@ export default function PortfolioPage() {
           <p className="eyebrow mb-2.5 text-sand">How to read this page</p>
           <p className="max-w-3xl text-meta text-mist">
             Every project is labelled for exactly what it is.{" "}
-            <strong className="font-semibold text-bone">Live site</strong> means it is
-            online and serving a real business.{" "}
-            <strong className="font-semibold text-bone">Demo build</strong> means a real
-            build published as a working demonstration.{" "}
-            <strong className="font-semibold text-bone">Sample project</strong> means a
-            concept piece, not a real client. No traffic figures, results or reviews
-            are published anywhere on this site unless a client has agreed to them.
+            {statuses.has("live") ? (
+              <>
+                <strong className="font-semibold text-bone">Live site</strong> means it
+                is online and serving a real business.{" "}
+              </>
+            ) : null}
+            {statuses.has("demo") ? (
+              <>
+                <strong className="font-semibold text-bone">Demo build</strong> means a
+                real build published as a working demonstration.{" "}
+              </>
+            ) : null}
+            {statuses.has("sample") ? (
+              <>
+                <strong className="font-semibold text-bone">Sample project</strong>{" "}
+                means a concept piece, not a real client.{" "}
+              </>
+            ) : null}
+            No traffic figures, results or reviews are published anywhere on this
+            site unless a client has agreed to them.
           </p>
         </Reveal>
 

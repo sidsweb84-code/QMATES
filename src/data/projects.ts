@@ -33,6 +33,10 @@ export type ProjectPalette = {
   muted: string;
   accent: string;
   accentInk: string;
+  /** Optional second accent, for sites that colour-separate two primary
+   *  actions (e.g. green for "get a quote", amber for "call"). */
+  accent2?: string;
+  accent2Ink?: string;
 };
 
 export type SitePreviewSpec = {
@@ -231,6 +235,85 @@ export const projects: Project[] = [
 
   /* ---------------------------------------------------------------------- */
   {
+    slug: "gallys-gutter-solar",
+    name: "Gally's Gutter & Solar",
+    industry: "Gutter cleaning & solar panel cleaning",
+    category: "Trades",
+    year: "2025",
+    location: "Brisbane, QLD",
+    status: "demo",
+    liveLabel: "View the demo",
+    liveUrl: "https://samplegallygutter.vercel.app/",
+    summary:
+      "A gutter and solar cleaning site where every job type is illustrated rather than photographed, so the work reads clearly before a single photo exists.",
+    intro:
+      "Gally's Gutter & Solar is a demo build for a Brisbane gutter cleaning, solar panel cleaning and gutter guard business. Three services, one operator, and a roofline most customers have never actually looked at.",
+    services: [
+      "Website Design",
+      "Website Development",
+      "Quote Flow",
+      "Reviews Integration",
+      "Illustration",
+    ],
+    pages: 6,
+    challenge:
+      "Roofline maintenance is invisible work. A customer cannot see their own gutters, has no idea what a clean actually involves, and no way to judge one quote against another. Operators in this trade also rarely have usable job photography — the work happens at height, in poor light, and a good result looks like nothing at all.",
+    approach:
+      "Rather than wait on photography that may never arrive, every service is explained with a purpose-drawn illustration: a gutter before and after a clean, a clear-out, solar panels either side of a wash, a guard installation. The gallery is browsable by service, so a visitor can see exactly what they are buying before they call.",
+    designDirection:
+      "Near-black with emerald green for actions and a warm amber held back for the phone — two accents doing two different jobs, so \"call now\" never competes with \"get a quote\". Illustration replaces stock photography throughout, drawn in the site's own palette so the whole thing reads as one piece rather than a template with pictures dropped in.",
+    features: [
+      {
+        title: "Illustrated service gallery",
+        body: "Before and after a gutter clean, a clear-out, panels either side of a wash and a guard install — all drawn, all filterable by service. The work is legible before a single job photo exists.",
+      },
+      {
+        title: "Reviews filtered by what matters",
+        body: "All 17 Google reviews, tagged not only by service but by what customers actually mention: pricing, punctuality, communication, politeness, job quality. A visitor filters straight to the concern they arrived with.",
+      },
+      {
+        title: "Two-accent call hierarchy",
+        body: "Green for the quote form, amber for the phone. Both are primary actions for a trade, and separating them by colour stops one cannibalising the other.",
+      },
+      {
+        title: "Property-first quote form",
+        body: "Name, suburb, phone, email, service required. Suburb sits in the first row because service-area coverage is the single thing most likely to disqualify a lead.",
+      },
+    ],
+    mobileNote:
+      "Roofline work gets booked from the yard, phone in hand. The number sits in the header on every screen, the amber call card is the largest element on the contact page, and the quote form is a single-column scroll with the right keyboard on every field.",
+    outcomes: null,
+    palette: {
+      bg: "#0a0c0b",
+      surface: "#141815",
+      ink: "#f2f5f3",
+      muted: "#8f9792",
+      accent: "#24c98a",
+      accentInk: "#04231a",
+      accent2: "#f2a52b",
+      accent2Ink: "#241703",
+    },
+    preview: {
+      layout: "split",
+      nav: ["Home", "Services", "About", "Gallery", "Reviews", "Contact"],
+      headline: "Cleaner Gutters.",
+      headlineAccent: "Brighter Solar.",
+      sub: "Professional gutter cleaning, solar panel cleaning and gutter guard installation for homes around Brisbane.",
+      cta: "Get a Free Quote",
+      secondaryCta: "Call now",
+      tiles: ["Gutter Cleaning", "Solar Panel Cleaning", "Gutter Guard"],
+    },
+    gallery: [
+      { caption: "Home — hero and trust strip", layout: "split" },
+      { caption: "Gallery — illustrated work, filtered by service", layout: "grid" },
+      { caption: "Contact — property-first quote form", layout: "editorial" },
+    ],
+    screenshots: [],
+    featured: true,
+  },
+
+  /* ---------------------------------------------------------------------- */
+  {
     slug: "qmates",
     name: "QMATES",
     industry: "Web design studio",
@@ -306,111 +389,6 @@ export const projects: Project[] = [
     featured: true,
   },
 
-  /* ---------------------------------------------------------------------- */
-  {
-    slug: "gally-gutter",
-    name: "Gally Gutter",
-    industry: "Guttering",
-    category: "Trades",
-    year: "2025",
-    location: "Brisbane, QLD",
-    status: "demo",
-    liveLabel: "View the demo",
-    liveUrl: "https://samplegallygutter.vercel.app/",
-    summary:
-      "A guttering demo build. The write-up and preview for this one are still to come — the live demo is one click away.",
-    intro:
-      "A demo build for a guttering business. The case study below has not been written up yet, so rather than fill it with invented detail the live demo is linked directly.",
-    services: ["Website Design", "Website Development"],
-    pages: 0,
-    challenge: "",
-    approach: "",
-    designDirection: "",
-    features: [],
-    mobileNote: "",
-    outcomes: null,
-    palette: null,
-    preview: null,
-    gallery: [],
-    screenshots: [],
-    featured: true,
-  },
-
-  /* ---------------------------------------------------------------------- */
-  {
-    slug: "north-quay-kitchen",
-    name: "North Quay Kitchen",
-    industry: "Restaurant and bar",
-    category: "Hospitality",
-    year: "2024",
-    location: "Brisbane, QLD",
-    status: "sample",
-    liveLabel: null,
-    liveUrl: null,
-    summary:
-      "A concept build for a riverside kitchen, designed for someone deciding where to eat in the next twenty minutes.",
-    intro:
-      "North Quay Kitchen is a sample project — not a real client — showing how QMATES approaches hospitality, where the site is read quickly and usually while walking.",
-    services: [
-      "Website Design",
-      "Website Development",
-      "Bookings Integration",
-      "Content Structure",
-    ],
-    pages: 7,
-    challenge:
-      "Hospitality sites bury the two things anyone actually wants — the menu and a table. The usual culprit is a slow PDF menu that is unreadable on a phone.",
-    approach:
-      "The menu becomes real, structured content: searchable, filterable by dietary requirement and updatable by the venue in minutes. Booking sits persistently in the header and never scrolls away.",
-    designDirection:
-      "A dark, warm room translated to screen — deep olive base, brass accent, generous editorial spacing and a serif used only for dish names. Restrained enough that food photography carries the page.",
-    features: [
-      {
-        title: "Structured live menu",
-        body: "Dishes as content, not a PDF. Dietary filters, seasonal sections and staff-editable pricing.",
-      },
-      {
-        title: "Persistent booking",
-        body: "Table booking available from every page without interrupting what the visitor is reading.",
-      },
-      {
-        title: "Function enquiries",
-        body: "A separate path for group and event bookings so they never get mixed into table requests.",
-      },
-      {
-        title: "Opening hours source of truth",
-        body: "Hours defined once and reflected across the site, footer and structured data.",
-      },
-    ],
-    mobileNote:
-      "The menu is the mobile experience. Sticky category navigation, no pinch-zoom required, and a booking button that stays within thumb reach through the entire scroll.",
-    outcomes: null,
-    palette: {
-      bg: "#12140d",
-      surface: "#1b1e14",
-      ink: "#f6f4ea",
-      muted: "#a8a68f",
-      accent: "#d8b364",
-      accentInk: "#231a08",
-    },
-    preview: {
-      layout: "editorial",
-      nav: ["Menu", "Bookings", "Functions", "Find us"],
-      headline: "River light,",
-      headlineAccent: "long lunches.",
-      sub: "Seasonal plates and a wine list worth staying for, on the north bank.",
-      cta: "Book a table",
-      secondaryCta: "See the menu",
-      tiles: ["Lunch", "Dinner", "Wine"],
-    },
-    gallery: [
-      { caption: "Home — editorial hero", layout: "editorial" },
-      { caption: "Live menu with dietary filters", layout: "grid" },
-      { caption: "Functions enquiry", layout: "split" },
-    ],
-    screenshots: [],
-    featured: true,
-  },
 ];
 
 export const featuredProjects = projects.filter((p) => p.featured);

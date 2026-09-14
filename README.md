@@ -34,7 +34,7 @@ meta description, and works when visited directly or refreshed.
 |---|---|
 | `/` | Home |
 | `/portfolio` | Portfolio index |
-| `/portfolio/[slug]` | Case study (5 prerendered) |
+| `/portfolio/[slug]` | Case study (4 prerendered) |
 | `/gallery` | Website gallery, filterable + lightbox |
 | `/testimonials` | Testimonials |
 | `/pricing` | Pricing, add-ons and FAQ |
@@ -56,7 +56,7 @@ touch a component to update the site's content.
 | File | Controls | Placeholders to replace |
 |---|---|---|
 | `src/data/site.ts` | Business name, tagline, email, phone, location, socials, nav | **Email, phone, domain, socials, ABN** — each marked `// TODO:` |
-| `src/data/projects.ts` | Every project and case study | Gally Gutter needs a write-up; North Quay Kitchen is a concept piece |
+| `src/data/projects.ts` | Every project and case study | All four are real work — nothing to replace |
 | `src/data/testimonials.ts` | Testimonials | All 6 slots are placeholders with no invented names |
 | `src/data/pricing.ts` | Packages, add-ons, FAQ | All prices are `$XXX`; set `pricesArePlaceholder = false` when real |
 | `src/data/services.ts` | Services, process steps, principles | Real copy — edit freely |
@@ -67,13 +67,16 @@ touch a component to update the site's content.
 |---|---|---|
 | Level Up Wall Repair | `live` | levelupwallrepair.com.au |
 | Sumner Smash Repairs | `demo` | Vercel demo |
+| Gally's Gutter & Solar | `demo` | Vercel demo |
 | QMATES | `live` | this site |
-| Gally Gutter | `demo` | Vercel demo — **write-up still needed** |
-| North Quay Kitchen | `sample` | concept piece, not a real client |
 
 `status` drives how the UI labels each entry, so nothing is ever
 misrepresented: `live` and `demo` get a teal badge and an outbound link,
-`sample` gets an amber "Sample project" badge.
+`sample` gets an amber "Sample project" badge. The portfolio page's
+explanatory note is generated from the statuses actually present, so it can
+never describe a category of work that is not on the page.
+
+Every entry is currently real work — there are no sample projects left.
 
 ### Adding a real project
 
@@ -87,7 +90,11 @@ misrepresented: `live` and `demo` get a teal badge and an outbound link,
    built-in code-drawn preview instead, so nothing is ever a broken image.
 5. `preview: null` + `palette: null` means "no mockup yet" — the card and case
    study say so plainly and link to the live site instead of inventing one.
-   That is how Gally Gutter is currently set up.
+   Nothing uses this right now, but it is there so an entry can be added
+   before its write-up exists.
+6. `palette.accent2` is optional. Set it when a site deliberately colours two
+   primary actions differently (Gally's uses green for the quote form and
+   amber for the phone) and the mockup will reproduce that hierarchy.
 
 ### Adding a real testimonial
 
@@ -204,15 +211,13 @@ sentence, which is the documented exception in WCAG 2.2 SC 2.5.8.
 
 1. **The production domain** (`site.url`) so canonical URLs, Open Graph tags
    and the sitemap point somewhere real.
-2. **Gally Gutter** — a screenshot and a few lines on the brief, so the case
-   study can be written and a preview drawn.
-3. **Real screenshots** for the other projects, if you want photographs of the
-   live sites instead of the code-drawn mockups.
-4. **Real testimonials**, in clients' own words.
-5. **Real pricing** to replace the `$XXX` placeholders.
-6. **An email provider** so the forms actually deliver.
-7. **Socials and ABN** in `src/data/site.ts`, if you want them in the footer.
-8. Optional: a logo file. The current mark is drawn in
+2. **Real screenshots**, if you want photographs of the live sites instead of
+   the code-drawn mockups.
+3. **Real testimonials**, in clients' own words.
+4. **Real pricing** to replace the `$XXX` placeholders.
+5. **An email provider** so the forms actually deliver.
+6. **Socials and ABN** in `src/data/site.ts`, if you want them in the footer.
+7. Optional: a logo file. The current mark is drawn in
    `src/components/ui/Icon.tsx` and matches `src/app/icon.svg`.
 
 > Contact details are set to **0472 747 757** and **sidsweb84@gmail.com**. The

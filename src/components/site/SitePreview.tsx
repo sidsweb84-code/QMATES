@@ -42,13 +42,20 @@ type PaletteVars = CSSProperties &
   Record<"--p-bg" | "--p-surface" | "--p-ink" | "--p-muted" | "--p-accent" | "--p-accent-ink", string>;
 
 function paletteVars(project: Previewable): PaletteVars {
+  const { palette } = project;
   return {
-    "--p-bg": project.palette.bg,
-    "--p-surface": project.palette.surface,
-    "--p-ink": project.palette.ink,
-    "--p-muted": project.palette.muted,
-    "--p-accent": project.palette.accent,
-    "--p-accent-ink": project.palette.accentInk,
+    "--p-bg": palette.bg,
+    "--p-surface": palette.surface,
+    "--p-ink": palette.ink,
+    "--p-muted": palette.muted,
+    "--p-accent": palette.accent,
+    "--p-accent-ink": palette.accentInk,
+    ...(palette.accent2
+      ? {
+          "--p-accent2": palette.accent2,
+          "--p-accent2-ink": palette.accent2Ink ?? palette.bg,
+        }
+      : {}),
   };
 }
 
@@ -59,12 +66,12 @@ function MiniNav({ project }: { project: Previewable }) {
     <div className="flex items-center justify-between gap-[2cqw] overflow-hidden px-[4cqw] py-[2.6cqw] whitespace-nowrap">
       <div className="flex shrink-0 items-center gap-[1.4cqw]">
         <span className="size-[2.2cqw] rounded-[0.4cqw] bg-[var(--p-accent)]" />
-        <span className="truncate text-[2.1cqw] font-semibold tracking-tight text-[var(--p-ink)]">
+        <span className="max-w-[26cqw] truncate text-[2.1cqw] font-semibold tracking-tight text-[var(--p-ink)]">
           {project.name}
         </span>
       </div>
       <div className="hidden min-w-0 items-center gap-[2.4cqw] overflow-hidden @[22rem]:flex">
-        {project.preview.nav.map((item) => (
+        {project.preview.nav.slice(0, 4).map((item) => (
           <span key={item} className="shrink-0 text-[1.55cqw] text-[var(--p-muted)]">
             {item}
           </span>
@@ -84,7 +91,16 @@ function MiniButtons({ project, compact = false }: { project: Previewable; compa
         {project.preview.cta}
       </span>
       {project.preview.secondaryCta ? (
-        <span className="rounded-[0.6cqw] border border-[var(--p-muted)]/35 px-[3cqw] py-[1.4cqw] text-[1.7cqw] whitespace-nowrap text-[var(--p-ink)]">
+        <span
+          className={cn(
+            "rounded-[0.6cqw] px-[3cqw] py-[1.4cqw] text-[1.7cqw] whitespace-nowrap",
+            /* A second accent means the site deliberately colours its two
+               primary actions differently — show that, don't flatten it. */
+            project.palette.accent2
+              ? "bg-[var(--p-accent2)] font-semibold text-[var(--p-accent2-ink)]"
+              : "border border-[var(--p-muted)]/35 text-[var(--p-ink)]",
+          )}
+        >
           {project.preview.secondaryCta}
         </span>
       ) : null}
