@@ -22,6 +22,12 @@ export const site = {
   phone: "0472 747 757",
   phoneHref: "tel:+61472747757",
 
+  /* Web3Forms access key. This is a PUBLIC key by design — Web3Forms expects
+     it in client-side markup, and it carries no account access. Submissions
+     are delivered to the address registered against it at web3forms.com.
+     Spam protection is the hidden `botcheck` honeypot on both forms. */
+  web3formsKey: "c9c4d3b3-6c1d-4c30-9d83-d4a57d83a283",
+
   location: "Brisbane, Queensland",
   serviceArea: "Working with businesses across South East Queensland and regional QLD.",
 

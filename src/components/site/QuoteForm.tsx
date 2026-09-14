@@ -18,6 +18,7 @@ import { site } from "@/data/site";
 import {
   formatQuote,
   quoteSteps,
+  sendToWeb3Forms,
   validateQuote,
   type QuotePayload,
 } from "@/lib/enquiry";
@@ -97,7 +98,7 @@ export function QuoteForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [status, setStatus] = useState<Status>("idle");
-  const [result, setResult] = useState<{ reference: string; delivered: boolean } | null>(null);
+  const [botcheck, setBotcheck] = useState(false);
   const [failMessage, setFailMessage] = useState("");
   /* True once any validation attempt has blocked, so the summary renders for
      a blocked step advance as well as a blocked submit. */
@@ -176,38 +177,42 @@ export function QuoteForm() {
     }
 
     setStatus("sending");
-    try {
-      const res = await fetch("/api/quote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const data = await res.json();
 
-      if (!res.ok || !data.ok) {
-        setErrors(data.errors ?? {});
-        setStatus("failed");
-        setFailMessage(
-          data.message ?? "Something went wrong submitting the form. Please try again.",
-        );
-        window.requestAnimationFrame(() => summaryRef.current?.focus());
-        return;
-      }
+    const sent = await sendToWeb3Forms({
+      accessKey: site.web3formsKey,
+      subject: `Website quote request — ${values.business || values.name}`,
+      replyTo: values.email,
+      botcheck,
+      fields: {
+        Name: values.name,
+        Business: values.business,
+        Email: values.email,
+        Phone: values.phone,
+        "Business type": values.businessType,
+        "Existing website": values.existingSite,
+        "What they need": values.projectType,
+        "Approx pages": values.pages,
+        Features: values.features.join(", "),
+        Budget: values.budget,
+        Timeframe: values.timeframe,
+        Notes: values.notes,
+      },
+    });
 
-      setResult({ reference: data.reference, delivered: Boolean(data.delivered) });
+    if (!sent.ok) {
+      setStatus("failed");
+      setBlocked(true);
+      setFailMessage(sent.message);
+      window.requestAnimationFrame(() => summaryRef.current?.focus());
+      return;
+    }
+
       setStatus("sent");
       window.requestAnimationFrame(() => successRef.current?.focus());
-    } catch {
-      setStatus("failed");
-      setFailMessage(
-        "The request could not be sent — you may be offline. Try again, or email the details directly.",
-      );
-      window.requestAnimationFrame(() => summaryRef.current?.focus());
-    }
   }
 
   /* ---------------------------- success state ---------------------------- */
-  if (status === "sent" && result) {
+  if (status === "sent") {
     const mailto = `mailto:${site.email}?subject=${encodeURIComponent(
       `Website quote request — ${values.business || values.name}`,
     )}&body=${encodeURIComponent(formatQuote(values))}`;
@@ -221,44 +226,26 @@ export function QuoteForm() {
         <span className="flex size-12 items-center justify-center rounded-full bg-reef text-reef-ink">
           <Check size={24} />
         </span>
-        <h2 className="mt-6 text-h2 text-bone">Your request has been captured.</h2>
+        <h2 className="mt-6 text-h2 text-bone">Request sent.</h2>
         <p className="mt-4 max-w-xl text-lead text-mist">
-          Reference <span className="nums font-semibold text-bone">{result.reference}</span>.
-          Everything you entered passed validation and was recorded by the site.
+          Your details are on their way to {site.email}. You will get a fixed
+          written quote back within two business days — and a reply either way.
         </p>
 
-        {!result.delivered ? (
-          <div className="mt-8 rounded-[var(--radius-md)] border border-sand/30 bg-sand/[0.07] p-5">
-            <p className="eyebrow mb-2.5 flex items-center gap-2 text-sand">
-              <Alert size={15} />
-              One honest caveat
-            </p>
-            <p className="text-meta text-mist">
-              This site has no email provider connected yet, so{" "}
-              <strong className="font-semibold text-bone">
-                your request has not been emailed to anyone
-              </strong>
-              . Use the button below to send the exact same details straight to{" "}
-              {site.email} from your own mail app — it is pre-filled with
-              everything you just entered.
-            </p>
-          </div>
-        ) : null}
+        <ul className="mt-8 flex flex-col gap-3">
+          {[
+            "A fixed written figure, not a range",
+            "No obligation, and no sales call unless you ask for one",
+          ].map((line) => (
+            <li key={line} className="flex items-start gap-2.5 text-meta text-mist">
+              <Check size={16} className="mt-0.5 shrink-0 text-reef" />
+              {line}
+            </li>
+          ))}
+        </ul>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <a
-            href={mailto}
-            className={cn(
-              "group/m inline-flex min-h-14 cursor-pointer items-center justify-center gap-2.5",
-              "rounded-[var(--radius-md)] bg-reef px-7 font-semibold text-reef-ink",
-              "transition-colors duration-[var(--duration-base)] hover:bg-[#4ee7cd]",
-            )}
-          >
-            <Mail size={18} />
-            Send it by email now
-          </a>
           <Button
-            variant="outline"
             size="lg"
             onClick={() => {
               setStatus("idle");
@@ -267,16 +254,26 @@ export function QuoteForm() {
               setErrors({});
               setTouched({});
               setBlocked(false);
-              setResult(null);
             }}
           >
             Submit another request
           </Button>
+          <a
+            href={mailto}
+            className={cn(
+              "group/m inline-flex min-h-14 cursor-pointer items-center justify-center gap-2.5",
+              "rounded-[var(--radius-md)] border border-line-strong px-7 font-medium text-bone",
+              "transition-colors duration-[var(--duration-base)] hover:border-reef hover:text-reef",
+            )}
+          >
+            <Mail size={18} />
+            Email a copy to yourself
+          </a>
         </div>
 
         <details className="mt-8">
           <summary className="inline-flex min-h-10 cursor-pointer items-center text-meta text-mist transition-colors duration-[var(--duration-base)] hover:text-reef">
-            Review what you submitted
+            Review what you sent
           </summary>
           <pre className="mt-4 overflow-x-auto rounded-[var(--radius-md)] border border-line bg-ink-2 p-4 text-[0.8125rem] whitespace-pre-wrap text-mist">
             {formatQuote(values)}
@@ -288,10 +285,22 @@ export function QuoteForm() {
 
   /* ------------------------------- the form ------------------------------ */
   const visibleErrors = Object.entries(errors).filter(([, v]) => v);
-  const showSummary = blocked && visibleErrors.length > 0;
+  const showSummary = blocked && (visibleErrors.length > 0 || Boolean(failMessage));
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-8">
+      {/* Honeypot — hidden from people, filled in by bots. */}
+      <label className="sr-only" aria-hidden="true">
+        Leave this field empty
+        <input
+          type="checkbox"
+          name="botcheck"
+          tabIndex={-1}
+          autoComplete="off"
+          checked={botcheck}
+          onChange={(e) => setBotcheck(e.target.checked)}
+        />
+      </label>
       {/* --- progress --- */}
       <ol className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
         {quoteSteps.map((s, i) => {

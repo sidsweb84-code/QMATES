@@ -1,4 +1,7 @@
 import type { MetadataRoute } from "next";
+
+/* Required by `output: "export"` — emits the file at build time. */
+export const dynamic = "force-static";
 import { projects } from "@/data/projects";
 import { navItems, site } from "@/data/site";
 

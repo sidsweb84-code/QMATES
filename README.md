@@ -16,8 +16,8 @@ npm run dev        # http://localhost:3000
 Other scripts:
 
 ```bash
-npm run build      # production build
-npm run start      # serve the production build
+npm run build      # static export to out/
+npm run preview    # serve out/ locally
 npm run typecheck  # tsc --noEmit
 ```
 
@@ -43,8 +43,8 @@ meta description, and works when visited directly or refreshed.
 | `/contact` | Contact details + short form |
 | `*` | 404 page with full navigation |
 
-Plus `/sitemap.xml`, `/robots.txt`, a generated favicon, and the
-`/api/quote` and `/api/contact` submission endpoints.
+Plus `/sitemap.xml`, `/robots.txt` and a generated favicon. There are no API
+routes — the forms post directly to Web3Forms, so the site is fully static.
 
 ---
 
@@ -105,25 +105,57 @@ mistaken for a real endorsement.
 
 ---
 
-## Connecting email delivery — READ THIS
+## Forms — Web3Forms
 
-**The forms do not send email yet.** No provider is configured, so:
+Both forms post straight from the browser to **Web3Forms**, which emails the
+submission to the address registered against the access key. There is no
+server of our own involved, which is what lets the whole site be exported as
+static files.
 
-- `POST /api/quote` and `POST /api/contact` validate the submission
-  server-side, log it, and return a reference — with `delivered: false`.
-- The success screens say plainly that nothing has been emailed, and offer a
-  pre-filled `mailto:` carrying the full submission so the enquiry still
-  reaches a person today.
+- The access key lives in `src/data/site.ts` as `web3formsKey`. It is a
+  **public** key by design — Web3Forms expects it in client-side markup and it
+  grants no account access.
+- Spam protection is a hidden `botcheck` honeypot on both forms: invisible to
+  people, filled in by bots, rejected before the request is even sent.
+- `sendToWeb3Forms()` in `src/lib/enquiry.ts` is the single place the request
+  is built. Both forms use it.
+- Delivery failures surface the provider's own message to the visitor; the
+  form never reports success unless Web3Forms confirmed it.
 
-To connect real delivery:
+**To change the destination inbox**, log in at web3forms.com and change the
+email on that key — no code change needed. **To use a different key**, replace
+`web3formsKey` in `src/data/site.ts`.
 
-1. `npm install resend` (or Postmark, SendGrid, Nodemailer — anything).
-2. Put the key in `.env.local` as `QUOTE_EMAIL_KEY`. Never commit it.
-3. Send `summary` to `site.email` in the marked block in
-   `src/app/api/quote/route.ts`, and do the same in `api/contact/route.ts`.
-4. Change the response to `delivered: true`.
-5. The "not emailed" notices in `QuoteForm.tsx` and `ContactForm.tsx` are
-   already conditional on that flag and will disappear on their own.
+## Deploying to GoDaddy
+
+`npm run build` writes a complete static site to `out/` — plain HTML, CSS and
+JS with no server required.
+
+1. Run `npm run build`.
+2. In GoDaddy cPanel, open **File Manager** and go to `public_html`.
+3. Upload **the contents of `out/`** (not the folder itself) — including the
+   hidden `.htaccess`. In File Manager, turn on *Settings → Show Hidden Files*
+   so it is visible.
+4. Visit the domain. Every page works at a real URL: `/portfolio/`,
+   `/pricing/`, `/portfolio/level-up-wall-repair/` and so on.
+
+`qmates-godaddy.zip` in the repo root is that folder already packaged — upload
+and extract it in `public_html` if you prefer.
+
+The included `.htaccess` handles the 404 page, forces HTTPS, gzips text and
+sets long cache lifetimes on the content-hashed assets. **Comment out the
+HTTPS block until your SSL certificate is active**, or the site will redirect
+to a certificate that does not exist yet.
+
+To preview the export locally before uploading: `npm run preview`.
+
+### The single-file alternative
+
+`qmates-preview.html` is the entire site in one file, using hash routing
+(`#/portfolio`). Drop it into `public_html` as `index.html` if you want a
+one-file upload. It is a worse choice for a real business site — hash URLs
+are weaker for search engines and each page is not separately indexable — so
+prefer the `out/` export for the live domain.
 
 ---
 
@@ -215,8 +247,7 @@ sentence, which is the documented exception in WCAG 2.2 SC 2.5.8.
    the code-drawn mockups.
 3. **Real testimonials**, in clients' own words.
 4. **Real pricing** to replace the `$XXX` placeholders.
-5. **An email provider** so the forms actually deliver.
-6. **Socials and ABN** in `src/data/site.ts`, if you want them in the footer.
+5. **Socials and ABN** in `src/data/site.ts`, if you want them in the footer.
 7. Optional: a logo file. The current mark is drawn in
    `src/components/ui/Icon.tsx` and matches `src/app/icon.svg`.
 

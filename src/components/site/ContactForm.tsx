@@ -12,7 +12,7 @@
 import { useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { site } from "@/data/site";
-import { validateContact, type ContactPayload } from "@/lib/enquiry";
+import { sendToWeb3Forms, validateContact, type ContactPayload } from "@/lib/enquiry";
 import { Button } from "@/components/ui/Button";
 import { SelectField, TextArea, TextField } from "@/components/ui/Field";
 import { Alert, Check, Mail } from "@/components/ui/Icon";
@@ -31,7 +31,7 @@ export function ContactForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "failed">("idle");
-  const [reference, setReference] = useState("");
+  const [botcheck, setBotcheck] = useState(false);
   const [failMessage, setFailMessage] = useState("");
   const alertRef = useRef<HTMLDivElement>(null);
   const doneRef = useRef<HTMLDivElement>(null);
@@ -64,35 +64,34 @@ export function ContactForm() {
     }
 
     setStatus("sending");
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok) {
-        setErrors(data.errors ?? {});
-        setStatus("failed");
-        setFailMessage(data.message ?? "Something went wrong. Please try again.");
-        window.requestAnimationFrame(() => alertRef.current?.focus());
-        return;
-      }
-      setReference(data.reference);
-      setStatus("sent");
-      window.requestAnimationFrame(() => doneRef.current?.focus());
-    } catch {
+
+    const sent = await sendToWeb3Forms({
+      accessKey: site.web3formsKey,
+      subject: values.subject
+        ? `Website enquiry — ${values.subject}`
+        : "Website enquiry",
+      replyTo: values.email,
+      botcheck,
+      fields: {
+        Name: values.name,
+        Email: values.email,
+        Subject: values.subject,
+        Message: values.message,
+      },
+    });
+
+    if (!sent.ok) {
       setStatus("failed");
-      setFailMessage("The message could not be sent — you may be offline. Try again.");
+      setFailMessage(sent.message);
       window.requestAnimationFrame(() => alertRef.current?.focus());
+      return;
     }
+
+    setStatus("sent");
+    window.requestAnimationFrame(() => doneRef.current?.focus());
   }
 
   if (status === "sent") {
-    const mailto = `mailto:${site.email}?subject=${encodeURIComponent(
-      values.subject || "Website enquiry",
-    )}&body=${encodeURIComponent(`${values.message}\n\n— ${values.name} (${values.email})`)}`;
-
     return (
       <div
         ref={doneRef}
@@ -102,29 +101,12 @@ export function ContactForm() {
         <span className="flex size-11 items-center justify-center rounded-full bg-reef text-reef-ink">
           <Check size={22} />
         </span>
-        <h2 className="mt-5 text-h3 text-bone">Message captured</h2>
+        <h2 className="mt-5 text-h3 text-bone">Message sent</h2>
         <p className="mt-3 text-meta text-mist">
-          Reference <span className="nums font-semibold text-bone">{reference}</span>.
+          It is on its way to {site.email}. You will normally get a reply within
+          two business days.
         </p>
-        <div className="mt-6 rounded-[var(--radius-md)] border border-sand/30 bg-sand/[0.07] p-4">
-          <p className="eyebrow mb-2 flex items-center gap-2 text-sand">
-            <Alert size={14} />
-            Not yet emailed
-          </p>
-          <p className="text-[0.8125rem] text-mist">
-            No email provider is connected to this site yet, so your message has not
-            been delivered to an inbox. Send it directly with the button below — it
-            is pre-filled with exactly what you wrote.
-          </p>
-        </div>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <a
-            href={mailto}
-            className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2.5 rounded-[var(--radius-md)] bg-reef px-5 font-semibold text-reef-ink transition-colors duration-[var(--duration-base)] hover:bg-[#4ee7cd]"
-          >
-            <Mail size={17} />
-            Send by email
-          </a>
+        <div className="mt-6">
           <Button
             variant="outline"
             onClick={() => {
@@ -145,7 +127,19 @@ export function ContactForm() {
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-6">
-      {status === "failed" && listed.length > 0 ? (
+      {/* Honeypot — hidden from people, filled in by bots. */}
+      <label className="sr-only" aria-hidden="true">
+        Leave this field empty
+        <input
+          type="checkbox"
+          name="botcheck"
+          tabIndex={-1}
+          autoComplete="off"
+          checked={botcheck}
+          onChange={(e) => setBotcheck(e.target.checked)}
+        />
+      </label>
+      {status === "failed" && (listed.length > 0 || failMessage) ? (
         <div
           ref={alertRef}
           tabIndex={-1}

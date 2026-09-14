@@ -78,3 +78,68 @@ export function formatQuote(v: QuotePayload): string {
     .map(([k, val]) => `${k}: ${val}`)
     .join("\n");
 }
+
+/* ============================================================================
+ * WEB3FORMS DELIVERY
+ * ----------------------------------------------------------------------------
+ * Submissions post straight from the browser to Web3Forms, which emails them
+ * to the address registered against the access key. No server of our own is
+ * involved, which is what lets the whole site be exported as static files.
+ *
+ * `botcheck` is Web3Forms' honeypot: it is rendered hidden, so a human always
+ * leaves it empty and a bot that fills every field gets rejected.
+ * ========================================================================== */
+
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+
+export type SendResult =
+  | { ok: true }
+  | { ok: false; message: string };
+
+export async function sendToWeb3Forms(payload: {
+  accessKey: string;
+  subject: string;
+  replyTo: string;
+  fields: Record<string, string>;
+  botcheck: boolean;
+}): Promise<SendResult> {
+  /* Reject locally too, so an obvious bot never costs a network round trip. */
+  if (payload.botcheck) return { ok: false, message: "Submission rejected." };
+
+  try {
+    const res = await fetch(WEB3FORMS_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        access_key: payload.accessKey,
+        subject: payload.subject,
+        from_name: "QMATES website",
+        replyto: payload.replyTo,
+        botcheck: "",
+        ...payload.fields,
+      }),
+    });
+
+    const data = (await res.json().catch(() => null)) as
+      | { success?: boolean; message?: string }
+      | null;
+
+    if (res.ok && data?.success) return { ok: true };
+
+    return {
+      ok: false,
+      message:
+        data?.message ??
+        `The form could not be sent (error ${res.status}). Please try again, or email the details directly.`,
+    };
+  } catch {
+    return {
+      ok: false,
+      message:
+        "The form could not be sent — you may be offline. Try again, or email the details directly.",
+    };
+  }
+}

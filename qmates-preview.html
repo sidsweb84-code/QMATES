@@ -1140,6 +1140,8 @@ select.ctrl { appearance: none; cursor: pointer; padding-right: 44px; }
 
 const SITE = {
   email: "sidsweb84@gmail.com",
+  /* Public by design — Web3Forms expects this key in client-side markup. */
+  web3formsKey: "c9c4d3b3-6c1d-4c30-9d83-d4a57d83a283",
   phone: "0472 747 757",
   phoneHref: "tel:+61472747757",
   location: "Brisbane, Queensland",
@@ -2456,8 +2458,33 @@ const TIMEFRAMES = ["As soon as possible", "Within 1 month", "1–3 months", "3+
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/* Submissions post straight to Web3Forms, which emails them on. `botcheck` is
+   their honeypot: hidden from people, filled in by bots. */
+async function sendToWeb3Forms({ subject, replyTo, fields, botcheck }) {
+  if (botcheck) return { ok: false, message: "Submission rejected." };
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: SITE.web3formsKey,
+        subject,
+        from_name: "QMATES website",
+        replyto: replyTo,
+        botcheck: "",
+        ...fields
+      })
+    });
+    const data = await res.json().catch(() => null);
+    if (res.ok && data && data.success) return { ok: true };
+    return { ok: false, message: (data && data.message) || `The form could not be sent (error ${res.status}). Please try again, or email the details directly.` };
+  } catch {
+    return { ok: false, message: "The form could not be sent — you may be offline. Try again, or email the details directly." };
+  }
+}
+
 const quote = {
-  step: 0, sent: false, blocked: false, ref: "",
+  step: 0, sent: false, blocked: false, sending: false, botcheck: false, failMessage: "",
   values: { name: "", business: "", email: "", phone: "", businessType: "", existingSite: "", projectType: "", pages: "", features: [], budget: "", timeframe: "", notes: "" },
   errors: {}, touched: {}
 };
@@ -2569,39 +2596,42 @@ const quoteStepBody = () => {
 
 function quoteFormHTML() {
   if (quote.sent) {
-    const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent("Website quote request — " + (quote.values.business || quote.values.name))}&body=${encodeURIComponent(formatQuote(quote.values))}`;
+    const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(
+      "Website quote request — " + (quote.values.business || quote.values.name)
+    )}&body=${encodeURIComponent(formatQuote(quote.values))}`;
     return `
     <div id="quoteDone" tabindex="-1" style="outline:none;border:1px solid rgb(55 217 190 / .35);border-radius:var(--r-lg);background:var(--surface);padding:32px">
       <span style="display:flex;width:48px;height:48px;align-items:center;justify-content:center;border-radius:999px;background:var(--reef);color:var(--reef-ink)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12.5 5 5L20 6.5"/></svg>
       </span>
-      <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:24px">Your request has been captured.</h2>
-      <p class="lead" style="margin-top:16px;max-width:34rem">Reference <span class="nums t-bone" style="font-weight:600">${quote.ref}</span>. Everything you entered passed validation.</p>
-      <div style="margin-top:32px;border:1px solid rgb(233 201 155 / .3);border-radius:var(--r-md);background:rgb(233 201 155 / .07);padding:20px">
-        <p class="eyebrow t-sand" style="display:flex;align-items:center;gap:8px">${ICO.alert()}One honest caveat</p>
-        <p class="meta t-mist" style="margin-top:10px">
-          This is a static preview with no server behind it, so
-          <strong class="t-bone">your request has not been emailed to anyone</strong>.
-          Use the button below to send the exact same details straight to ${SITE.email}
-          from your own mail app — it is pre-filled with everything you just entered.
-        </p>
-      </div>
+      <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:24px">Request sent.</h2>
+      <p class="lead" style="margin-top:16px;max-width:34rem">
+        Your details are on their way to ${SITE.email}. You will get a fixed written
+        quote back within two business days — and a reply either way.
+      </p>
+      <ul class="stack" style="margin-top:32px;gap:12px">
+        ${["A fixed written figure, not a range", "No obligation, and no sales call unless you ask for one"]
+          .map((x) => `<li class="check">${ICO.check()}${x}</li>`).join("")}
+      </ul>
       <div class="row" style="margin-top:32px;gap:12px">
-        <a class="btn btn--solid btn--lg" href="${mailto}">${ICO.mail()}Send it by email now</a>
-        <button class="btn btn--outline btn--lg" type="button" id="quoteReset">Submit another request</button>
+        <button class="btn btn--solid btn--lg" type="button" id="quoteReset">Submit another request</button>
+        <a class="btn btn--outline btn--lg" href="${mailto}">${ICO.mail()}Email a copy to yourself</a>
       </div>
       <details style="margin-top:32px">
-        <summary style="cursor:pointer;min-height:40px;display:flex;align-items:center;font-size:13px;color:var(--mist)">Review what you submitted</summary>
+        <summary style="cursor:pointer;min-height:40px;display:flex;align-items:center;font-size:13px;color:var(--mist)">Review what you sent</summary>
         <pre style="margin-top:16px;overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);background:var(--ink-2);padding:16px;font-size:13px;white-space:pre-wrap;color:var(--mist);font-family:var(--font-body)">${esc(formatQuote(quote.values))}</pre>
       </details>
     </div>`;
   }
 
   const listed = Object.entries(quote.errors).filter(([, v]) => v);
-  const showSummary = quote.blocked && listed.length > 0;
+  const showSummary = quote.blocked && (listed.length > 0 || quote.failMessage);
 
   return `
   <form id="quoteForm" novalidate class="stack" style="gap:32px">
+    <label class="sr" aria-hidden="true">Leave this field empty
+      <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" data-hp="quote">
+    </label>
     <ol class="steps">
       ${STEPS.map((s, i) => `
         <li class="${i === quote.step ? "is-now" : i < quote.step ? "is-done" : ""}">
@@ -2614,10 +2644,13 @@ function quoteFormHTML() {
 
     ${showSummary ? `
       <div class="summary" id="quoteSummary" tabindex="-1" role="alert">
-        <p class="row" style="gap:8px;font-weight:500;color:var(--negative)">${ICO.alert()}There ${listed.length === 1 ? "is 1 answer" : `are ${listed.length} answers`} that need attention.</p>
-        <ul class="stack" style="margin-top:12px;gap:6px">
+        <p class="row" style="gap:8px;font-weight:500;color:var(--negative)">${ICO.alert()}${
+          quote.failMessage ||
+          `There ${listed.length === 1 ? "is 1 answer" : `are ${listed.length} answers`} that need attention.`
+        }</p>
+        ${listed.length ? `<ul class="stack" style="margin-top:12px;gap:6px">
           ${listed.map(([k, m]) => `<li><a href="#${k}" data-goto="${k}">${m}</a></li>`).join("")}
-        </ul>
+        </ul>` : ""}
       </div>` : ""}
 
     <fieldset class="stack" style="border:0;padding:0;margin:0;gap:24px" id="quoteStep">
@@ -2631,7 +2664,7 @@ function quoteFormHTML() {
         : `<p style="font-size:12px;color:var(--dim)"><span class="req">*</span> Required. Takes about two minutes.</p>`}
       ${quote.step < STEPS.length - 1
         ? `<button class="btn btn--solid btn--lg" type="button" id="quoteNext" style="align-self:flex-start">Continue${ICO.arrow()}</button>`
-        : `<button class="btn btn--solid btn--lg" type="submit" id="quoteSend" style="align-self:flex-start"><span class="swap"><span>Send my request</span><span aria-hidden="true">Send my request</span></span>${ICO.arrow()}</button>`}
+        : `<button class="btn btn--solid btn--lg" type="submit" id="quoteSend" style="align-self:flex-start" ${quote.sending ? "disabled" : ""}><span class="swap"><span>${quote.sending ? "Sending…" : "Send my request"}</span><span aria-hidden="true">${quote.sending ? "Sending…" : "Send my request"}</span></span>${ICO.arrow()}</button>`}
     </div>
   </form>`;
 }
@@ -2774,7 +2807,7 @@ PAGES.notFound = () => `
    ========================================================================== */
 
 const SUBJECTS = ["General question", "About an existing site", "Maintenance or updates", "Something else"];
-const contact = { values: { name: "", email: "", subject: "", message: "" }, errors: {}, touched: {}, blocked: false, sent: false, ref: "" };
+const contact = { values: { name: "", email: "", subject: "", message: "" }, errors: {}, touched: {}, blocked: false, sent: false, sending: false, botcheck: false, failMessage: "" };
 
 function validateContact(v) {
   const e = {};
@@ -2790,24 +2823,16 @@ function contactFormHTML() {
   const cErr = (k) => (contact.touched[k] || contact.blocked) && contact.errors[k] ? contact.errors[k] : "";
 
   if (contact.sent) {
-    const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(contact.values.subject || "Website enquiry")}&body=${encodeURIComponent(contact.values.message + "\n\n— " + contact.values.name + " (" + contact.values.email + ")")}`;
     return `
     <div id="contactDone" tabindex="-1" style="outline:none">
       <span style="display:flex;width:44px;height:44px;align-items:center;justify-content:center;border-radius:999px;background:var(--reef);color:var(--reef-ink)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12.5 5 5L20 6.5"/></svg>
       </span>
-      <h2 style="font-size:var(--text-h3);margin-top:20px">Message captured</h2>
-      <p class="meta t-mist" style="margin-top:12px">Reference <span class="nums t-bone" style="font-weight:600">${contact.ref}</span>.</p>
-      <div style="margin-top:24px;border:1px solid rgb(233 201 155 / .3);border-radius:var(--r-md);background:rgb(233 201 155 / .07);padding:16px">
-        <p class="eyebrow t-sand" style="display:flex;align-items:center;gap:8px">${ICO.alert()}Not yet emailed</p>
-        <p class="t-mist" style="margin-top:8px;font-size:13px">
-          This is a static preview with no server behind it, so your message has not been
-          delivered to an inbox. Send it directly with the button below — it is pre-filled
-          with exactly what you wrote.
-        </p>
-      </div>
-      <div class="row" style="margin-top:24px;gap:12px">
-        <a class="btn btn--solid" href="${mailto}">${ICO.mail()}Send by email</a>
+      <h2 style="font-size:var(--text-h3);margin-top:20px">Message sent</h2>
+      <p class="meta t-mist" style="margin-top:12px">
+        It is on its way to ${SITE.email}. You will normally get a reply within two business days.
+      </p>
+      <div class="row" style="margin-top:24px">
         <button class="btn btn--outline" type="button" id="contactReset">Write another</button>
       </div>
     </div>`;
@@ -2825,10 +2850,13 @@ function contactFormHTML() {
 
   return `
   <form id="contactForm" novalidate class="stack" style="gap:24px">
-    ${contact.blocked && listed.length ? `
+    <label class="sr" aria-hidden="true">Leave this field empty
+      <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" data-hp="contact">
+    </label>
+    ${contact.blocked && (listed.length || contact.failMessage) ? `
       <div class="summary" id="contactSummary" tabindex="-1" role="alert">
-        <p class="row" style="gap:8px;font-size:14px;font-weight:500;color:var(--negative)">${ICO.alert()}Check the highlighted fields below.</p>
-        <ul class="stack" style="margin-top:10px;gap:6px">${listed.map(([k, m]) => `<li><a href="#c-${k}" data-cgoto="${k}">${m}</a></li>`).join("")}</ul>
+        <p class="row" style="gap:8px;font-size:14px;font-weight:500;color:var(--negative)">${ICO.alert()}${contact.failMessage || "Check the highlighted fields below."}</p>
+        ${listed.length ? `<ul class="stack" style="margin-top:10px;gap:6px">${listed.map(([k, m]) => `<li><a href="#c-${k}" data-cgoto="${k}">${m}</a></li>`).join("")}</ul>` : ""}
       </div>` : ""}
 
     <div class="grid g2" style="gap:24px">
@@ -2846,7 +2874,7 @@ function contactFormHTML() {
 
     <div style="display:flex;flex-direction:column-reverse;gap:16px" class="cfoot">
       <p style="font-size:12px;color:var(--dim)"><span class="req">*</span> Required. Replies usually within two business days.</p>
-      <button class="btn btn--solid btn--lg" type="submit" style="align-self:flex-start"><span class="swap"><span>Send message</span><span aria-hidden="true">Send message</span></span>${ICO.arrow()}</button>
+      <button class="btn btn--solid btn--lg" type="submit" style="align-self:flex-start" ${contact.sending ? "disabled" : ""}><span class="swap"><span>${contact.sending ? "Sending…" : "Send message"}</span><span aria-hidden="true">${contact.sending ? "Sending…" : "Send message"}</span></span>${ICO.arrow()}</button>
     </div>
   </form>`;
 }
@@ -3109,7 +3137,7 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("#quoteNext")) { quoteNext(); return; }
   if (e.target.closest("#quoteBack")) { quote.step = Math.max(0, quote.step - 1); remountQuote(); return; }
   if (e.target.closest("#quoteReset")) {
-    Object.assign(quote, { step: 0, sent: false, blocked: false, ref: "", errors: {}, touched: {},
+    Object.assign(quote, { step: 0, sent: false, blocked: false, sending: false, botcheck: false, failMessage: "", errors: {}, touched: {},
       values: { name: "", business: "", email: "", phone: "", businessType: "", existingSite: "", projectType: "", pages: "", features: [], budget: "", timeframe: "", notes: "" } });
     remountQuote();
     return;
@@ -3126,7 +3154,7 @@ document.addEventListener("click", (e) => {
 
   /* contact form controls */
   if (e.target.closest("#contactReset")) {
-    Object.assign(contact, { values: { name: "", email: "", subject: "", message: "" }, errors: {}, touched: {}, blocked: false, sent: false, ref: "" });
+    Object.assign(contact, { values: { name: "", email: "", subject: "", message: "" }, errors: {}, touched: {}, blocked: false, sent: false, sending: false, botcheck: false, failMessage: "" });
     remountContact();
     return;
   }
@@ -3194,6 +3222,8 @@ document.addEventListener("input", (e) => {
 
 /* Radio cards need a change listener — clicking the label fires change. */
 document.addEventListener("change", (e) => {
+  const hp = e.target.closest("[data-hp]");
+  if (hp) { (hp.dataset.hp === "quote" ? quote : contact).botcheck = hp.checked; return; }
   const r = e.target.closest('[data-qf="projectType"]');
   if (r) {
     quote.values.projectType = r.value;
@@ -3211,45 +3241,65 @@ document.addEventListener("focusout", (e) => {
     const k = qf.dataset.qf;
     quote.touched[k] = true;
     const all = validateQuote(quote.values);
-    const was = quote.errors[k];
     quote.errors[k] = all[k] || "";
-    if (was !== quote.errors[k]) remountQuoteField(k);
+    setFieldError(k, quote.errors[k]);
   }
   const cf = e.target.closest("[data-cf]");
   if (cf) {
     const k = cf.dataset.cf;
     contact.touched[k] = true;
     const all = validateContact(contact.values);
-    const was = contact.errors[k];
     contact.errors[k] = all[k] || "";
-    if (was !== contact.errors[k]) remountContact(k);
+    setFieldError("c-" + k, contact.errors[k]);
   }
 });
 
-/* Re-render just the step so an inline error appears without losing scroll. */
-function remountQuoteField(focusKey) {
-  const step = document.getElementById("quoteStep");
-  if (!step) return;
-  const active = document.activeElement?.id;
-  step.innerHTML = `<legend class="sr">${STEPS[quote.step].title}</legend>${quoteStepBody()}`;
-  if (active && active !== focusKey) document.getElementById(active)?.focus();
+/* Show or clear one field's error in place. Never re-render the surrounding
+   step: doing so detaches the field the visitor is tabbing into, which steals
+   focus and swallows their first keystroke. */
+function setFieldError(id, message) {
+  const input = document.getElementById(id);
+  if (!input) return;
+  const wrap = input.closest(".field") || input.closest("fieldset");
+  if (!wrap) return;
+  const existing = wrap.querySelector(`#${id}-error`);
+
+  if (message) {
+    input.setAttribute("aria-invalid", "true");
+    const described = (input.getAttribute("aria-describedby") || "")
+      .split(" ").filter(Boolean);
+    if (!described.includes(`${id}-error`)) {
+      input.setAttribute("aria-describedby", [...described, `${id}-error`].join(" "));
+    }
+    if (existing) {
+      existing.innerHTML = `${ICO.alert()}${esc(message)}`;
+    } else {
+      const node = document.createElement("p");
+      node.className = "err";
+      node.id = `${id}-error`;
+      node.setAttribute("role", "alert");
+      node.innerHTML = `${ICO.alert()}${esc(message)}`;
+      wrap.appendChild(node);
+    }
+  } else {
+    input.removeAttribute("aria-invalid");
+    const described = (input.getAttribute("aria-describedby") || "")
+      .split(" ").filter((x) => x && x !== `${id}-error`);
+    if (described.length) input.setAttribute("aria-describedby", described.join(" "));
+    else input.removeAttribute("aria-describedby");
+    if (existing) existing.remove();
+  }
 }
 
 function remountContact(focusKey) {
   const mount = document.getElementById("contactMount");
   if (!mount) return;
-  const active = document.activeElement?.id;
-  const pos = document.activeElement?.selectionStart;
   mount.innerHTML = contactFormHTML();
   if (contact.sent) { document.getElementById("contactDone")?.focus(); return; }
-  if (contact.blocked) { requestAnimationFrame(() => document.getElementById("contactSummary")?.focus()); return; }
-  if (active && active !== focusKey) {
-    const el = document.getElementById(active);
-    if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch {} }
-  }
+  if (contact.blocked) requestAnimationFrame(() => document.getElementById("contactSummary")?.focus());
 }
 
-document.addEventListener("submit", (e) => {
+document.addEventListener("submit", async (e) => {
   if (e.target.id === "quoteForm") {
     e.preventDefault();
     const found = validateQuote(quote.values);
@@ -3257,14 +3307,39 @@ document.addEventListener("submit", (e) => {
       quote.errors = found;
       Object.keys(found).forEach((k) => (quote.touched[k] = true));
       quote.blocked = true;
+      quote.failMessage = "";
       const bad = STEPS.findIndex((s) => s.fields.some((f) => f in found));
       if (bad !== -1) quote.step = bad;
       remountQuote();
       return;
     }
+
+    quote.sending = true;
+    remountQuote();
+
+    const v = quote.values;
+    const sent = await sendToWeb3Forms({
+      subject: `Website quote request — ${v.business || v.name}`,
+      replyTo: v.email,
+      botcheck: quote.botcheck,
+      fields: {
+        Name: v.name, Business: v.business, Email: v.email, Phone: v.phone,
+        "Business type": v.businessType, "Existing website": v.existingSite,
+        "What they need": v.projectType, "Approx pages": v.pages,
+        Features: v.features.join(", "), Budget: v.budget,
+        Timeframe: v.timeframe, Notes: v.notes
+      }
+    });
+
+    quote.sending = false;
+    if (!sent.ok) {
+      quote.blocked = true;
+      quote.failMessage = sent.message;
+      remountQuote();
+      return;
+    }
     quote.sent = true;
     quote.blocked = false;
-    quote.ref = "Q-" + Date.now().toString(36).toUpperCase();
     remountQuote();
     return;
   }
@@ -3276,12 +3351,31 @@ document.addEventListener("submit", (e) => {
       contact.errors = found;
       Object.keys(found).forEach((k) => (contact.touched[k] = true));
       contact.blocked = true;
+      contact.failMessage = "";
+      remountContact();
+      return;
+    }
+
+    contact.sending = true;
+    remountContact();
+
+    const v = contact.values;
+    const sent = await sendToWeb3Forms({
+      subject: v.subject ? `Website enquiry — ${v.subject}` : "Website enquiry",
+      replyTo: v.email,
+      botcheck: contact.botcheck,
+      fields: { Name: v.name, Email: v.email, Subject: v.subject, Message: v.message }
+    });
+
+    contact.sending = false;
+    if (!sent.ok) {
+      contact.blocked = true;
+      contact.failMessage = sent.message;
       remountContact();
       return;
     }
     contact.sent = true;
     contact.blocked = false;
-    contact.ref = "C-" + Date.now().toString(36).toUpperCase();
     remountContact();
   }
 });
