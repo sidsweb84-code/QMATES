@@ -743,47 +743,16 @@ svg { display: block; }
   color: var(--p-muted);
 }
 /* Abstract photography stand-in: two soft accent fields under the surface. */
-/* Structured stand-in for photography. Crisp on purpose — a blurred blob
-   reads as an out-of-focus photo, ruled lines read as an illustration. */
-.prev__img {
-  position: relative;
-  overflow: hidden;
-  border-radius: 1cqw;
-  background:
-    linear-gradient(168deg,
-      color-mix(in srgb, var(--p-accent) 28%, transparent) 0%,
-      color-mix(in srgb, var(--p-accent) 7%, transparent) 44%,
-      transparent 72%),
-    var(--p-surface);
-}
-.prev__img::before {
+.prev__img { position: relative; overflow: hidden; border-radius: 1cqw; background: var(--p-surface); }
+.prev__img::before, .prev__img::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(90deg,
-    color-mix(in srgb, var(--p-ink) 7%, transparent) 0 1px,
-    transparent 1px 12%);
-}
-.prev__img::after {
-  content: "";
-  position: absolute;
-  top: 13%;
-  right: 11%;
-  width: 14%;
-  aspect-ratio: 1;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--p-accent) 50%, transparent);
-  box-shadow: 0 0 0 .6cqw color-mix(in srgb, var(--p-accent) 16%, transparent);
+  filter: blur(4cqw);
+  background: var(--p-accent);
 }
-.prev__img > i {
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 32%;
-  background: color-mix(in srgb, var(--p-accent) 13%, transparent);
-  border-top: 1px solid color-mix(in srgb, var(--p-accent) 40%, transparent);
-}
-/* Behind overlaid copy: gradient and rules only, so the headline stays clear. */
-.prev__img--backdrop::after, .prev__img--backdrop > i { display: none; }
+.prev__img::before { inset: auto 10% -30% 10%; height: 80%; opacity: .25; }
+.prev__img::after { top: 14%; right: 12%; width: 34%; aspect-ratio: 1; opacity: .4; }
 .prev__lines { display: flex; flex-direction: column; gap: 1.1cqw; }
 .prev__lines i { height: .9cqw; border-radius: 999px; background: color-mix(in srgb, var(--p-muted) 25%, transparent); }
 .prev__row { display: flex; gap: 3cqw; align-items: flex-start; }
@@ -1545,8 +1514,7 @@ const sectionHead = ({ eyebrow: eb, title, lead, link }) => `
    at full width. Stands in for screenshots that do not exist yet.
    ========================================================================== */
 
-const pImg = (style = "", backdrop = false) =>
-  `<div class="prev__img${backdrop ? " prev__img--backdrop" : ""}" style="${style}"><i></i></div>`;
+const pImg = (style = "") => `<div class="prev__img" style="${style}"></div>`;
 const pLines = (n = 3, style = "") => {
   let out = "";
   for (let i = 0; i < n; i++) {
@@ -1575,7 +1543,7 @@ const pNav = (p) => `
 const LAYOUTS = {
   hero: (p) => `${pNav(p)}<div class="prev__body">
       <div style="position:relative">
-        ${pImg("aspect-ratio:16/7", true)}
+        ${pImg("aspect-ratio:16/7")}
         <div style="position:absolute;inset:8cqw 8cqw auto;display:flex;flex-direction:column;gap:2cqw">
           ${pHead(p, "5.4cqw")}
           <p class="prev__sub" style="max-width:52%">${esc(p.preview.sub)}</p>
