@@ -4,6 +4,7 @@ import { HomeHero } from "@/components/site/HomeHero";
 import { ProjectCard } from "@/components/site/ProjectCard";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { CTASection } from "@/components/site/CTASection";
+import { FaqList } from "@/components/site/FaqList";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading, Eyebrow } from "@/components/ui/SectionHeading";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
@@ -11,7 +12,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ArrowRight, Check } from "@/components/ui/Icon";
 import { previewableProjects } from "@/data/projects";
 import { testimonials } from "@/data/testimonials";
-import { services, process, principles } from "@/data/services";
+import { services, process, principles, homeFaqs } from "@/data/services";
 import { plans, pricesArePlaceholder } from "@/data/pricing";
 import { site } from "@/data/site";
 
@@ -36,15 +37,14 @@ export default function HomePage() {
               <span className="accent-word text-sand">judges</span> you on.
             </h2>
             <p className="mt-6 max-w-md text-lead text-mist">
-              Most people decide whether a business is worth contacting before they
-              read a single sentence. QMATES exists to make that first few seconds
-              work in your favour — then make the next step obvious.
+              Most people decide whether you are worth contacting before they read
+              a sentence. QMATES makes those first seconds work in your favour.
             </p>
           </Reveal>
 
           <Stagger className="grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-2">
             {principles.map((p) => (
-              <StaggerItem key={p.title} className="bg-ink-2 p-6 md:p-7">
+              <StaggerItem key={p.title} className="liftable bg-ink-2 p-6 md:p-7">
                 <h3 className="font-display text-[1.0625rem] font-semibold text-bone">
                   {p.title}
                 </h3>
@@ -66,7 +66,7 @@ export default function HomePage() {
               Same attention to detail.
             </>
           }
-          lead="Every project starts with what the business actually needs the site to do, then works backwards to the design."
+          lead="What the business needs the site to do comes first. The design works backwards from there."
           link={{ href: "/portfolio", label: "All projects" }}
         />
 
@@ -84,7 +84,7 @@ export default function HomePage() {
         <SectionHeading
           eyebrow="02 / Services"
           title="What QMATES actually does"
-          lead="Six services, all pointed at the same outcome: a site that makes your business easy to trust and easy to contact."
+          lead="Six services, one outcome — a site that is easy to trust and easy to contact."
         />
 
         <Stagger className="rule-t mt-14">
@@ -123,7 +123,7 @@ export default function HomePage() {
         <SectionHeading
           eyebrow="03 / Process"
           title="Four steps, no surprises"
-          lead="You always know what stage the project is at, what you owe and what happens next."
+          lead="You always know the stage, the cost and what happens next."
         />
 
         <Stagger className="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line md:grid-cols-2 xl:grid-cols-4">
@@ -157,7 +157,7 @@ export default function HomePage() {
         <SectionHeading
           eyebrow="04 / Testimonials"
           title="What clients say"
-          lead="These slots are reserved for real client quotes. Nothing here is invented or attributed to anyone who has not said it."
+          lead="Reserved for real client quotes. Nothing here is invented."
           link={{ href: "/testimonials", label: "View all testimonials" }}
         />
 
@@ -233,6 +233,25 @@ export default function HomePage() {
             </StaggerItem>
           ))}
         </Stagger>
+      </Section>
+
+      {/* ==================== QUESTIONS ==================== */}
+      <Section size="lg">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-20">
+          <Reveal className="lg:sticky lg:top-28 lg:self-start">
+            <Eyebrow className="mb-4">06 / A few good questions</Eyebrow>
+            <h2 className="text-h2 text-bone">
+              Glad you <span className="accent-word text-sand">asked</span>.
+            </h2>
+            <ButtonLink href="/pricing" variant="ghost" withArrow className="mt-7">
+              More questions, answered
+            </ButtonLink>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <FaqList items={homeFaqs} idPrefix="home-faq" />
+          </Reveal>
+        </div>
       </Section>
 
       <CTASection />

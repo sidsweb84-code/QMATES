@@ -171,6 +171,32 @@ svg { display: block; }
   transition: opacity 720ms var(--ease), transform 720ms var(--ease);
 }
 
+/* --- hover affordance ---------------------------------------------------- */
+/* A highlight that grows behind a link, so text reads as interactive before
+   it is clicked. On a wrapper, never the text, so letters never shift. */
+.hl { position: relative; isolation: isolate; border-radius: var(--r-sm); }
+.hl-bg {
+  position: absolute;
+  inset: -.25em -.5em;
+  z-index: -1;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--reef) 14%, transparent);
+  transform: scaleX(.4);
+  opacity: 0;
+  transition: transform var(--base) var(--ease), opacity var(--base) var(--ease);
+}
+.hl:hover .hl-bg, .hl:focus-visible .hl-bg { transform: scaleX(1); opacity: 1; }
+
+.liftable {
+  transition: transform var(--slow) var(--ease), border-color var(--slow) var(--ease),
+              box-shadow var(--slow) var(--ease), background-color var(--slow) var(--ease);
+}
+.liftable:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--reef) 40%, var(--line-strong));
+  box-shadow: var(--shadow-high);
+}
+
 /* --- buttons ------------------------------------------------------------- */
 
 .btn {
@@ -191,6 +217,16 @@ svg { display: block; }
               color var(--base) var(--ease), transform var(--base) var(--ease),
               box-shadow var(--base) var(--ease);
 }
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  border-radius: inherit;
+  background: transparent;
+  transition: background-color var(--base) var(--ease);
+}
+.btn:hover::before { background: color-mix(in srgb, var(--reef) 12%, transparent); }
 .btn:active { transform: translateY(1px); }
 .btn--lg { min-height: 56px; padding-inline: 28px; font-size: 16px; }
 .btn--sm { min-height: 44px; padding-inline: 16px; font-size: 13px; border-radius: var(--r-sm); }
@@ -276,6 +312,7 @@ svg { display: block; }
   transition: color var(--base), border-color var(--base);
 }
 .lnk:hover { color: var(--reef); border-color: var(--reef); }
+.lnk { position: relative; isolation: isolate; }
 
 /* --- navbar -------------------------------------------------------------- */
 
@@ -430,6 +467,71 @@ svg { display: block; }
   font-weight: 600;
   font-size: 14px;
 }
+
+/* --- dock nav ------------------------------------------------------------ */
+/* Floating quick-nav that rises once the visitor is past the hero. Five
+   destinations, each with an icon AND a label. */
+.dock {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 16px;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding-inline: 16px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--slow) var(--ease), transform var(--slow) var(--ease);
+}
+.dock.is-shown { opacity: 1; transform: none; }
+.dock__inner {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgb(16 22 24 / .85);
+  padding: 6px;
+  box-shadow: var(--shadow-high);
+  backdrop-filter: blur(18px);
+}
+.dock:not(.is-shown) .dock__inner { pointer-events: none; }
+.dock ul { display: flex; align-items: center; gap: 2px; }
+.dock a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  border-radius: 999px;
+  padding-inline: 12px;
+  font-size: 13px;
+  color: var(--mist);
+  transition: background-color var(--base), color var(--base);
+}
+@media (min-width: 640px) { .dock__inner { gap: 4px; } .dock a { padding-inline: 14px; } }
+.dock a:hover { background: var(--surface-3); color: var(--bone); }
+.dock a svg { flex: none; transition: transform var(--base) var(--ease); }
+.dock a:hover svg { transform: translateY(-2px); }
+.dock a[aria-current="page"] { background: var(--bone); color: var(--ink); }
+.dock a span { display: none; }
+@media (min-width: 640px) { .dock a span { display: inline; } }
+@media (min-width: 380px) { .dock a[aria-current="page"] span { display: inline; } }
+.dock__cta {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  margin-left: 2px;
+  background: var(--reef);
+  color: var(--reef-ink);
+  transition: background-color var(--base), transform var(--base) var(--ease);
+}
+.dock__cta:hover { background: var(--reef-bright); transform: scale(1.05); }
 
 /* --- page hero ----------------------------------------------------------- */
 
@@ -641,16 +743,47 @@ svg { display: block; }
   color: var(--p-muted);
 }
 /* Abstract photography stand-in: two soft accent fields under the surface. */
-.prev__img { position: relative; overflow: hidden; border-radius: 1cqw; background: var(--p-surface); }
-.prev__img::before, .prev__img::after {
+/* Structured stand-in for photography. Crisp on purpose — a blurred blob
+   reads as an out-of-focus photo, ruled lines read as an illustration. */
+.prev__img {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1cqw;
+  background:
+    linear-gradient(168deg,
+      color-mix(in srgb, var(--p-accent) 28%, transparent) 0%,
+      color-mix(in srgb, var(--p-accent) 7%, transparent) 44%,
+      transparent 72%),
+    var(--p-surface);
+}
+.prev__img::before {
   content: "";
   position: absolute;
-  border-radius: 999px;
-  filter: blur(4cqw);
-  background: var(--p-accent);
+  inset: 0;
+  background-image: repeating-linear-gradient(90deg,
+    color-mix(in srgb, var(--p-ink) 7%, transparent) 0 1px,
+    transparent 1px 12%);
 }
-.prev__img::before { inset: auto 10% -30% 10%; height: 80%; opacity: .25; }
-.prev__img::after { top: 14%; right: 12%; width: 34%; aspect-ratio: 1; opacity: .4; }
+.prev__img::after {
+  content: "";
+  position: absolute;
+  top: 13%;
+  right: 11%;
+  width: 14%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p-accent) 50%, transparent);
+  box-shadow: 0 0 0 .6cqw color-mix(in srgb, var(--p-accent) 16%, transparent);
+}
+.prev__img > i {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 32%;
+  background: color-mix(in srgb, var(--p-accent) 13%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--p-accent) 40%, transparent);
+}
+/* Behind overlaid copy: gradient and rules only, so the headline stays clear. */
+.prev__img--backdrop::after, .prev__img--backdrop > i { display: none; }
 .prev__lines { display: flex; flex-direction: column; gap: 1.1cqw; }
 .prev__lines i { height: .9cqw; border-radius: 999px; background: color-mix(in srgb, var(--p-muted) 25%, transparent); }
 .prev__row { display: flex; gap: 3cqw; align-items: flex-start; }
@@ -1025,7 +1158,7 @@ select.ctrl { appearance: none; cursor: pointer; padding-right: 44px; }
 /* --- footer -------------------------------------------------------------- */
 
 .foot { border-top: 1px solid var(--line); background: var(--ink-2); }
-.foot__in { position: relative; z-index: 1; padding-top: 80px; padding-bottom: 40px; }
+.foot__in { position: relative; z-index: 1; padding-top: 80px; padding-bottom: 104px; }
 @media (min-width: 768px) { .foot__in { padding-top: 96px; } }
 .foot__grid { display: grid; gap: 48px; }
 @media (min-width: 1024px) { .foot__grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 80px; } }
@@ -1115,6 +1248,15 @@ select.ctrl { appearance: none; cursor: pointer; padding-right: 44px; }
     </div>
   </div>
 </footer>
+
+<div class="dock" id="dock">
+  <nav class="dock__inner" aria-label="Quick navigation">
+    <ul id="dockLinks"></ul>
+    <a class="dock__cta" href="#/quote" aria-label="Get a quote">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 7 8.2 5.6a1.5 1.5 0 0 0 1.6 0L21 7"/></svg>
+    </a>
+  </nav>
+</div>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screen preview">
   <div class="lightbox__bar">
@@ -1334,6 +1476,14 @@ const ADDONS = [
   ["Maintenance", "$50/hr", "theme colour changes, personal requests and bug fixing \u2014 usually only an hour"]
 ];
 
+const HOME_FAQS = [
+  ["Who will I be working with?", "Me, start to finish. The person you brief designs it, writes the code and hands it over — no account manager in between, nothing outsourced."],
+  ["What does it cost?", "Booster $300\u2013400, Starter $400\u2013500, or a customised plan from $500. Slightly negotiable depending on your business. Full breakdown on the pricing page."],
+  ["Can you improve my existing website?", "Yes \u2014 that is what Booster is for. Animations, extra pages, a working quote system, and your current domain linked and hosted free."],
+  ["Do I own the finished website?", "Yes. The domain, the hosting and the site are all in your name. On Booster the code comes to you on GitHub."],
+  ["How do we get started?", "Send a quote request. You get a fixed written figure back within two business days \u2014 no obligation, no sales call unless you want one."]
+];
+
 const FAQS = [
   ["Which plan do I need?", "If you already have a website and it needs lifting, that is Booster. If you have nothing and need a proper site built, that is Starter. If you want the site to keep working for you \u2014 quotes, galleries, automation and ongoing changes \u2014 that is the customised plan."],
   ["Are the prices negotiable?", "Slightly, yes. Every plan moves a little depending on the state of the business and what we agree on. The ranges shown are an honest starting point rather than a headline figure designed to get you on the phone."],
@@ -1395,7 +1545,8 @@ const sectionHead = ({ eyebrow: eb, title, lead, link }) => `
    at full width. Stands in for screenshots that do not exist yet.
    ========================================================================== */
 
-const pImg = (style = "") => `<div class="prev__img" style="${style}"></div>`;
+const pImg = (style = "", backdrop = false) =>
+  `<div class="prev__img${backdrop ? " prev__img--backdrop" : ""}" style="${style}"><i></i></div>`;
 const pLines = (n = 3, style = "") => {
   let out = "";
   for (let i = 0; i < n; i++) {
@@ -1424,7 +1575,7 @@ const pNav = (p) => `
 const LAYOUTS = {
   hero: (p) => `${pNav(p)}<div class="prev__body">
       <div style="position:relative">
-        ${pImg("aspect-ratio:16/7")}
+        ${pImg("aspect-ratio:16/7", true)}
         <div style="position:absolute;inset:8cqw 8cqw auto;display:flex;flex-direction:column;gap:2cqw">
           ${pHead(p, "5.4cqw")}
           <p class="prev__sub" style="max-width:52%">${esc(p.preview.sub)}</p>
@@ -1515,6 +1666,20 @@ const phone = (p, cls = "") => `
   </div>`;
 
 /* --- project card -------------------------------------------------------- */
+
+const faqList = (items, prefix) => `
+  <ul class="faq" data-reveal>
+    ${items.map(([q, a], i) => `
+      <li class="${i === 0 ? "is-open" : ""}">
+        <h3 style="margin:0">
+          <button type="button" data-faq="${prefix}${i}" aria-expanded="${i === 0}" aria-controls="${prefix}faqp${i}" id="${prefix}faqb${i}">
+            <b>${q}</b>
+            <span class="faq__sign" aria-hidden="true">${i === 0 ? ICO.minus() : ICO.plus()}</span>
+          </button>
+        </h3>
+        <div class="faq__panel" id="${prefix}faqp${i}" role="region" aria-labelledby="${prefix}faqb${i}"><div><p class="meta t-mist">${a}</p></div></div>
+      </li>`).join("")}
+  </ul>`;
 
 const statusTag = (p) =>
   `<span class="tag ${p.status === "sample" ? "tag--sample" : "tag--real"}">${STATUS_LABEL[p.status]}</span>`;
@@ -1645,9 +1810,8 @@ PAGES.home = () => {
             <span>to ignore.</span>
           </h1>
           <p class="lead" style="margin-top:28px;max-width:32rem">
-            QMATES designs and builds websites for Queensland businesses — the kind
-            that look established, load fast on a phone, and turn a visitor into an
-            enquiry instead of a bounce.
+            Websites for Queensland businesses. Built to look established, load
+            fast on a phone, and turn visitors into enquiries.
           </p>
           <div class="row" style="margin-top:36px;gap:12px">
             ${btn("Get a Quote", "#/quote", "solid", { arrow: true, size: "btn--lg" })}
@@ -1690,13 +1854,12 @@ PAGES.home = () => {
         ${eyebrow("Why QMATES")}
         <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:20px">A website is the first thing a customer <span class="accent t-sand">judges</span> you on.</h2>
         <p class="lead" style="margin-top:24px;max-width:28rem">
-          Most people decide whether a business is worth contacting before they read a
-          single sentence. QMATES exists to make that first few seconds work in your
-          favour — then make the next step obvious.
+          Most people decide whether you are worth contacting before they read a
+          sentence. QMATES makes those first seconds work in your favour.
         </p>
       </div>
       <div class="mesh g2" data-reveal>
-        ${PRINCIPLES.map(([t, b]) => `<div><h3 style="font-size:17px">${t}</h3><p class="meta t-mist" style="margin-top:12px">${b}</p></div>`).join("")}
+        ${PRINCIPLES.map(([t, b]) => `<div class="liftable"><h3 style="font-size:17px">${t}</h3><p class="meta t-mist" style="margin-top:12px">${b}</p></div>`).join("")}
       </div>
     </div>
   </section>
@@ -1706,7 +1869,7 @@ PAGES.home = () => {
       ${sectionHead({
         eyebrow: "01 / Selected work",
         title: "Different businesses.<br>Same attention to detail.",
-        lead: "Every project starts with what the business actually needs the site to do, then works backwards to the design.",
+        lead: "What the business needs the site to do comes first. The design works backwards from there.",
         link: ["All projects", "#/portfolio"]
       })}
       <div class="grid g2" style="margin-top:56px;gap:56px 32px">
@@ -1720,7 +1883,7 @@ PAGES.home = () => {
       ${sectionHead({
         eyebrow: "02 / Services",
         title: "What QMATES actually does",
-        lead: "Six services, all pointed at the same outcome: a site that makes your business easy to trust and easy to contact."
+        lead: "Six services, one outcome — a site that is easy to trust and easy to contact."
       })}
       <ul style="margin-top:56px;border-top:1px solid var(--line)">
         ${SERVICES.map((s) => `
@@ -1740,7 +1903,7 @@ PAGES.home = () => {
       ${sectionHead({
         eyebrow: "03 / Process",
         title: "Four steps, no surprises",
-        lead: "You always know what stage the project is at, what you owe and what happens next."
+        lead: "You always know the stage, the cost and what happens next."
       })}
       <div class="mesh g4" style="margin-top:56px" data-reveal>
         ${PROCESS.map((s) => `
@@ -1761,7 +1924,7 @@ PAGES.home = () => {
       ${sectionHead({
         eyebrow: "04 / Testimonials",
         title: "What clients say",
-        lead: "These slots are reserved for real client quotes. Nothing here is invented or attributed to anyone who has not said it.",
+        lead: "Reserved for real client quotes. Nothing here is invented.",
         link: ["View all testimonials", "#/testimonials"]
       })}
       <div class="grid g3" style="margin-top:56px">${TESTIMONIALS.slice(0, 3).map(testimonialCard).join("")}</div>
@@ -1795,6 +1958,17 @@ PAGES.home = () => {
             <a class="lnk" style="margin-top:28px;align-self:flex-start" href="#/pricing">See what's included${ICO.arrow()}</a>
           </div>`).join("")}
       </div>
+    </div>
+  </section>
+
+  <section class="section section--lg">
+    <div class="shell split">
+      <div class="sticky" data-reveal>
+        ${eyebrow("06 / A few good questions")}
+        <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">Glad you <span class="accent t-sand">asked</span>.</h2>
+        <div style="margin-top:28px">${btn("More questions, answered", "#/pricing", "ghost", { arrow: true })}</div>
+      </div>
+      ${faqList(HOME_FAQS, "h")}
     </div>
   </section>
 
@@ -2239,18 +2413,7 @@ PAGES.pricing = () => `
         ${eyebrow("Questions")}
         <h2 style="font-size:var(--text-h2);line-height:1.06;margin-top:16px">The things people ask <span class="accent t-sand">first</span></h2>
       </div>
-      <ul class="faq" data-reveal id="faq">
-        ${FAQS.map(([q, a], i) => `
-          <li class="${i === 0 ? "is-open" : ""}">
-            <h3 style="margin:0">
-              <button type="button" data-faq="${i}" aria-expanded="${i === 0}" aria-controls="faqp${i}" id="faqb${i}">
-                <b>${q}</b>
-                <span class="faq__sign" aria-hidden="true">${i === 0 ? ICO.minus() : ICO.plus()}</span>
-              </button>
-            </h3>
-            <div class="faq__panel" id="faqp${i}" role="region" aria-labelledby="faqb${i}"><div><p class="meta t-mist">${a}</p></div></div>
-          </li>`).join("")}
-      </ul>
+      ${faqList(FAQS, "p")}
     </div>
   </section>
 
@@ -2968,6 +3131,7 @@ function render() {
 
   main.innerHTML = r.name === "project" ? PAGES.project(r.slug) : PAGES[r.name]();
   renderNav();
+  renderDock();
   document.title = {
     home: "QMATES — Queensland's Online Business Partner",
     portfolio: "Portfolio — QMATES",
@@ -3072,7 +3236,28 @@ function closeLightbox() {
 
 /* --- navbar -------------------------------------------------------------- */
 
-const onScroll = () => nav.classList.toggle("is-stuck", window.scrollY > 24 || sheet.classList.contains("is-open"));
+const dock = document.getElementById("dock");
+const DOCK = [
+  ["Home", "#/", '<path d="M4 10.5 12 4l8 6.5"/><path d="M6 9.8V20h12V9.8"/>'],
+  ["Work", "#/portfolio", '<rect x="2.5" y="7" width="19" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/>'],
+  ["Gallery", "#/gallery", '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>'],
+  ["Pricing", "#/pricing", '<path d="M3.5 11.2V4.5a1 1 0 0 1 1-1h6.7a1 1 0 0 1 .7.3l8 8a1 1 0 0 1 0 1.4l-6.7 6.7a1 1 0 0 1-1.4 0l-8-8a1 1 0 0 1-.3-.7Z"/><circle cx="7.8" cy="7.8" r="1.2"/>'],
+  ["About", "#/about", '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>']
+];
+
+function renderDock() {
+  const active = activePath();
+  document.getElementById("dockLinks").innerHTML = DOCK.map(([label, href, path]) => `
+    <li><a href="${href}" ${href === active ? 'aria-current="page"' : ""}>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>
+      <span>${label}</span>
+    </a></li>`).join("");
+}
+
+const onScroll = () => {
+  nav.classList.toggle("is-stuck", window.scrollY > 24 || sheet.classList.contains("is-open"));
+  dock.classList.toggle("is-shown", window.scrollY > 420);
+};
 window.addEventListener("scroll", onScroll, { passive: true });
 
 burger.addEventListener("click", () => {

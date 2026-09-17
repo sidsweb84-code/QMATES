@@ -98,9 +98,8 @@ export function HomeHero() {
             </h1>
 
             <motion.p data-reveal="" {...enter(5)} className="mt-7 max-w-lg text-lead text-mist">
-              QMATES designs and builds websites for Queensland businesses — the kind
-              that look established, load fast on a phone, and turn a visitor into an
-              enquiry instead of a bounce.
+              Websites for Queensland businesses. Built to look established, load
+              fast on a phone, and turn visitors into enquiries.
             </motion.p>
 
             <motion.div data-reveal="" {...enter(6)} className="mt-9 flex flex-col gap-3 sm:flex-row">

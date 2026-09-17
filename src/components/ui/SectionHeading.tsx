@@ -54,11 +54,12 @@ export function SectionHeading({
         <Link
           href={link.href}
           className={cn(
-            "group/sl inline-flex shrink-0 items-center gap-2 border-b border-line pb-1.5",
+            "group/sl hl inline-flex shrink-0 items-center gap-2 border-b border-line pb-1.5",
             "text-meta text-bone transition-colors duration-[var(--duration-base)]",
             "hover:border-reef hover:text-reef md:pb-2",
           )}
         >
+          <span aria-hidden="true" className="hl-bg" />
           {link.label}
           <ArrowRight
             size={16}

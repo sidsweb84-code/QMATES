@@ -129,3 +129,34 @@ export const principles: Principle[] = [
     body: "Performance is a design constraint from the first day, not an optimisation pass bolted on at the end.",
   },
 ];
+
+/* ============================================================================
+ * HOME FAQ
+ * Short answers to what people ask before they enquire. Anything needing a
+ * long answer belongs on /pricing or /about, not here.
+ * ========================================================================== */
+
+export type HomeFaq = { q: string; a: string };
+
+export const homeFaqs: HomeFaq[] = [
+  {
+    q: "Who will I be working with?",
+    a: "Me, start to finish. The person you brief designs it, writes the code and hands it over — no account manager in between, nothing outsourced.",
+  },
+  {
+    q: "What does it cost?",
+    a: "Booster $300–400, Starter $400–500, or a customised plan from $500. Slightly negotiable depending on your business. Full breakdown on the pricing page.",
+  },
+  {
+    q: "Can you improve my existing website?",
+    a: "Yes — that is what Booster is for. Animations, extra pages, a working quote system, and your current domain linked and hosted free.",
+  },
+  {
+    q: "Do I own the finished website?",
+    a: "Yes. The domain, the hosting and the site are all in your name. On Booster the code comes to you on GitHub.",
+  },
+  {
+    q: "How do we get started?",
+    a: "Send a quote request. You get a fixed written figure back within two business days — no obligation, no sales call unless you want one.",
+  },
+];

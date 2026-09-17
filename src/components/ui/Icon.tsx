@@ -159,6 +159,43 @@ export const Spinner = ({ size = 20, ...p }: IconProps) => (
   </svg>
 );
 
+export const Home = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 10.5 12 4l8 6.5" />
+    <path d="M6 9.8V20h12V9.8" />
+  </Svg>
+);
+
+export const Grid = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+    <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+    <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+    <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+  </Svg>
+);
+
+export const Briefcase = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="2.5" y="7" width="19" height="13" rx="2" />
+    <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" />
+  </Svg>
+);
+
+export const Tag = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3.5 11.2V4.5a1 1 0 0 1 1-1h6.7a1 1 0 0 1 .7.3l8 8a1 1 0 0 1 0 1.4l-6.7 6.7a1 1 0 0 1-1.4 0l-8-8a1 1 0 0 1-.3-.7Z" />
+    <circle cx="7.8" cy="7.8" r="1.2" />
+  </Svg>
+);
+
+export const User = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="8" r="3.6" />
+    <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+  </Svg>
+);
+
 export const Logo = ({ size = 28, ...p }: IconProps) => (
   <svg
     width={size}

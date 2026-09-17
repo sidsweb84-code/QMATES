@@ -124,18 +124,20 @@ function MiniTiles({ project }: { project: Previewable }) {
   );
 }
 
-/** Abstract image block — a soft accent field standing in for photography. */
-function MiniImage({ className, ratio = "aspect-[4/3]" }: { className?: string; ratio?: string }) {
+/** Structured stand-in for photography. See `.mini-image` in globals.css. */
+function MiniImage({
+  className,
+  ratio = "aspect-[4/3]",
+  backdrop = false,
+}: {
+  className?: string;
+  ratio?: string;
+  /** Set when copy is overlaid on top, so the sun and horizon are dropped. */
+  backdrop?: boolean;
+}) {
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-[1cqw] bg-[var(--p-surface)]",
-        ratio,
-        className,
-      )}
-    >
-      <span className="absolute -bottom-[30%] left-[10%] size-[80%] rounded-full bg-[var(--p-accent)]/25 blur-[4cqw]" />
-      <span className="absolute top-[14%] right-[12%] size-[34%] rounded-full bg-[var(--p-accent)]/40 blur-[3cqw]" />
+    <div className={cn("mini-image", backdrop && "mini-image--backdrop", ratio, className)}>
+      <i />
     </div>
   );
 }
@@ -177,7 +179,7 @@ function LayoutHero({ project }: { project: Previewable }) {
     <>
       <MiniNav project={project} />
       <div className="relative flex-1 px-[4cqw] pb-[4cqw]">
-        <MiniImage ratio="aspect-[16/7]" />
+        <MiniImage ratio="aspect-[16/7]" backdrop />
         <div className="absolute inset-x-[8cqw] top-[12cqw] flex flex-col gap-[2cqw]">
           <Headline project={project} size="text-[5.4cqw] leading-[0.95] max-w-[70%]" />
           <p className="max-w-[52%] text-[1.75cqw] leading-relaxed text-[var(--p-muted)]">

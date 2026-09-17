@@ -235,12 +235,119 @@
   opacity: 0.5;
 }
 
+/* --------------------------------------------------------------------------
+   HOVER AFFORDANCE
+   A highlight that grows from the centre behind a link, so text reads as
+   interactive before it is clicked. Applied to a wrapper, not the text, so
+   the letters themselves never shift.
+   -------------------------------------------------------------------------- */
+
+@utility hl {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-base) var(--ease-out-expo);
+}
+
+@utility hl-bg {
+  position: absolute;
+  inset: -0.25em -0.5em;
+  z-index: -1;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-reef) 14%, transparent);
+  transform: scaleX(0.4);
+  opacity: 0;
+  transition:
+    transform var(--duration-base) var(--ease-out-expo),
+    opacity var(--duration-base) var(--ease-out-expo);
+}
+
 /* ==========================================================================
    TEXTURE — a very low-opacity static grain so large dark fields
    never read as flat dead space. Pure CSS, no image request.
    ========================================================================== */
 
 @layer components {
+  /* Hover highlight, driven by the parent's hover/focus state. */
+  .hl:hover .hl-bg,
+  .hl:focus-visible .hl-bg,
+  .group\/card:hover .hl-bg,
+  .group\/srv:hover .hl-bg {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  /* Cards lift slightly and warm their border on hover. */
+  .liftable {
+    transition:
+      transform var(--duration-slow) var(--ease-out-expo),
+      border-color var(--duration-slow) var(--ease-out-expo),
+      box-shadow var(--duration-slow) var(--ease-out-expo),
+      background-color var(--duration-slow) var(--ease-out-expo);
+  }
+  .liftable:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--color-reef) 40%, var(--color-line-strong));
+    box-shadow: var(--shadow-high);
+  }
+
+  /* --------------------------------------------------------------------
+     MOCKUP IMAGERY
+     A structured stand-in for photography inside a site preview. Crisp on
+     purpose: a blurred blob reads as an out-of-focus photo, where ruled
+     lines and a hard-edged sun read as a deliberate illustration.
+     -------------------------------------------------------------------- */
+  .mini-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1cqw;
+    background:
+      linear-gradient(
+        168deg,
+        color-mix(in srgb, var(--p-accent) 28%, transparent) 0%,
+        color-mix(in srgb, var(--p-accent) 7%, transparent) 44%,
+        transparent 72%
+      ),
+      var(--p-surface);
+  }
+  /* Fine vertical rule, like a contact sheet. */
+  .mini-image::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--p-ink) 7%, transparent) 0 1px,
+      transparent 1px 12%
+    );
+  }
+  /* Hard-edged sun. */
+  .mini-image::after {
+    content: "";
+    position: absolute;
+    top: 13%;
+    right: 11%;
+    width: 14%;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--p-accent) 50%, transparent);
+    box-shadow: 0 0 0 0.6cqw color-mix(in srgb, var(--p-accent) 16%, transparent);
+  }
+  /* Backdrop variant: gradient and rules only, so overlaid copy stays legible. */
+  .mini-image--backdrop::after,
+  .mini-image--backdrop > i {
+    display: none;
+  }
+
+  /* Horizon band grounds the composition. */
+  .mini-image > i {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 32%;
+    background: color-mix(in srgb, var(--p-accent) 13%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--p-accent) 40%, transparent);
+  }
+
   .grain::after {
     content: "";
     position: absolute;

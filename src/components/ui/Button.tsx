@@ -22,6 +22,10 @@ type Size = "sm" | "md" | "lg";
 const base =
   "group/btn relative inline-flex items-center justify-center gap-2.5 font-medium " +
   "cursor-pointer select-none whitespace-nowrap " +
+  /* A ring that blooms outward on hover, so the target reads as live. */
+  "before:absolute before:-inset-1 before:-z-10 before:rounded-[inherit] " +
+  "before:bg-reef/0 before:transition-[background-color,inset] " +
+  "before:duration-[var(--duration-base)] hover:before:bg-reef/12 " +
   "transition-[transform,background-color,border-color,color,box-shadow] duration-[var(--duration-base)] ease-[var(--ease-out-expo)] " +
   "active:translate-y-px disabled:pointer-events-none disabled:opacity-45";
 

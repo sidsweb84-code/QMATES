@@ -18,7 +18,7 @@ export function Footer() {
         className="bloom -bottom-56 left-1/2 h-96 w-[42rem] -translate-x-1/2 bg-reef/8"
       />
 
-      <div className="shell relative z-10 pt-20 pb-10 md:pt-24">
+      <div className="shell relative z-10 pt-20 pb-28 md:pt-24">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-20">
           {/* --- brand block --- */}
           <div>
