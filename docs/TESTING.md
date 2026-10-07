@@ -45,6 +45,7 @@ virtual clock) and plays scripted sessions:
 | `02_player_journey` | Tutorial, buying, income, collecting, upgrades, quests, rewards, packs, shops, cosmetics, rebirth, events, products/passes, save + rejoin, the in-game test suite |
 | `03_multiplayer_stealing` | Session-lock takeover, new-player protection, full steal, catches, traps, base lock, owner leaving mid-theft, speed-hack rubber-banding, trading, two-player test suite |
 | `04_client_ui` | Boots the client UI, buys through the real prompt, plays every reveal tier, opens every window/tab and clicks every button, steal alerts and panel, trade UI, settings |
+| `05_installer_model` | Starts from the installer model in a template place (Baseplate, an older install, the developer's own assets), runs the installer, checks every script/setting/backup, then boots and plays the installed game |
 
 Any error thrown by game code — or logged by it (`[ERROR]`, WindowManager,
 Reveal, ActionBus) — fails the scenario.

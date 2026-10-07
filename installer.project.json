@@ -1,0 +1,52 @@
+{
+  "name": "StealPokemon_Installer",
+  "tree": {
+    "$className": "Folder",
+
+    "StealPokemon_Install": {
+      "$path": "installer/StealPokemon_Install.luau"
+    },
+
+    "ReplicatedStorage": {
+      "$className": "Folder",
+      "Shared": {
+        "$path": "src/ReplicatedStorage/Shared"
+      },
+      "Remotes": {
+        "$className": "Folder",
+        "Request": { "$className": "RemoteFunction" },
+        "Event": { "$className": "RemoteEvent" },
+        "Sync": { "$className": "RemoteEvent" }
+      },
+      "Assets": {
+        "$className": "Folder",
+        "Creatures": { "$className": "Folder" },
+        "Sounds": { "$className": "Folder" },
+        "Images": { "$className": "Folder" }
+      }
+    },
+
+    "ReplicatedFirst": {
+      "$className": "Folder",
+      "LoadingScreen": {
+        "$path": "src/ReplicatedFirst/LoadingScreen.client.luau"
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "Folder",
+      "ServerMain": {
+        "$path": "src/ServerScriptService/ServerMain.server.luau",
+        "$properties": { "Enabled": false }
+      },
+      "Modules": { "$path": "src/ServerScriptService/Modules" },
+      "Services": { "$path": "src/ServerScriptService/Services" },
+      "Tests": { "$path": "src/ServerScriptService/Tests" }
+    },
+
+    "StarterPlayerScripts": {
+      "$className": "Folder",
+      "$path": "src/StarterPlayer/StarterPlayerScripts"
+    }
+  }
+}

@@ -24,6 +24,32 @@ MOUNTS = [
     ("src/ReplicatedFirst", "ReplicatedFirst"),
 ]
 
+# Scenarios marked "--@installer" start from build/StealPokemon_Installer.rbxm
+# (installer.project.json) inserted into Workspace instead of the place layout.
+INSTALLER = "Workspace/StealPokemon_Installer"
+INSTALLER_MOUNTS = [
+    ("src/ReplicatedStorage/Shared", INSTALLER + "/ReplicatedStorage/Shared"),
+    ("src/ServerScriptService", INSTALLER + "/ServerScriptService"),
+    ("src/StarterPlayer/StarterPlayerScripts", INSTALLER + "/StarterPlayerScripts"),
+    ("src/ReplicatedFirst", INSTALLER + "/ReplicatedFirst"),
+    ("installer", INSTALLER),
+]
+
+PLACE_SETUP = """
+Sim.createProjectInstances(game:GetService("ReplicatedStorage"))
+"""
+
+INSTALLER_SETUP = """
+do
+	local root = Sim.find("%s")
+	Sim.createProjectInstances(root:FindFirstChild("ReplicatedStorage"))
+	-- installer.project.json ships the server entry script disabled
+	root.ServerScriptService.ServerMain.Enabled = false
+	-- Every real place has a StarterPlayerScripts container
+	Sim.newInstance("StarterPlayerScripts", "StarterPlayerScripts").Parent = game:GetService("StarterPlayer")
+end
+""" % INSTALLER
+
 
 def long_string(s):
     level = 1
@@ -33,9 +59,9 @@ def long_string(s):
     return "[" + eq + "[\n" + s + "]" + eq + "]"
 
 
-def collect():
+def collect(mounts):
     entries = []
-    for fs_root, dm_root in MOUNTS:
+    for fs_root, dm_root in mounts:
         base = os.path.join(ROOT, fs_root)
         for dirpath, _, files in os.walk(base):
             for f in sorted(files):
@@ -115,17 +141,18 @@ function Sim.find(path)
 	end
 	return node
 end
--- Project instances Rojo creates from default.project.json
-local rs = game:GetService("ReplicatedStorage")
-local remotes = Sim.newInstance("Folder", "Remotes")
-remotes.Parent = rs
-Sim.newInstance("RemoteFunction", "Request").Parent = remotes
-Sim.newInstance("RemoteEvent", "Event").Parent = remotes
-Sim.newInstance("RemoteEvent", "Sync").Parent = remotes
-local assets = Sim.newInstance("Folder", "Assets")
-assets.Parent = rs
-for _, n in { "Creatures", "Sounds", "Images" } do
-	Sim.newInstance("Folder", n).Parent = assets
+-- Project instances Rojo creates from default.project.json / installer.project.json
+function Sim.createProjectInstances(rs)
+	local remotes = Sim.newInstance("Folder", "Remotes")
+	remotes.Parent = rs
+	Sim.newInstance("RemoteFunction", "Request").Parent = remotes
+	Sim.newInstance("RemoteEvent", "Event").Parent = remotes
+	Sim.newInstance("RemoteEvent", "Sync").Parent = remotes
+	local assets = Sim.newInstance("Folder", "Assets")
+	assets.Parent = rs
+	for _, n in { "Creatures", "Sounds", "Images" } do
+		Sim.newInstance("Folder", n).Parent = assets
+	end
 end
 game:GetService("Players").CharacterAutoLoads = false
 
@@ -205,7 +232,8 @@ def main():
     luau = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("LUAU", "luau")
     name_filter = sys.argv[2] if len(sys.argv) > 2 else ""
     runtime = open(os.path.join(SIM, "runtime.luau"), encoding="utf-8").read()
-    entries = collect()
+    place_entries = collect(MOUNTS)
+    installer_entries = collect(INSTALLER_MOUNTS)
     scen_dir = os.path.join(SIM, "scenarios")
     out_dir = os.path.join(ROOT, "tests", ".build")
     os.makedirs(out_dir, exist_ok=True)
@@ -213,10 +241,12 @@ def main():
     for scen in sorted(os.listdir(scen_dir)):
         if not scen.endswith(".luau") or name_filter not in scen:
             continue
-        parts = [runtime, PRELUDE]
-        for path, cls, src in entries:
-            parts.append("Sim.register(%r, %r, %s)\n" % (path, cls, long_string(src)))
         scenario_src = open(os.path.join(scen_dir, scen), encoding="utf-8").read()
+        installer_mode = "--@installer" in scenario_src
+        parts = [runtime, PRELUDE]
+        for path, cls, src in (installer_entries if installer_mode else place_entries):
+            parts.append("Sim.register(%r, %r, %s)\n" % (path, cls, long_string(src)))
+        parts.append(INSTALLER_SETUP if installer_mode else PLACE_SETUP)
         parts.append("local __ok, __err = pcall(function()\n" + scenario_src + "\nend)\n")
         parts.append('if not __ok then print("SCENARIO ERROR: " .. tostring(__err)) table.insert(Sim.errors, tostring(__err)) end\n')
         parts.append(FINISH)

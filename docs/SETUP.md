@@ -8,6 +8,10 @@ admins, audio) and must be done before you publish publicly.
 
 * **Quickest:** open `build/StealPokemon.rbxl` in Roblox Studio and *File →
   Publish to Roblox As…* to create your experience.
+* **Into an existing place:** insert `build/StealPokemon_Installer.rbxm`, then
+  run `require(workspace.StealPokemon_Installer.StealPokemon_Install)()` in the
+  Command Bar (see the README). It applies the same settings as the place
+  file and backs up anything it replaces into ServerStorage.
 * **With Rojo:** run `./scripts/setup-tools.sh` once, then `tools/rojo serve`
   and press *Connect* in the Rojo Studio plugin (install it from the Creator
   Store or with `tools/rojo plugin install`). Edits to files under `src/`
