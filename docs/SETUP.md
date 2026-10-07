@@ -8,31 +8,34 @@ admins, audio) and must be done before you publish publicly.
 
 * **Quickest:** open `build/StealPokemon.rbxl` in Roblox Studio and *File →
   Publish to Roblox As…* to create your experience.
-* **Into an existing place:** insert `build/StealPokemon_Installer.rbxm`, then
-  run `require(workspace.StealPokemon_Installer.StealPokemon_Install)()` in the
-  Command Bar (see the README). It applies the same settings as the place
-  file and backs up anything it replaces into ServerStorage.
+* **As a model:** insert `build/StealPokemon_Installer.rbxm` into a new
+  Baseplate place (or one with no other game in it), then run
+  `require(workspace.StealPokemon_Installer.StealPokemon_Install)()` in the
+  Command Bar (click Run or press Ctrl+Enter / Cmd+Enter; see the README). It
+  applies the same settings as the place file (overwriting the place's
+  settings) and moves any objects it replaces into ServerStorage.
 * **With Rojo:** run `./scripts/setup-tools.sh` once, then `tools/rojo serve`
   and press *Connect* in the Rojo Studio plugin (install it from the Creator
   Store or with `tools/rojo plugin install`). Edits to files under `src/`
-  sync live. `./scripts/build.sh` rebuilds the `.rbxl`.
+  sync live. `./scripts/build.sh` rebuilds both files in `build/`.
 
 The project file already sets: Players.CharacterAutoLoads = false (the server
 spawns characters after data loads), respawn time, camera zoom limits,
-gravity, lighting, and creates `ReplicatedStorage.Remotes` and
+gravity, lighting, Workspace.StreamingEnabled = false (the client expects the
+whole map to be loaded), and creates `ReplicatedStorage.Remotes` and
 `ReplicatedStorage.Assets`.
 
-## 2. Game settings (Studio → *Home → Game Settings*)
+## 2. Experience settings (Studio → *File → Experience Settings*; older Studio: *Home → Game Settings*)
 
 | Setting | Value |
 | --- | --- |
-| Security → **Enable Studio Access to API Services** | On (needed for saving in Studio; live servers always have it) |
-| Places → server size / **Max Players** | **8** (one per base). `GameConfig.MaxPlayers` and `MapConfig.PlotOrigins` both assume 8. Extra joiners are sent back with a "server full" message. |
-| Avatar → **Avatar type** | R15 or R6 both work. |
-| Communication → Chat | TextChatService (default) is fine. |
+| **Max Players** (server size) | **8** (one per base), in the place's settings (Experience Settings → Places, or the Creator Dashboard). `GameConfig.MaxPlayers` and `MapConfig.PlotOrigins` both assume 8. Extra joiners are sent back with a "server full" message. |
+| Security → **Enable Studio Access to API Services** | Only on a **separate test copy** of your experience (it needs to be published first). Roblox advises against enabling it on your live game: Studio test commands such as `/givecash` and `/resetdata` would then change real saves and leaderboards. Live servers always have DataStore access. |
+| Avatar type (*File → Avatar Settings*) | R15 or R6 both work. Nothing to change. |
+| Chat | TextChatService (default). Nothing to change. |
 
 Without API access in Studio the game falls back to an in-memory
-`MockDataStore` (a banner in Settings says progress is not saved).
+`MockDataStore` (a notice in the Settings window says progress is not saved).
 
 ## 3. Monetization (`src/ReplicatedStorage/Shared/Config/MonetizationConfig.luau`)
 
@@ -108,7 +111,8 @@ on a live game unless you intend to wipe everyone's progress.
 
 ## 8. Publish checklist
 
-- [ ] Studio API access enabled; tested saving with two sessions.
+- [ ] Tested saving with two sessions on a test copy with Studio API access
+      (leave it off on the live experience).
 - [ ] Server size set to 8.
 - [ ] All Robux IDs set (or intentionally left "Coming soon").
 - [ ] Your UserId in `AdminConfig.UserIds`.

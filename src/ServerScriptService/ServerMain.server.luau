@@ -9,6 +9,14 @@ local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+
+-- Only boot from ServerScriptService, never from a copy that is still inside
+-- the installer model (StealPokemon_Installer.rbxm) sitting in Workspace.
+if not script:IsDescendantOf(ServerScriptService) then
+	warn("[StealCritters] Not installed yet: run the installer line in the Command Bar first (see README).")
+	return
+end
 
 local Modules = script.Parent:WaitForChild("Modules")
 local Services = script.Parent:WaitForChild("Services")

@@ -10,6 +10,16 @@ The headless runtime is a faithful model of the Roblox APIs the game uses, but
 it is not Roblox itself: rendering, physics, real DataStores and real Robux
 prompts must still be checked in Studio.
 
+## Getting it into Studio
+
+| Check | Status | Where |
+| --- | --- | --- |
+| One place file opens with everything (`build/StealPokemon.rbxl`) | ✅ build / 🧪 open in Studio | `default.project.json`, `tests/check_artifacts.py` |
+| One model file + Command Bar installer (`build/StealPokemon_Installer.rbxm`) | ✅ | `installer/`, sim 05 (built from the real model), `tests/check_artifacts.py` |
+| Installer backs up instead of deleting, keeps the developer's Assets, refuses Play mode | ✅ | sim 05 |
+| Pressing Play before installing does nothing harmful | ✅ | ServerMain saved Disabled + location guard, sim 05 |
+| Committed build files match the source | ✅ | `tests/check_artifacts.py` |
+
 ## Core loop
 
 | Check | Status | Where |

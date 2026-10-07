@@ -37,7 +37,7 @@
       "$className": "Folder",
       "ServerMain": {
         "$path": "src/ServerScriptService/ServerMain.server.luau",
-        "$properties": { "Enabled": false }
+        "$properties": { "Disabled": true }
       },
       "Modules": { "$path": "src/ServerScriptService/Modules" },
       "Services": { "$path": "src/ServerScriptService/Services" },

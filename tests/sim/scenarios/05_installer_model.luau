@@ -1,7 +1,8 @@
 --!nocheck
 --@installer
--- Installs the game from build/StealPokemon_Installer.rbxm the way a developer
--- does in Studio (insert the model, run one command-bar line), then plays it.
+-- Installs the game from the installer model (the tree Rojo builds from
+-- installer.project.json, as in build/StealPokemon_Installer.rbxm) the way a
+-- developer does in Studio: insert the model, run one Command Bar line, play.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
@@ -27,8 +28,23 @@ workspace.StreamingEnabled = true
 
 local installer = workspace:FindFirstChild("StealPokemon_Installer")
 Sim.assert(installer ~= nil, "installer model is in Workspace")
-Sim.assert(installer.ServerScriptService.ServerMain.Enabled == false, "server entry script ships disabled")
+local packedMain = installer.ServerScriptService.ServerMain
+Sim.assert(packedMain.Disabled == true and packedMain.Enabled == false, "server entry script is saved as Disabled in the model")
 Sim.assert(ServerScriptService:FindFirstChild("ServerMain") == nil, "nothing installed yet")
+
+-- Pressing Play before installing must not start a server from the model,
+-- even if the script were enabled: ServerMain refuses to boot outside
+-- ServerScriptService.
+Sim.RunScript(packedMain)
+Sim.Run(1)
+Sim.assert(workspace:FindFirstChild("World") == nil, "uninstalled ServerMain did not build a map")
+local sawHint = false
+for _, w in Sim.warnings or {} do
+	if string.find(w, "Not installed yet", 1, true) then
+		sawHint = true
+	end
+end
+Sim.assert(sawHint, "uninstalled ServerMain explains what to do")
 
 ---------------------------------------------------------------- run the command-bar line
 local install = require(installer.StealPokemon_Install)
@@ -47,7 +63,7 @@ Sim.assert(#report.Installed == 10, "installed 10 top-level items, got " .. #rep
 Sim.assert(#report.SettingsSkipped == 0, "all settings applied: " .. table.concat(report.SettingsSkipped, ", "))
 
 local main = ServerScriptService:FindFirstChild("ServerMain")
-Sim.assert(main and main.ClassName == "Script" and main.Enabled == true, "ServerMain installed and enabled")
+Sim.assert(main and main.ClassName == "Script" and main.Enabled == true and main.Disabled == false, "ServerMain installed and enabled")
 for _, name in { "Modules", "Services", "Tests" } do
 	Sim.assert(ServerScriptService:FindFirstChild(name), "ServerScriptService." .. name)
 end

@@ -15,6 +15,11 @@ There are four layers of tests. `./scripts/test.sh` runs the first three
 * **Registry check:** `tests/check_registry.py` verifies that every
   `Registry.<Service>:<Method>` call in the codebase refers to a service and
   method that actually exist.
+* **Build artifacts:** `tests/check_artifacts.py` rebuilds both Studio files
+  and fails if `build/StealPokemon.rbxl` or `build/StealPokemon_Installer.rbxm`
+  is out of date. It also reads the binary model and checks that ServerMain is
+  saved as `Disabled` there (Studio does not load `Enabled` from files) and
+  enabled in the place file.
 
 ## 2. Unit tests (offline, no Roblox needed)
 
@@ -62,13 +67,13 @@ conveyor purchase validation, insufficient cash, income generation, spending
 on upgrades, inventory actions, duplication prevention, bad-input rejection,
 remote rate limiting, rebirth, quests, events, rare spawns + luck, developer
 products (no double grants), gamepasses, base lock defense, and an end-to-end
-steal (needs a second player: *Test → Clients and Servers → 2 players*).
+steal (needs a second player: pick *Server & Clients* with 2 clients in the dropdown next to Play; older Studio: *Test → Clients and Servers*).
 
 ## Manual test pass (recommended before publishing)
 
 1. Solo Play: complete the tutorial; buy from the conveyor; watch the reveal;
    collect cash; upgrade base and defenses; open every window on PC.
-2. *Test → Device emulator*: check phone and tablet layouts, touch prompts.
+2. Studio's Device Emulator: check phone and tablet layouts and touch prompts.
 3. Gamepad (or emulator): navigate HUD and windows with the D-pad, B closes.
 4. 2–3 player local server: steal, get caught, trigger a trap, lock a base,
    trade, visit and inspect other bases, check alerts.

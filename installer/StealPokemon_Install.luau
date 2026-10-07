@@ -6,14 +6,17 @@
 	place settings, and removes itself.
 
 	HOW TO INSTALL (Roblox Studio, Edit mode — not while playing):
-	  1. Open the place you want to install into. A new "Baseplate" place is ideal.
+	  1. Create a new "Baseplate" place (or use a place with no other game in it).
 	  2. Drag StealPokemon_Installer.rbxm into the 3D view
 	     (or right-click Workspace → "Insert from File…").
-	  3. View → Command Bar, paste this line and press Enter:
+	  3. Open the Command Bar (Script tab → Command Bar, or Ctrl+9 / Cmd+9),
+	     paste this line, then click Run or press Ctrl+Enter (Cmd+Enter on Mac):
 
 	       require(workspace.StealPokemon_Installer.StealPokemon_Install)()
 
-	  4. Read the Output window, then press Play.
+	  4. Output (Script tab → Output) should say "✅ Installed 10 items".
+	     The 3D view is now empty: that's expected, the map is built when you
+	     press Play.
 
 	What it changes:
 	  • ReplicatedStorage    ← Shared, Remotes, Assets
@@ -22,10 +25,11 @@
 	  • StarterPlayerScripts ← ClientMain, Controllers, UI
 	  • Players / StarterPlayer / Workspace / Lighting / SoundService settings
 	  • The template's Baseplate and SpawnLocation (they overlap the generated
-	    map) and any older copy of these scripts are MOVED (never deleted) to
-	    ServerStorage.StealPokemon_Backup_<time>.
-	If anything fails, the whole install is undone when Studio allows it;
-	otherwise press Ctrl+Z / Cmd+Z.
+	    map) and anything already using one of the names above (for example an
+	    older install) are MOVED (never deleted) to
+	    ServerStorage.StealPokemon_Backup_<time>. Place settings are overwritten.
+	If anything fails, the install is rolled back when Studio allows it;
+	otherwise press Ctrl+Z / Cmd+Z (with the 3D view focused) to undo it.
 ]]
 
 local ChangeHistoryService = game:GetService("ChangeHistoryService")
@@ -119,15 +123,14 @@ local function findPath(path: string): Instance?
 end
 
 local function setScriptEnabled(target: Instance, enabled: boolean)
-	-- `Enabled` is the current property; `Disabled` is its legacy name.
-	local ok = pcall(function()
+	-- `Enabled` is the current property; `Disabled` is the legacy name and the
+	-- one saved in files (the model ships ServerMain with Disabled = true).
+	pcall(function()
 		(target :: any).Enabled = enabled
 	end)
-	if not ok then
-		pcall(function()
-			(target :: any).Disabled = not enabled
-		end)
-	end
+	pcall(function()
+		(target :: any).Disabled = not enabled
+	end)
 end
 
 local function isScriptEnabled(target: Instance): boolean
@@ -189,7 +192,7 @@ local function install(report: Report)
 						table.insert(report.Merged, "ReplicatedStorage.Assets." .. sub.Name)
 					end
 				end
-				child:Destroy()
+				child.Parent = nil -- not Destroy(): keeps the install undoable
 				continue
 			end
 			while existing do
@@ -201,8 +204,8 @@ local function install(report: Report)
 		end
 	end
 
-	-- 2. The server entry script ships disabled so it can't run from the
-	--    installer model if someone presses Play before installing.
+	-- 2. The server entry script ships disabled (and refuses to boot outside
+	--    ServerScriptService) so pressing Play before installing does nothing.
 	local main = ServerScriptService:FindFirstChild("ServerMain")
 	if main then
 		setScriptEnabled(main, true)
@@ -260,8 +263,9 @@ local function install(report: Report)
 		error(PREFIX .. " Could not enable ServerScriptService.ServerMain. Select it and tick 'Enabled' in Properties.", 0)
 	end
 
-	-- 6. Remove the (now empty) installer
-	ROOT:Destroy()
+	-- 6. Remove the (now empty) installer. Unparented rather than destroyed so
+	--    Ctrl+Z can bring everything back.
+	ROOT.Parent = nil
 end
 
 return function(options: { AllowWhileRunning: boolean?, Quiet: boolean? }?): Report
@@ -269,7 +273,12 @@ return function(options: { AllowWhileRunning: boolean?, Quiet: boolean? }?): Rep
 	if ROOT == nil or ROOT.Parent == nil then
 		error(PREFIX .. " Already installed (or the installer folder was removed).", 0)
 	end
-	if RunService:IsRunning() and not opts.AllowWhileRunning then
+	-- IsRunning() is false while a playtest is paused; IsEdit() is false then too.
+	local okEdit, isEdit = pcall(function()
+		return RunService:IsEdit()
+	end)
+	local playing = RunService:IsRunning() or (okEdit and isEdit == false)
+	if playing and not opts.AllowWhileRunning then
 		error(PREFIX .. " Stop the game first: install in Edit mode, otherwise the changes disappear when you stop playing.", 0)
 	end
 
@@ -288,8 +297,9 @@ return function(options: { AllowWhileRunning: boolean?, Quiet: boolean? }?): Rep
 		recording = ChangeHistoryService:TryBeginRecording("Install STEAL A CRITTER")
 	end)
 	local ok, err = pcall(install, report)
+	local finished = false
 	if recording then
-		pcall(function()
+		finished = pcall(function()
 			ChangeHistoryService:FinishRecording(
 				recording,
 				if ok then Enum.FinishRecordingOperation.Commit else Enum.FinishRecordingOperation.Cancel
@@ -297,9 +307,9 @@ return function(options: { AllowWhileRunning: boolean?, Quiet: boolean? }?): Rep
 		end)
 	end
 	if not ok then
-		local undo = if recording
+		local undo = if finished
 			then "All changes were rolled back."
-			else "Press Ctrl+Z / Cmd+Z to undo any partial changes."
+			else "Press Ctrl+Z / Cmd+Z (with the 3D view focused) to undo any partial changes."
 		error(tostring(err) .. "\n" .. undo, 0)
 	end
 
@@ -319,9 +329,11 @@ return function(options: { AllowWhileRunning: boolean?, Quiet: boolean? }?): Rep
 			warn(PREFIX .. " " .. w)
 		end
 		print(PREFIX .. " Next steps:")
-		print("   1. Press Play (or Test → Clients and Servers → 2 players to try stealing).")
-		print("   2. To save progress in Studio: Home → Game Settings → Security → Enable Studio Access to API Services.")
-		print("   3. Before publishing: set Max Players to 8 and follow docs/SETUP.md (Robux IDs, admins, audio).")
+		print("   1. The 3D view is empty now: that's expected. Press Play and the map is built.")
+		print("      To test stealing: pick 'Server & Clients' (2 clients) in the dropdown next to Play.")
+		print("   2. Optional, to keep progress between Studio sessions: publish the place (File → Publish to Roblox),")
+		print("      then File → Experience Settings → Security → Enable Studio Access to API Services.")
+		print("   3. Before publishing for players: Max Players 8, Robux IDs, admins, audio (see docs/SETUP.md).")
 	end
 	return report
 end

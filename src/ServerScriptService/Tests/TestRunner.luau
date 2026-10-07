@@ -5,8 +5,9 @@
 	Tests run against the REAL services using the calling player. The player's
 	data is snapshotted first and fully restored afterwards; persistence tests
 	use an in-memory MockDataStore so nothing touches real DataStores.
-	The stealing test needs a second player: in Studio use
-	Test > Clients and Servers > 2 Players.
+	The stealing test needs a second player: in Studio pick "Server & Clients"
+	(2 clients) in the dropdown next to Play (older Studio: Test > Clients and
+	Servers > 2 Players).
 ]]
 
 local Players = game:GetService("Players")

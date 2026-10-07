@@ -11,8 +11,10 @@ scripts and drives gameplay).
 Usage:  python3 tests/sim/run.py [path/to/luau] [scenario-name-filter]
 """
 import os
+import shutil
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SIM = os.path.join(ROOT, "tests", "sim")
@@ -24,31 +26,65 @@ MOUNTS = [
     ("src/ReplicatedFirst", "ReplicatedFirst"),
 ]
 
-# Scenarios marked "--@installer" start from build/StealPokemon_Installer.rbxm
-# (installer.project.json) inserted into Workspace instead of the place layout.
-INSTALLER = "Workspace/StealPokemon_Installer"
-INSTALLER_MOUNTS = [
-    ("src/ReplicatedStorage/Shared", INSTALLER + "/ReplicatedStorage/Shared"),
-    ("src/ServerScriptService", INSTALLER + "/ServerScriptService"),
-    ("src/StarterPlayer/StarterPlayerScripts", INSTALLER + "/StarterPlayerScripts"),
-    ("src/ReplicatedFirst", INSTALLER + "/ReplicatedFirst"),
-    ("installer", INSTALLER),
-]
-
+# Scenarios marked "--@installer" start from the real installer model: Rojo
+# builds installer.project.json (the same tree as build/StealPokemon_Installer.rbxm)
+# to XML, and every instance, script source and saved property in it is
+# recreated under Workspace, exactly as Studio would insert it.
 PLACE_SETUP = """
 Sim.createProjectInstances(game:GetService("ReplicatedStorage"))
 """
 
 INSTALLER_SETUP = """
-do
-	local root = Sim.find("%s")
-	Sim.createProjectInstances(root:FindFirstChild("ReplicatedStorage"))
-	-- installer.project.json ships the server entry script disabled
-	root.ServerScriptService.ServerMain.Enabled = false
-	-- Every real place has a StarterPlayerScripts container
-	Sim.newInstance("StarterPlayerScripts", "StarterPlayerScripts").Parent = game:GetService("StarterPlayer")
-end
-""" % INSTALLER
+-- Every real place has a StarterPlayerScripts container
+Sim.newInstance("StarterPlayerScripts", "StarterPlayerScripts").Parent = game:GetService("StarterPlayer")
+"""
+
+SCRIPT_CLASSES = {"Script", "LocalScript", "ModuleScript"}
+# Saved properties Studio actually loads from a model file. BaseScript.Enabled
+# is NOT one of them (it doesn't serialize; Rojo's binary .rbxm drops it), so
+# a script is only disabled in the file through the legacy Disabled property.
+LOADED_BOOL_PROPERTIES = {"Disabled"}
+
+
+def find_rojo(luau):
+    candidates = [os.environ.get("ROJO"), os.path.join(os.path.dirname(os.path.abspath(luau)), "rojo"), shutil.which("rojo")]
+    for c in candidates:
+        if c and os.path.isfile(c):
+            return c
+    sys.exit("rojo not found (set ROJO=/path/to/rojo); needed for installer scenarios")
+
+
+def installer_model_code(rojo, out_dir):
+    xml_path = os.path.join(out_dir, "installer_model.rbxmx")
+    subprocess.run([rojo, "build", os.path.join(ROOT, "installer.project.json"), "-o", xml_path],
+                   check=True, stdout=subprocess.DEVNULL)
+    lines = []
+
+    def props_of(item):
+        out = {}
+        for p in item.find("Properties"):
+            out[(p.tag, p.get("name"))] = p.text or ""
+        return out
+
+    def walk(item, parent_path):
+        props = props_of(item)
+        cls = item.get("class")
+        name = props[("string", "Name")]
+        path = parent_path + "/" + name
+        if cls in SCRIPT_CLASSES:
+            lines.append("do local inst = Sim.register(%r, %r, %s)" % (path, cls, long_string(props.get(("string", "Source"), ""))))
+        else:
+            lines.append("do local inst = Sim.newInstance(%r, %r) inst.Parent = Sim.find(%r)" % (cls, name, parent_path))
+        for (tag, pname), value in props.items():
+            if tag == "bool" and pname in LOADED_BOOL_PROPERTIES:
+                lines.append("inst[%r] = %s" % (pname, "true" if value == "true" else "false"))
+        lines.append("end")
+        for child in item.findall("Item"):
+            walk(child, path)
+
+    for top in ET.parse(xml_path).getroot().findall("Item"):
+        walk(top, "Workspace")
+    return "\n".join(lines) + "\n"
 
 
 def long_string(s):
@@ -233,7 +269,7 @@ def main():
     name_filter = sys.argv[2] if len(sys.argv) > 2 else ""
     runtime = open(os.path.join(SIM, "runtime.luau"), encoding="utf-8").read()
     place_entries = collect(MOUNTS)
-    installer_entries = collect(INSTALLER_MOUNTS)
+    installer_code = None
     scen_dir = os.path.join(SIM, "scenarios")
     out_dir = os.path.join(ROOT, "tests", ".build")
     os.makedirs(out_dir, exist_ok=True)
@@ -244,9 +280,15 @@ def main():
         scenario_src = open(os.path.join(scen_dir, scen), encoding="utf-8").read()
         installer_mode = "--@installer" in scenario_src
         parts = [runtime, PRELUDE]
-        for path, cls, src in (installer_entries if installer_mode else place_entries):
-            parts.append("Sim.register(%r, %r, %s)\n" % (path, cls, long_string(src)))
-        parts.append(INSTALLER_SETUP if installer_mode else PLACE_SETUP)
+        if installer_mode:
+            if installer_code is None:
+                installer_code = installer_model_code(find_rojo(luau), out_dir)
+            parts.append(installer_code)
+            parts.append(INSTALLER_SETUP)
+        else:
+            for path, cls, src in place_entries:
+                parts.append("Sim.register(%r, %r, %s)\n" % (path, cls, long_string(src)))
+            parts.append(PLACE_SETUP)
         parts.append("local __ok, __err = pcall(function()\n" + scenario_src + "\nend)\n")
         parts.append('if not __ok then print("SCENARIO ERROR: " .. tostring(__err)) table.insert(Sim.errors, tostring(__err)) end\n')
         parts.append(FINISH)

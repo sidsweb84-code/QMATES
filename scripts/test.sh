@@ -4,6 +4,7 @@
 #   2. registry cross-reference check (service method names)
 #   3. offline unit tests (pure game logic)
 #   4. end-to-end simulation (real server + client scripts in a headless runtime)
+#   5. build artifacts: build/*.rbxl/.rbxm up to date, installer model saved correctly
 set -euo pipefail
 cd "$(dirname "$0")/.."
 TOOLS="${TOOLS:-tools}"
@@ -20,4 +21,6 @@ echo "== Unit tests"
 python3 tests/run.py "$TOOLS/luau"
 echo "== Simulation"
 python3 tests/sim/run.py "$TOOLS/luau"
+echo "== Build artifacts"
+python3 tests/check_artifacts.py "$TOOLS/rojo"
 echo "All checks passed"

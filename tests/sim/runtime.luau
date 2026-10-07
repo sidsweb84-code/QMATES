@@ -713,6 +713,7 @@ local DEFAULTS = {
 	BlurEffect = { Size = 0, Enabled = true },
 	ColorCorrectionEffect = { Enabled = true, Saturation = 0, Contrast = 0, Brightness = 0 },
 	Player = { AccountAge = 30 },
+	BaseScript = { Enabled = true, Disabled = false },
 }
 
 local EVENT_NAMES = {
@@ -899,6 +900,15 @@ InstanceMeta.__newindex = function(self, key, value)
 	end
 	if key == "ClassName" then
 		error("ClassName is read-only")
+	end
+	-- BaseScript.Enabled is the scriptable name; Disabled is the saved one.
+	if (key == "Enabled" or key == "Disabled") and isA(props.ClassName, "BaseScript") then
+		local enabled = if key == "Enabled" then value == true else value ~= true
+		props.Enabled = enabled
+		props.Disabled = not enabled
+		fireProp(self, "Enabled")
+		fireProp(self, "Disabled")
+		return
 	end
 	props[key] = value
 	fireProp(self, key)
