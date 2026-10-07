@@ -1,0 +1,92 @@
+{
+  "name": "StealPokemon",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": {
+        "$path": "src/ReplicatedStorage/Shared"
+      },
+      "Remotes": {
+        "$className": "Folder",
+        "Request": { "$className": "RemoteFunction" },
+        "Event": { "$className": "RemoteEvent" },
+        "Sync": { "$className": "RemoteEvent" }
+      },
+      "Assets": {
+        "$className": "Folder",
+        "Creatures": { "$className": "Folder" },
+        "Sounds": { "$className": "Folder" },
+        "Images": { "$className": "Folder" }
+      }
+    },
+
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst",
+      "LoadingScreen": {
+        "$path": "src/ReplicatedFirst/LoadingScreen.client.luau"
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path": "src/ServerScriptService"
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$properties": {
+        "CameraMaxZoomDistance": 90,
+        "CharacterWalkSpeed": 16,
+        "CharacterJumpPower": 50,
+        "CharacterUseJumpPower": true
+      },
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/StarterPlayer/StarterPlayerScripts"
+      }
+    },
+
+    "Players": {
+      "$className": "Players",
+      "$properties": {
+        "CharacterAutoLoads": false,
+        "RespawnTime": 3
+      }
+    },
+
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "Gravity": 196.2,
+        "FallenPartsDestroyHeight": -100
+      }
+    },
+
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Ambient": [0.43, 0.43, 0.5],
+        "OutdoorAmbient": [0.55, 0.55, 0.62],
+        "Brightness": 2.4,
+        "ClockTime": 14.5,
+        "GeographicLatitude": 24,
+        "GlobalShadows": true,
+        "EnvironmentDiffuseScale": 0.6,
+        "EnvironmentSpecularScale": 0.6
+      }
+    },
+
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    },
+
+    "TextChatService": {
+      "$className": "TextChatService"
+    }
+  }
+}

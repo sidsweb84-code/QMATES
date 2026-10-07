@@ -1,0 +1,297 @@
+--[[
+	CollectibleConfig
+	The full catalogue of ORIGINAL collectible creatures ("Critters").
+
+	All names, descriptions and visuals here are original. If you hold a license
+	for another franchise, do NOT edit this list — map our IDs to licensed names,
+	artwork and models in Config/LicensedContent instead (see that file).
+
+	Entry fields:
+		Id               unique string id (never change once live; it is saved in player data)
+		Name             display name
+		Rarity           key from RarityConfig
+		Price            base purchase price (Normal mutation, no trait)
+		Income           base cash generated per second
+		Element          key from CollectibleConfig.Elements (also the collection category)
+		Body             procedural body plan: Blob | Quad | Bird | Serpent | Golem | Sprite | Dragon | Fish | Bug
+		Colors           { Primary, Secondary, Accent }
+		Animation        idle animation: Bob | Hop | Float | Sway | Spin | Slither
+		Description      flavour text for the collection book
+		StealDifficulty  optional multiplier on steal time (default 1)
+		Weight           optional relative spawn weight inside its rarity (default 1)
+		RequiredRebirths optional rebirths needed to BUY it from a conveyor (default 0)
+		Event            Limited only: id of the event that makes it spawn
+		Cry              optional pitch for the creature's sound effect (default 1)
+
+	Number (collection number) is assigned from list order.
+]]
+
+local C = Color3.fromHex
+
+local CollectibleConfig = {}
+
+CollectibleConfig.Elements = {
+	Flame = { Name = "Flame", Icon = "🔥", Color = C("#FF6A2B"), Series = "Ember Series" },
+	Aqua = { Name = "Aqua", Icon = "💧", Color = C("#2FA8FF"), Series = "Tide Series" },
+	Leaf = { Name = "Leaf", Icon = "🌿", Color = C("#4CCB5A"), Series = "Grove Series" },
+	Volt = { Name = "Volt", Icon = "⚡", Color = C("#FFD21F"), Series = "Storm Series" },
+	Frost = { Name = "Frost", Icon = "❄️", Color = C("#8EE3FF"), Series = "Glacier Series" },
+	Stone = { Name = "Stone", Icon = "⛰️", Color = C("#A1887F"), Series = "Bedrock Series" },
+	Sky = { Name = "Sky", Icon = "☁️", Color = C("#9BD0FF"), Series = "Cloud Series" },
+	Mystic = { Name = "Mystic", Icon = "✨", Color = C("#F06BFF"), Series = "Arcane Series" },
+	Shadow = { Name = "Shadow", Icon = "🌙", Color = C("#7B4DFF"), Series = "Dusk Series" },
+	Metal = { Name = "Metal", Icon = "⚙️", Color = C("#B0BEC5"), Series = "Forge Series" },
+	Toxic = { Name = "Toxic", Icon = "🧪", Color = C("#A4E34B"), Series = "Bog Series" },
+	Cosmic = { Name = "Cosmic", Icon = "🌌", Color = C("#5B4BFF"), Series = "Astral Series" },
+}
+
+CollectibleConfig.ElementOrder = {
+	"Flame", "Aqua", "Leaf", "Volt", "Frost", "Stone", "Sky", "Mystic", "Shadow", "Metal", "Toxic", "Cosmic",
+}
+
+CollectibleConfig.List = {
+	------------------------------------------------------------------ COMMON
+	{ Id = "emberpup", Name = "Emberpup", Rarity = "Common", Price = 25, Income = 1, Element = "Flame", Body = "Quad",
+		Colors = { C("#FF7A3D"), C("#FFD18C"), C("#FF3D00") }, Animation = "Hop",
+		Description = "Its tail flickers like a candle whenever it is happy." },
+	{ Id = "drizzlet", Name = "Drizzlet", Rarity = "Common", Price = 50, Income = 2, Element = "Aqua", Body = "Blob",
+		Colors = { C("#4FC3F7"), C("#E1F5FE"), C("#0288D1") }, Animation = "Bob",
+		Description = "A droplet critter that giggles every time it rains." },
+	{ Id = "sproutlet", Name = "Sproutlet", Rarity = "Common", Price = 50, Income = 2, Element = "Leaf", Body = "Blob",
+		Colors = { C("#7ED957"), C("#D7F7C2"), C("#2E7D32") }, Animation = "Sway",
+		Description = "Plant it in a sunny spot and it hums a tiny tune." },
+	{ Id = "zapkit", Name = "Zapkit", Rarity = "Common", Price = 75, Income = 3, Element = "Volt", Body = "Quad",
+		Colors = { C("#FFE14D"), C("#FFF7C2"), C("#FF9800") }, Animation = "Hop",
+		Description = "Its zig-zag ears crackle with static when it gets excited." },
+	{ Id = "pebblit", Name = "Pebblit", Rarity = "Common", Price = 75, Income = 3, Element = "Stone", Body = "Golem",
+		Colors = { C("#A1887F"), C("#D7CCC8"), C("#5D4037") }, Animation = "Bob",
+		Description = "Sleeps for weeks at a time and is often mistaken for a garden rock." },
+	{ Id = "puffwing", Name = "Puffwing", Rarity = "Common", Price = 100, Income = 4, Element = "Sky", Body = "Bird",
+		Colors = { C("#90CAF9"), C("#FFFFFF"), C("#FFB74D") }, Animation = "Float",
+		Description = "So fluffy that it floats whenever the breeze picks up." },
+	{ Id = "frostbun", Name = "Frostbun", Rarity = "Common", Price = 100, Income = 4, Element = "Frost", Body = "Quad",
+		Colors = { C("#B3E5FC"), C("#FFFFFF"), C("#4FC3F7") }, Animation = "Hop",
+		Description = "Leaves a trail of tiny snowflakes wherever it hops." },
+	{ Id = "twinklet", Name = "Twinklet", Rarity = "Common", Price = 125, Income = 5, Element = "Mystic", Body = "Sprite",
+		Colors = { C("#F8BBD0"), C("#FFF0F6"), C("#E040FB") }, Animation = "Float",
+		Description = "Collects lost wishes and hides them under its wings." },
+	{ Id = "mudgulp", Name = "Mudgulp", Rarity = "Common", Price = 125, Income = 5, Element = "Toxic", Body = "Blob",
+		Colors = { C("#9CCC65"), C("#D4E157"), C("#6A1B9A") }, Animation = "Bob",
+		Description = "Burps colourful bubbles after every meal." },
+	{ Id = "boltbug", Name = "Boltbug", Rarity = "Common", Price = 150, Income = 6, Element = "Volt", Body = "Bug",
+		Colors = { C("#FFD54F"), C("#424242"), C("#00E5FF") }, Animation = "Bob",
+		Description = "Swarms of them light up summer nights like fairy lights." },
+	{ Id = "fizzfin", Name = "Fizzfin", Rarity = "Common", Price = 175, Income = 7, Element = "Aqua", Body = "Fish",
+		Colors = { C("#26C6DA"), C("#B2EBF2"), C("#FF7043") }, Animation = "Float",
+		Description = "Swims through the air as if it were water. Nobody knows how." },
+	{ Id = "cindermite", Name = "Cindermite", Rarity = "Common", Price = 200, Income = 8, Element = "Flame", Body = "Bug",
+		Colors = { C("#E64A19"), C("#FFCC80"), C("#FFEB3B") }, Animation = "Bob",
+		Description = "Warms its burrow with a glowing ember on its back." },
+
+	------------------------------------------------------------------ UNCOMMON
+	{ Id = "blazetail", Name = "Blazetail", Rarity = "Uncommon", Price = 400, Income = 10, Element = "Flame", Body = "Quad",
+		Colors = { C("#FF5722"), C("#FFE0B2"), C("#FFC107") }, Animation = "Hop",
+		Description = "Chases its own flaming tail for hours." },
+	{ Id = "tidepaw", Name = "Tidepaw", Rarity = "Uncommon", Price = 440, Income = 11, Element = "Aqua", Body = "Quad",
+		Colors = { C("#29B6F6"), C("#E3F2FD"), C("#00ACC1") }, Animation = "Hop",
+		Description = "Its paw prints fill up with seawater, even in the desert." },
+	{ Id = "thornback", Name = "Thornback", Rarity = "Uncommon", Price = 480, Income = 12, Element = "Leaf", Body = "Golem",
+		Colors = { C("#558B2F"), C("#AED581"), C("#33691E") }, Animation = "Bob",
+		Description = "A gentle giant covered in harmless, ticklish thorns." },
+	{ Id = "voltfang", Name = "Voltfang", Rarity = "Uncommon", Price = 560, Income = 14, Element = "Volt", Body = "Quad",
+		Colors = { C("#FBC02D"), C("#37474F"), C("#40C4FF") }, Animation = "Hop",
+		Description = "Its fangs spark when it yawns." },
+	{ Id = "snowpuff", Name = "Snowpuff", Rarity = "Uncommon", Price = 600, Income = 15, Element = "Frost", Body = "Blob",
+		Colors = { C("#E1F5FE"), C("#B3E5FC"), C("#81D4FA") }, Animation = "Bob",
+		Description = "Rolls downhill to grow bigger, then naps where it stops." },
+	{ Id = "rockhorn", Name = "Rockhorn", Rarity = "Uncommon", Price = 680, Income = 17, Element = "Stone", Body = "Quad",
+		Colors = { C("#8D6E63"), C("#BCAAA4"), C("#FFCC80") }, Animation = "Bob",
+		Description = "Sharpens its horn on mountain cliffs every morning." },
+	{ Id = "gustling", Name = "Gustling", Rarity = "Uncommon", Price = 760, Income = 19, Element = "Sky", Body = "Bird",
+		Colors = { C("#B3E5FC"), C("#FFFFFF"), C("#4DD0E1") }, Animation = "Float",
+		Description = "Rides the wind for days without flapping once." },
+	{ Id = "mossling", Name = "Mossling", Rarity = "Uncommon", Price = 840, Income = 21, Element = "Leaf", Body = "Sprite",
+		Colors = { C("#8BC34A"), C("#DCEDC8"), C("#FFEB3B") }, Animation = "Float",
+		Description = "Where it naps, tiny flowers bloom." },
+	{ Id = "shadeling", Name = "Shadeling", Rarity = "Uncommon", Price = 960, Income = 24, Element = "Shadow", Body = "Sprite",
+		Colors = { C("#5E35B1"), C("#311B92"), C("#B388FF") }, Animation = "Float",
+		Description = "Hides in other critters' shadows to play pranks." },
+	{ Id = "coppercoil", Name = "Coppercoil", Rarity = "Uncommon", Price = 1080, Income = 27, Element = "Metal", Body = "Serpent",
+		Colors = { C("#D08B4F"), C("#F2C29B"), C("#7A4A23") }, Animation = "Slither",
+		Description = "Coils around warm pipes and purrs like an engine." },
+	{ Id = "bubbloon", Name = "Bubbloon", Rarity = "Uncommon", Price = 1200, Income = 30, Element = "Aqua", Body = "Blob",
+		Colors = { C("#80DEEA"), C("#E0F7FA"), C("#F48FB1") }, Animation = "Float",
+		Description = "Floats inside a giant bubble it blew itself." },
+
+	------------------------------------------------------------------ RARE
+	{ Id = "pyroclaw", Name = "Pyroclaw", Rarity = "Rare", Price = 3000, Income = 50, Element = "Flame", Body = "Dragon",
+		Colors = { C("#D84315"), C("#FFAB91"), C("#FFD54F") }, Animation = "Bob",
+		Description = "Its claws glow white-hot when it guards its treasure." },
+	{ Id = "coralynx", Name = "Coralynx", Rarity = "Rare", Price = 3480, Income = 58, Element = "Aqua", Body = "Quad",
+		Colors = { C("#FF8A80"), C("#FFE0E0"), C("#26C6DA") }, Animation = "Hop",
+		Description = "A reef cat whose fur grows living coral." },
+	{ Id = "bloomtail", Name = "Bloomtail", Rarity = "Rare", Price = 3960, Income = 66, Element = "Leaf", Body = "Quad",
+		Colors = { C("#F06292"), C("#C5E1A5"), C("#7CB342") }, Animation = "Sway",
+		Description = "Its tail blooms a different flower every season." },
+	{ Id = "stormwing", Name = "Stormwing", Rarity = "Rare", Price = 4500, Income = 75, Element = "Volt", Body = "Bird",
+		Colors = { C("#3949AB"), C("#C5CAE9"), C("#FFEB3B") }, Animation = "Float",
+		Description = "Thunderclaps follow every beat of its wings." },
+	{ Id = "glaciore", Name = "Glaciore", Rarity = "Rare", Price = 5100, Income = 85, Element = "Frost", Body = "Golem",
+		Colors = { C("#81D4FA"), C("#E1F5FE"), C("#0288D1") }, Animation = "Bob",
+		Description = "Carved from a glacier that refused to melt." },
+	{ Id = "duskmoth", Name = "Duskmoth", Rarity = "Rare", Price = 5700, Income = 95, Element = "Shadow", Body = "Bug",
+		Colors = { C("#4527A0"), C("#9575CD"), C("#FFD740") }, Animation = "Float",
+		Description = "Only appears at sunset, drawn to lantern light." },
+	{ Id = "ironshell", Name = "Ironshell", Rarity = "Rare", Price = 6300, Income = 105, Element = "Metal", Body = "Golem",
+		Colors = { C("#78909C"), C("#CFD8DC"), C("#FF7043") }, Animation = "Bob",
+		Description = "Polishes its armour plates with river sand." },
+	{ Id = "mystifin", Name = "Mystifin", Rarity = "Rare", Price = 7080, Income = 118, Element = "Mystic", Body = "Fish",
+		Colors = { C("#CE93D8"), C("#F3E5F5"), C("#00E5FF") }, Animation = "Float",
+		Description = "Can swim through rainbows and out the other side." },
+	{ Id = "venomaw", Name = "Venomaw", Rarity = "Rare", Price = 7920, Income = 132, Element = "Toxic", Body = "Serpent",
+		Colors = { C("#7CB342"), C("#DCE775"), C("#8E24AA") }, Animation = "Slither",
+		Description = "Its bite is harmless, but its breath is legendary." },
+	{ Id = "skyhorn", Name = "Skyhorn", Rarity = "Rare", Price = 9000, Income = 150, Element = "Sky", Body = "Quad",
+		Colors = { C("#E3F2FD"), C("#90CAF9"), C("#FFD54F") }, Animation = "Float",
+		Description = "A cloud-hooved runner that gallops across the sky." },
+
+	------------------------------------------------------------------ EPIC
+	{ Id = "infernox", Name = "Infernox", Rarity = "Epic", Price = 25000, Income = 300, Element = "Flame", Body = "Dragon",
+		Colors = { C("#BF360C"), C("#FF8A65"), C("#FFEA00") }, Animation = "Bob",
+		Description = "Its roar can light every torch in a castle." },
+	{ Id = "tidalisk", Name = "Tidalisk", Rarity = "Epic", Price = 29000, Income = 340, Element = "Aqua", Body = "Serpent",
+		Colors = { C("#0277BD"), C("#81D4FA"), C("#E0F7FA") }, Animation = "Slither",
+		Description = "Summons small tidal waves when it plays." },
+	{ Id = "thornwyrm", Name = "Thornwyrm", Rarity = "Epic", Price = 33000, Income = 385, Element = "Leaf", Body = "Serpent",
+		Colors = { C("#2E7D32"), C("#A5D6A7"), C("#E91E63") }, Animation = "Slither",
+		Description = "A vine serpent that wraps entire forests in hugs." },
+	{ Id = "thunderhoof", Name = "Thunderhoof", Rarity = "Epic", Price = 36500, Income = 430, Element = "Volt", Body = "Quad",
+		Colors = { C("#FFC400"), C("#424242"), C("#00B0FF") }, Animation = "Hop",
+		Description = "Every hoofbeat strikes like lightning." },
+	{ Id = "frostfang", Name = "Frostfang", Rarity = "Epic", Price = 41000, Income = 480, Element = "Frost", Body = "Quad",
+		Colors = { C("#E1F5FE"), C("#4FC3F7"), C("#1A237E") }, Animation = "Hop",
+		Description = "Leads blizzard packs across frozen tundra." },
+	{ Id = "nightprowl", Name = "Nightprowl", Rarity = "Epic", Price = 46000, Income = 540, Element = "Shadow", Body = "Quad",
+		Colors = { C("#212121"), C("#4A148C"), C("#E040FB") }, Animation = "Sway", StealDifficulty = 1.1,
+		Description = "Moves without a sound. Excellent at guarding treasure." },
+	{ Id = "runeguard", Name = "Runeguard", Rarity = "Epic", Price = 52000, Income = 610, Element = "Mystic", Body = "Golem",
+		Colors = { C("#7E57C2"), C("#D1C4E9"), C("#00E5FF") }, Animation = "Bob", StealDifficulty = 1.2,
+		Description = "Ancient runes on its body glow when strangers approach." },
+	{ Id = "chromeclaw", Name = "Chromeclaw", Rarity = "Epic", Price = 59500, Income = 700, Element = "Metal", Body = "Bug",
+		Colors = { C("#B0BEC5"), C("#ECEFF1"), C("#F44336") }, Animation = "Bob",
+		Description = "A mirror-polished beetle that loves shiny things." },
+	{ Id = "nebulynx", Name = "Nebulynx", Rarity = "Epic", Price = 68000, Income = 800, Element = "Cosmic", Body = "Quad",
+		Colors = { C("#3F51B5"), C("#B39DDB"), C("#FFFFFF") }, Animation = "Sway",
+		Description = "Its fur shimmers with a sky full of tiny stars." },
+
+	------------------------------------------------------------------ LEGENDARY
+	{ Id = "solarion", Name = "Solarion", Rarity = "Legendary", Price = 275000, Income = 2500, Element = "Flame", Body = "Dragon",
+		Colors = { C("#FF6F00"), C("#FFE082"), C("#FFFFFF") }, Animation = "Bob",
+		Description = "Said to have hatched from a fallen sunbeam." },
+	{ Id = "leviathorn", Name = "Leviathorn", Rarity = "Legendary", Price = 320000, Income = 2900, Element = "Aqua", Body = "Serpent",
+		Colors = { C("#01579B"), C("#4FC3F7"), C("#FFD54F") }, Animation = "Slither",
+		Description = "Ruler of the deep trenches, crowned with coral horns." },
+	{ Id = "verdantus", Name = "Verdantus", Rarity = "Legendary", Price = 365000, Income = 3300, Element = "Leaf", Body = "Golem",
+		Colors = { C("#1B5E20"), C("#81C784"), C("#FFEB3B") }, Animation = "Bob",
+		Description = "An ancient forest guardian with a tree for a crown." },
+	{ Id = "voltaris", Name = "Voltaris", Rarity = "Legendary", Price = 420000, Income = 3800, Element = "Volt", Body = "Bird",
+		Colors = { C("#FFD600"), C("#FFF59D"), C("#2962FF") }, Animation = "Float",
+		Description = "Its wingspan crackles with a thousand lightning bolts." },
+	{ Id = "glaciarch", Name = "Glaciarch", Rarity = "Legendary", Price = 485000, Income = 4400, Element = "Frost", Body = "Dragon",
+		Colors = { C("#B3E5FC"), C("#FFFFFF"), C("#0091EA") }, Animation = "Bob",
+		Description = "Breathes aurora light across frozen seas." },
+	{ Id = "umbrafang", Name = "Umbrafang", Rarity = "Legendary", Price = 560000, Income = 5100, Element = "Shadow", Body = "Dragon",
+		Colors = { C("#1A0033"), C("#6A1B9A"), C("#FF1744") }, Animation = "Bob", StealDifficulty = 1.1,
+		Description = "A dragon that hides inside the shadows of mountains." },
+	{ Id = "aetherwing", Name = "Aetherwing", Rarity = "Legendary", Price = 660000, Income = 6000, Element = "Sky", Body = "Bird",
+		Colors = { C("#FFFFFF"), C("#B2EBF2"), C("#FFD740") }, Animation = "Float",
+		Description = "Lives above the clouds and never touches the ground." },
+	{ Id = "titanforge", Name = "Titanforge", Rarity = "Legendary", Price = 770000, Income = 7000, Element = "Metal", Body = "Golem",
+		Colors = { C("#455A64"), C("#B0BEC5"), C("#FF6D00") }, Animation = "Bob", StealDifficulty = 1.2,
+		Description = "A living forge with molten metal in its core." },
+
+	------------------------------------------------------------------ MYTHIC
+	{ Id = "emberphoenix", Name = "Emberphoenix", Rarity = "Mythic", Price = 2500000, Income = 18000, Element = "Flame", Body = "Bird",
+		Colors = { C("#FF3D00"), C("#FFAB40"), C("#FFFF00") }, Animation = "Float",
+		Description = "Rises from its own ashes brighter every time." },
+	{ Id = "maelstrix", Name = "Maelstrix", Rarity = "Mythic", Price = 3100000, Income = 22000, Element = "Aqua", Body = "Serpent",
+		Colors = { C("#004D40"), C("#1DE9B6"), C("#E0F2F1") }, Animation = "Slither",
+		Description = "A living whirlpool that sings to sailors." },
+	{ Id = "elderoot", Name = "Elderoot", Rarity = "Mythic", Price = 3650000, Income = 26000, Element = "Leaf", Body = "Golem",
+		Colors = { C("#3E2723"), C("#66BB6A"), C("#F48FB1") }, Animation = "Bob", StealDifficulty = 1.2,
+		Description = "Its roots are said to reach the centre of the world." },
+	{ Id = "thundrax", Name = "Thundrax", Rarity = "Mythic", Price = 4350000, Income = 31000, Element = "Volt", Body = "Dragon",
+		Colors = { C("#1A237E"), C("#FFEA00"), C("#FFFFFF") }, Animation = "Bob",
+		Description = "Storm clouds gather wherever it sleeps." },
+	{ Id = "nocturne", Name = "Nocturne", Rarity = "Mythic", Price = 5200000, Income = 37000, Element = "Shadow", Body = "Sprite",
+		Colors = { C("#0D0221"), C("#7C4DFF"), C("#FFD180") }, Animation = "Float",
+		Description = "Paints the night sky one star at a time." },
+	{ Id = "starweaver", Name = "Starweaver", Rarity = "Mythic", Price = 6000000, Income = 43000, Element = "Cosmic", Body = "Sprite",
+		Colors = { C("#283593"), C("#E1BEE7"), C("#FFFFFF") }, Animation = "Spin", RequiredRebirths = 1,
+		Description = "Weaves constellations out of comet dust." },
+	{ Id = "chronowyrm", Name = "Chronowyrm", Rarity = "Mythic", Price = 7000000, Income = 50000, Element = "Mystic", Body = "Dragon",
+		Colors = { C("#6A1B9A"), C("#FFD54F"), C("#00E5FF") }, Animation = "Bob", RequiredRebirths = 2,
+		Description = "Can rewind a single second — but only once a day." },
+
+	------------------------------------------------------------------ DIVINE
+	{ Id = "auroraith", Name = "Auroraith", Rarity = "Divine", Price = 21600000, Income = 120000, Element = "Frost", Body = "Sprite",
+		Colors = { C("#A7FFEB"), C("#E1F5FE"), C("#EA80FC") }, Animation = "Spin",
+		Description = "Born where the northern lights touch the ice." },
+	{ Id = "sunsovereign", Name = "Sunsovereign", Rarity = "Divine", Price = 27000000, Income = 150000, Element = "Flame", Body = "Dragon",
+		Colors = { C("#FFD600"), C("#FFFFFF"), C("#FF3D00") }, Animation = "Bob", StealDifficulty = 1.15,
+		Description = "The radiant monarch of every flame critter." },
+	{ Id = "abyssovereign", Name = "Abyssovereign", Rarity = "Divine", Price = 33300000, Income = 185000, Element = "Aqua", Body = "Serpent",
+		Colors = { C("#000A3D"), C("#00B8D4"), C("#FFD740") }, Animation = "Slither", StealDifficulty = 1.15,
+		Description = "Its eyes are the only light at the bottom of the sea." },
+	{ Id = "genesprout", Name = "Genesprout", Rarity = "Divine", Price = 40500000, Income = 225000, Element = "Leaf", Body = "Sprite",
+		Colors = { C("#B9F6CA"), C("#FFFFFF"), C("#FFD180") }, Animation = "Spin", RequiredRebirths = 1,
+		Description = "The very first seed. Everything green began with it." },
+	{ Id = "seraphix", Name = "Seraphix", Rarity = "Divine", Price = 50400000, Income = 280000, Element = "Mystic", Body = "Bird",
+		Colors = { C("#FFFFFF"), C("#FFF59D"), C("#F48FB1") }, Animation = "Float", RequiredRebirths = 3,
+		Description = "Six shimmering wings, each a different colour of light." },
+	{ Id = "celestara", Name = "Celestara", Rarity = "Divine", Price = 63000000, Income = 350000, Element = "Cosmic", Body = "Bird",
+		Colors = { C("#1A237E"), C("#7C4DFF"), C("#FFFFFF") }, Animation = "Float", RequiredRebirths = 4,
+		Description = "Migrates between galaxies once every thousand years." },
+
+	------------------------------------------------------------------ SECRET
+	{ Id = "galaxitty", Name = "Galaxitty", Rarity = "Secret", Price = 240000000, Income = 1000000, Element = "Cosmic", Body = "Quad",
+		Colors = { C("#311B92"), C("#FF80AB"), C("#FFFFFF") }, Animation = "Spin", StealDifficulty = 1.1,
+		Description = "A kitten made of an entire galaxy. Purrs in starlight." },
+	{ Id = "prismoth", Name = "Prismoth", Rarity = "Secret", Price = 336000000, Income = 1400000, Element = "Mystic", Body = "Bug",
+		Colors = { C("#FFFFFF"), C("#80D8FF"), C("#FF80AB") }, Animation = "Float", StealDifficulty = 1.1,
+		Description = "Its wings split light into colours nobody has named yet." },
+	{ Id = "voidmaw", Name = "Voidmaw", Rarity = "Secret", Price = 432000000, Income = 1800000, Element = "Cosmic", Body = "Dragon",
+		Colors = { C("#000000"), C("#651FFF"), C("#00E5FF") }, Animation = "Bob", RequiredRebirths = 2, StealDifficulty = 1.2,
+		Description = "Swallowed a black hole and is still a little hungry." },
+	{ Id = "eclipsar", Name = "Eclipsar", Rarity = "Secret", Price = 576000000, Income = 2400000, Element = "Shadow", Body = "Dragon",
+		Colors = { C("#000000"), C("#FFD600"), C("#FF1744") }, Animation = "Bob", RequiredRebirths = 5, StealDifficulty = 1.25,
+		Description = "Appears only during an eclipse — then vanishes with it." },
+	{ Id = "omnicore", Name = "Omnicore", Rarity = "Secret", Price = 720000000, Income = 3000000, Element = "Metal", Body = "Sprite",
+		Colors = { C("#ECEFF1"), C("#00E5FF"), C("#FF4081") }, Animation = "Spin", RequiredRebirths = 6, StealDifficulty = 1.3,
+		Description = "A perfect sphere of living machinery. It hums every song at once." },
+
+	------------------------------------------------------------------ LIMITED (event-only)
+	{ Id = "gourdghast", Name = "Gourdghast", Rarity = "Limited", Price = 900000, Income = 9000, Element = "Shadow", Body = "Blob",
+		Colors = { C("#FF6D00"), C("#212121"), C("#76FF03") }, Animation = "Float", Event = "Halloween",
+		Description = "HALLOWEEN LIMITED. A pumpkin spirit that hands out candy... or tricks." },
+	{ Id = "hexwhisker", Name = "Hexwhisker", Rarity = "Limited", Price = 7200000, Income = 60000, Element = "Shadow", Body = "Quad",
+		Colors = { C("#1B0033"), C("#7C4DFF"), C("#FF9100") }, Animation = "Sway", Event = "Halloween",
+		Description = "HALLOWEEN LIMITED. A witch's cat whose whiskers cast tiny spells." },
+	{ Id = "frostbell", Name = "Frostbell", Rarity = "Limited", Price = 1200000, Income = 12000, Element = "Frost", Body = "Sprite",
+		Colors = { C("#E3F2FD"), C("#D50000"), C("#FFD600") }, Animation = "Spin", Event = "Winter",
+		Description = "WINTER LIMITED. Rings softly whenever snow begins to fall." },
+	{ Id = "jinglehorn", Name = "Jinglehorn", Rarity = "Limited", Price = 9600000, Income = 80000, Element = "Frost", Body = "Quad",
+		Colors = { C("#8D6E63"), C("#FFFFFF"), C("#FF1744") }, Animation = "Hop", Event = "Winter",
+		Description = "WINTER LIMITED. Pulls a sleigh of presents across the night sky." },
+	{ Id = "sunsplash", Name = "Sunsplash", Rarity = "Limited", Price = 1000000, Income = 10000, Element = "Aqua", Body = "Fish",
+		Colors = { C("#FFEB3B"), C("#00BCD4"), C("#FF4081") }, Animation = "Float", Event = "Summer",
+		Description = "SUMMER LIMITED. Surfs on sunbeams all summer long." },
+	{ Id = "clovercub", Name = "Clovercub", Rarity = "Limited", Price = 500000, Income = 5000, Element = "Leaf", Body = "Quad",
+		Colors = { C("#00C853"), C("#B9F6CA"), C("#FFD600") }, Animation = "Hop", Event = "LuckyHour",
+		Description = "LUCKY HOUR LIMITED. Finding one is said to bring a week of good luck." },
+	{ Id = "confettix", Name = "Confettix", Rarity = "Limited", Price = 18000000, Income = 150000, Element = "Mystic", Body = "Sprite",
+		Colors = { C("#FF4081"), C("#FFEB3B"), C("#40C4FF") }, Animation = "Spin", Event = "Celebration",
+		Description = "CELEBRATION LIMITED. Explodes into confetti and reassembles itself." },
+}
+
+return CollectibleConfig
